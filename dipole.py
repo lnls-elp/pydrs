@@ -42,8 +42,5 @@ class Dipole:
         self._drs.turn_on()
 
     def close_loop_output(self):
-        for i in range(2, 9, 2):
-            self._drs.SetSlaveAdd(i)
-            # TODO: Handle return from closed_loop and possible exceptions
-            self._drs.closed_loop()
-        self._drs.SetSlaveAdd(1)
+        # TODO: Handle return from closed_loop and possible exceptions
+        self._drs.closed_loop()
