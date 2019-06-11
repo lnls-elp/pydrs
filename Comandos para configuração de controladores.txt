@@ -1,0 +1,325 @@
+################################### FAC ACDC ###################################
+
+### VDC-LINK: 195 V ###
+
+# Cap Bank Voltage PI Controller
+drs.set_dsp_coeffs(3,0,[3.7101, 1.3643, 160, -10])
+
+# Input Current PI Controller
+drs.set_dsp_coeffs(3,1,[0.0003814, 0.05871, 0.9, -0.01])
+
+### VDC-LINK: 270 V ###
+
+# Cap Bank Voltage PI Controller
+drs.set_dsp_coeffs(3,0,[3.729, 2.079, 160, -10])
+
+# Input Current PI Controller
+drs.set_dsp_coeffs(3,1,[0.000234, 0.03465, 0.9, -0.01])
+
+### VDC-LINK: 350 V ###
+
+# Cap Bank Voltage PI Controller
+drs.set_dsp_coeffs(3,0,[2.273059, 0.139239, 160, -10])
+
+# Input Current PI Controller
+drs.set_dsp_coeffs(3,1,[0.0001962, 0.0300458, 0.9, -0.01])
+
+### Ressonantes ###
+
+# Input Current Ressonant Controller, f = 2Hz
+drs.set_dsp_coeffs(4,3,[1.006282542538552, -1.999716451633349, 0.993591806610677, -1.999716451633349 , 0.999874349149229, 3.4e38, -3.4e38])
+
+# Input Current Ressonant Controller, f = 4Hz
+drs.set_dsp_coeffs(4,4,[1.006281798628253, -1.999242848749936, 0.993592565399182, -1.999242848749935, 0.999874364027435, 3.4e38, -3.4e38])
+
+# Bypass ressonantes
+drs.set_dsp_coeffs(4,3,[1.0,0.0,0.0,0.0,0.0,3.4e38,-3.4e38])
+drs.set_dsp_coeffs(4,4,[1.0,0.0,0.0,0.0,0.0,3.4e38,-3.4e38])
+
+
+################################### FAC DCDC ###################################
+
+### BYPASS ###
+
+# Reference filter
+drs.set_dsp_coeffs(4,0,[1.0, 0.0, 0.0, 0.0, 0.0,3.4e38,-3.4e38])
+drs.set_dsp_coeffs(5,0,[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.4e38,-3.4e38])
+
+# Reference feedforward
+drs.set_dsp_coeffs(4,1,[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+# Vdclink filter
+drs.set_dsp_coeffs(4,2,[1.0, 0.0, 0.0, 0.0, 0.0, 3.4e38,-3.4e38])
+
+
+### CONFIG ###
+
+# PI load current
+drs.set_dsp_coeffs(3,0,[Kp_iload, Ki_iload, PWM_Max_Duty, PWM_Min_Duty])
+
+# Reference filter notch @ 8 kHz
+drs.set_dsp_coeffs(4,0,[0.772927105426788, 0.772927105426788, 0.772927105426788, 0.772927105426788, 0.545854270458221,3.4e38,-3.4e38])
+
+# Reference filter 3rd order LPF fcut = 800 Hz
+drs.set_dsp_coeffs(5,0,[0.000941313744988, 0.002823941176757, 0.002823941176757, 0.000941313744988, -2.581861495971680, 2.246666669845581, -0.657274723052979, 3.4e38,-3.4e38])
+
+# Reference feedforward fcut = 10000 Hz
+drs.set_dsp_coeffs(4,1,[1.256400915231781, -1.255453155478249, 0.0, 0.133823018028833, 0.0, 0.5, -0.5])
+
+# Reference feedforward fcut = 800 Hz
+drs.set_dsp_coeffs(4,1,[0.210082302156887, -0.209923827621809, 0.0, -0.810413899752672, 0.0, 0.5, -0.5])
+
+# Vdclink filter
+drs.set_dsp_coeffs(4,2,[1.0, 0.0, 0.0, 0.0, 0.0, 3.4e38,-3.4e38])
+
+
+################################# FAC-2P4S ACDC ################################
+
+### MODULE A ###
+
+# Cap Bank Voltage PI Controller
+drs.set_dsp_coeffs(3,0,[3.729, 2.079, 160, -10])
+
+# Input Current PI Controller
+drs.set_dsp_coeffs(3,1,[0.000234, 0.03465, 0.9, -0.01])
+
+# Input Current Ressonant Controller, f = 2Hz
+drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349
+,0.999874349149229,3.4e38,-3.4e38])
+
+# Input Current Ressonant Controller, f = 4Hz
+drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+
+
+### MODULE B ###
+
+# Cap Bank Voltage PI Controller
+drs.set_dsp_coeffs(3,2,[3.729, 2.079, 160, -10])
+
+# Input Current PI Controller
+drs.set_dsp_coeffs(3,3,[0.000234, 0.03465, 0.9, -0.01])
+
+# Input Current Ressonant Controller, f = 2Hz
+drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349
+,0.999874349149229,3.4e38,-3.4e38])
+
+# Input Current Ressonant Controller, f = 4Hz
+drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+
+def ress_off():
+    adrs = drs.GetSlaveAdd()
+    
+    drs.SetSlaveAdd(2)
+    drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+    
+    drs.SetSlaveAdd(4)
+    drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+    
+    drs.SetSlaveAdd(6)
+    drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+    
+    drs.SetSlaveAdd(8)
+    drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+    
+    drs.SetSlaveAdd(adrs)
+
+def ress_on():
+    adrs = drs.GetSlaveAdd()
+    
+    drs.SetSlaveAdd(2)
+    drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+    
+    drs.SetSlaveAdd(4)
+    drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+
+    drs.SetSlaveAdd(6)
+    drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+
+    drs.SetSlaveAdd(8)
+    drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
+    drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
+    drs.save_dsp_modules_eeprom()
+    
+    drs.SetSlaveAdd(adrs)
+    
+# Teste:
+def config_pis(pi_config):
+
+    if pi_config == 1:
+        # i_load = 60 A
+        # v_capbank = 25 V
+        # i_in_os = ? A
+        kp_v = 0.20456
+        ki_v = 0.08777
+        kp_i = 0.00175
+        ki_i = 0.21555
+        kp_load = 0
+        ki_load = 0
+        umax_v = 7.5
+        umin_v = -1
+        umax_i = 0.15
+        umin_i = -0.01
+        umax_load = 0.7
+        umin_load = -0.7
+            
+    elif pi_config == 2:
+        # i_load = 150 A
+        # v_capbank = 160 V (4x 40 V)
+        # i_in_os = 60 A
+        # l_load = 0.055 H
+        # r_load = 0.33 Ohm
+        kp_v = 0.32066
+        ki_v = 0.50397
+        kp_i = 0.00122
+        ki_i = 0.15973
+        kp_load = 0.215978
+        ki_load = 1.295868
+        umax_v = 7.5
+        umin_v = -1
+        umax_i = 0.15
+        umin_i = -0.01
+        umax_load = 0.7
+        umin_load = -0.7
+    elif pi_config == 3:
+
+        # i_load = 500 A
+        # v_capbank = 600 V (4x 150 V)
+        # i_in_os = 76.38 A
+        # l_load = 0.055 H
+        # r_load = 0.33 Ohm
+        kp_v = 1.183665
+        ki_v = 0.565064
+        kp_i = 0.000333
+        ki_i = 0.043695
+        kp_load = 0.057596
+        ki_load = 0.345575
+        umax_v = 35
+        umin_v = -1
+        umax_i = 0.4
+        umin_i = -0.01
+        umax_load = 0.7
+        umin_load = -0.7
+
+    elif pi_config == 4:
+        # i_load = 1000 A
+        # v_capbank = 1000 V (4x 250 V)
+        # i_in_os = 183.33 A
+        # l_load = 0.055 H
+        # r_load = 0.33 Ohm
+        # Ressonants off
+        kp_v = 1.846182
+        ki_v = 1.437788
+        kp_i = 0.000248
+        ki_i = 0.036526
+        kp_load = 0.034558
+        ki_load = 0.207345
+        umax_v = 140
+        umin_v = -1
+        umax_i = 0.7
+        umin_i = -0.01
+        umax_load = 0.4
+        umin_load = -0.4
+        
+    elif pi_config == 5:
+        # i_load = 1000 A
+        # v_capbank = 1000 V (4x 250 V)
+        # i_in_os = 183.33 A
+        # l_load = 0.055 H
+        # r_load = 0.33 Ohm
+        # Ressonants on
+        kp_v = 1.960072
+        ki_v = 1.221306
+        kp_i = 0.000219
+        ki_i = 0.028135
+        kp_load = 0.034558
+        ki_load = 0.207345
+        umax_v = 140
+        umin_v = -1
+        umax_i = 0.7
+        umin_i = -0.01
+        umax_load = 0.9
+        umin_load = -0.9
+        
+    elif pi_config == 6:
+        # i_load = 1072/2 A
+        # v_capbank = 1000 V (4x 250 V)
+        # i_in_os =  A
+        # l_load = 0.055 H
+        # r_load = 0.33 Ohm
+        # Ressonants on
+        kp_v = 1.909178
+        ki_v = 0.651119
+        kp_i = 0.000224
+        ki_i = 0.028178
+        kp_load = 0.034558
+        ki_load = 0.207345
+        umax_v = 140
+        umin_v = -1
+        umax_i = 0.7
+        umin_i = -0.01
+        umax_load = 0.9
+        umin_load = -0.9
+        
+    adrs = drs.GetSlaveAdd()
+    
+    drs.SetSlaveAdd(1)
+    drs.set_dsp_coeffs(3,0,[kp_load,ki_load,umax_load,umin_load])
+    drs.save_dsp_modules_eeprom()
+    
+    for add in [2,4,6,8]:
+        drs.SetSlaveAdd(add)
+        drs.set_dsp_coeffs(3,0,[kp_v,ki_v,umax_v,umin_v])
+        drs.set_dsp_coeffs(3,1,[kp_i,ki_i,umax_i,umin_i])
+        drs.set_dsp_coeffs(3,2,[kp_v,ki_v,umax_v,umin_v])
+        drs.set_dsp_coeffs(3,3,[kp_i,ki_i,umax_i,umin_i])
+        drs.save_dsp_modules_eeprom()
+
+    drs.SetSlaveAdd(adrs)
+    
+    
+    
+    10 ciclos
+    2 hz
+    seno amortecido
+    10 amp
+    tau 3s
+
+########################### FBP Teste PRBS ####################################
+
+# Filtro antialiasing (Butterworth fcut 5kHz 3a ordem) para aquisição decimada
+# no samples buffers em 10 kHz na FBP de teste de identificação por PRBS
+
+num = [0.00289819436147809,0.00869458355009556, 0.00869458355009556, 0.00289819436147809]
+den = [-2.374094724655151,1.929355740547180,-0.532075345516205]
+
+drs.set_dsp_coeffs(5,0,[num[0],num[1],num[2],num[3],den[0],den[1],den[2],3.4e38,-3.4e38])
