@@ -3328,7 +3328,10 @@ class SerialDRS(object):
                 dsp_module = [dsp_classes_names[dsp_class], dsp_class, dsp_id]
                 for dsp_coeff in range(num_coeffs_dsp_modules[dsp_class]):
                     try:
-                        dsp_module.append(self.get_dsp_coeff(dsp_class,dsp_id,dsp_coeff))
+                        coeff = self.get_dsp_coeff(dsp_class,dsp_id,dsp_coeff)
+                        if dsp_class == 3 and dsp_coeff == 1:
+                            coeff *= self.get_param('Freq_ISR_Controller',0)
+                        dsp_module.append(coeff)
                     except:
                         dsp_module.append('nan')
                 dsp_modules_bank.append(dsp_module)
@@ -3350,14 +3353,15 @@ class SerialDRS(object):
             reader = csv.reader(f)
             
             for dsp_module in reader:
-                
-                list_coeffs = []
-                
-                for coeff in dsp_module[3:3+num_coeffs_dsp_modules[int(dsp_module[1])]]:
-                    list_coeffs.append(float(coeff))
-                    
-                print(str(int(dsp_module[1])) + ' ' + str(int(dsp_module[2])) + ' ' + str(list_coeffs))
-                self.set_dsp_coeffs(int(dsp_module[1]),int(dsp_module[2]),list_coeffs)
+                if not dsp_module == []:
+                    if not dsp_module[0][0] == '#':
+                        list_coeffs = []
+                        
+                        for coeff in dsp_module[3:3+num_coeffs_dsp_modules[int(dsp_module[1])]]:
+                            list_coeffs.append(float(coeff))
+                            
+                        print(str(int(dsp_module[1])) + ' ' + str(int(dsp_module[2])) + ' ' + str(list_coeffs))
+                        self.set_dsp_coeffs(int(dsp_module[1]),int(dsp_module[2]),list_coeffs)
         
         if(save_eeprom):
             self.save_dsp_modules_eeprom()
