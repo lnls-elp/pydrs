@@ -1496,12 +1496,13 @@ class SerialDRS(object):
         
     def get_param_bank(self):
         timeout_old = self.ser.timeout
-        self.ser.timeout = 0.05
+        #self.ser.timeout = 0.05
         
         for param in ListParameters:
             for n in range(64):
                 if param == 'PS_Name':
                     print('PS_Name: ' + self.get_ps_name())
+                    self.ser.timeout = 0.2
                     break
                 else:
                     p = self.get_param(param,n)

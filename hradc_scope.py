@@ -10,15 +10,15 @@ import time
 import sys
 
 
-# Inicializa conexões
+# Inicializa conexoes
 com_port = input("\n Porta serial: ")
 baud_rate = int(input("\n Baud-rate: "))
-com_add = int(input("\n Endereço serial: "))
-fs = float(input("\n Frequência de amostragem: "))
-num_curves = int(input("\n Número de curvas: "))
-id_curve = int(input("\n Índice da curva: "))
-id_netsignal = int(input("\n Índice do netsignal: "))
-id_analog_var_max = int(input("\n Índice do parâmetro Analog_Var_Max: "))
+com_add = int(input("\n Endereco serial: "))
+fs = float(input("\n Frequencia de amostragem: "))
+num_curves = int(input("\n Numero de curvas: "))
+id_curve = int(input("\n Indice da curva: "))
+id_netsignal = int(input("\n Indice do netsignal: "))
+id_analog_var_max = int(input("\n Indice do parametro Analog_Var_Max: "))
 
 size_buf = 4096
 n = int(size_buf/num_curves)
