@@ -1569,10 +1569,12 @@ class SerialDRS(object):
         return self.ser.read(6)
 
     def reset_udc(self):
-        payload_size   = self.size_to_hex(1) #Payload: ID
-        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('reset_udc'))
-        send_msg       = self.checksum(self.SlaveAdd+send_packet)
-        self.ser.write(send_msg.encode('ISO-8859-1'))
+        reply = input('\nEste comando realiza o reset do firmware da placa UDC, e por isso, so e executado caso a fonte esteja desligada. \nCaso deseje apenas resetar interlocks, utilize o comando reset_interlocks(). \n\nTem certeza que deseja prosseguir? [Y/N]: ')
+        if reply == 'Y' or reply == 'y':
+            payload_size   = self.size_to_hex(1) #Payload: ID
+            send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('reset_udc'))
+            send_msg       = self.checksum(self.SlaveAdd+send_packet)
+            self.ser.write(send_msg.encode('ISO-8859-1'))
 
     def run_bsmp_func(self,id_func,print_msg = 0):
         payload_size = self.size_to_hex(1) #Payload: ID
@@ -2916,14 +2918,18 @@ class SerialDRS(object):
                 print("IIB Interlocks: " + str(iib_itlks))
                 if(iib_itlks):
                     self.decode_interlocks(iib_itlks, list_fap_iib_interlocks)
-        
-                print("\nLoad Current: " + str(self.read_bsmp_variable(27,'float')) + " A")
+
+                iload = self.read_bsmp_variable(27,'float')
+                
+                print("\nLoad Current: " + str(iload) + " A")
                 print("Load Current DCCT 1: " + str(self.read_bsmp_variable(28,'float')) + " A")
                 print("Load Current DCCT 2: " + str(self.read_bsmp_variable(29,'float')) + " A")
                 
-                print("\nLoad Resistance: " + str( self.read_bsmp_variable(37,'float') / self.read_bsmp_variable(27,'float')) + " Ohm")
+                if not iload == 0:
+                    print("\nLoad Resistance: " + str( abs(self.read_bsmp_variable(37,'float')) / iload ) + " Ohm")
+                else:
+                    print("\nLoad Resistance: 0 Ohm")
                 print("Load Power: " + str( self.read_bsmp_variable(37,'float') * self.read_bsmp_variable(27,'float')) + " W")
-                
                 
                 print("\nDC-Link Voltage: " + str(self.read_bsmp_variable(30,'float')) + " V")
                 print("\nIGBT 1 Current: " + str(self.read_bsmp_variable(31,'float')) + " A")
