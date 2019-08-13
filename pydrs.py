@@ -1349,6 +1349,9 @@ class SerialDRS(object):
         ps_name = ""
         for n in range(64):
             ps_name = ps_name + chr(int(self.get_param('PS_Name', n)))
+            if ps_name[-3:] == '   ':
+                ps_name = ps_name[:n-2]
+                break
         return ps_name
                 
     def set_slowref(self,setpoint):
@@ -1421,6 +1424,7 @@ class SerialDRS(object):
         hex_n        = self.double_to_hex(n)
         send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('get_param'))+hex_id+hex_n
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.reset_input_buffer()
         self.ser.write(send_msg.encode('ISO-8859-1'))
         reply_msg = self.ser.read(9)
         if len(reply_msg) == 9:
@@ -1502,7 +1506,7 @@ class SerialDRS(object):
             for n in range(64):
                 if param == 'PS_Name':
                     print('PS_Name: ' + self.get_ps_name())
-                    self.ser.timeout = 0.2
+                    self.ser.timeout = 0.5
                     break
                 else:
                     p = self.get_param(param,n)
@@ -1530,6 +1534,7 @@ class SerialDRS(object):
         hex_coeff    = self.double_to_hex(coeff)
         send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('get_dsp_coeff'))+hex_dsp_class+hex_dsp_id+hex_coeff
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.reset_input_buffer()
         self.ser.write(send_msg.encode('ISO-8859-1'))
         reply_msg = self.ser.read(9)
         #print(reply_msg)
@@ -2285,6 +2290,7 @@ class SerialDRS(object):
         send_packet  = self.ComRequestCurve+payload_size+self.index_to_hex(curve_id)+block_hex
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         #t0 = time.time()
+        self.ser.reset_input_buffer()
         self.ser.write(send_msg.encode('ISO-8859-1'))
         recv_msg = self.ser.read(1+1+2+1+2+size_curve_block[curve_id]+1) #Address+Command+Size+ID+Block_idx+data+checksum
         #print(time.time()-t0)
