@@ -17,7 +17,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from datetime import datetime
-from siriuspy.magnet.util import get_default_ramp_waveform
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ======================================================================
@@ -3253,6 +3252,7 @@ class SerialDRS(object):
         self.save_param_bank()
         
     def get_default_ramp_waveform(self, interval=500, nrpts=4000, ti=None, fi=None, forms=None):
+        from siriuspy.magnet.util import get_default_ramp_waveform
         return get_default_ramp_waveform(interval, nrpts, ti, fi, forms)
     
     def save_ramp_waveform(self, ramp):
@@ -3400,3 +3400,84 @@ class SerialDRS(object):
                     except:
                         break
         self.save_param_bank()
+
+    def select_param_bank(self, add = 1):
+
+        ans = input('\nVoce tem certeza que o bastidor que sera configurado esta com o endereco serial ' + str(add) + '? [Y/N]: ')
+        
+        if ans == 'N' or ans == 'n':
+            print('\n ### Operacao cancelada! ###')
+            return
+            
+        rooms = ['IA','LA','PA']
+        ps_models = ['fbp','fbp_dclink']
+
+        kp = 0
+        ki = 0
+        umax = 0
+        umin = 0
+        
+        print('\n Selecione area: \n')
+        print('   0: Sala de racks')
+        print('   1: Linhas de transporte')
+        print('   2: Sala de fontes\n')
+        area = int(input(' Digite o numero correspondente: '))
+       
+        if area == 0:
+            sector = input('\n Digite o setor da sala de racks [1 a 20]: ')
+            
+            if int(sector) < 10:
+                sector = '0' + sector
+            
+            rack = input('\n Escolha o rack em que a fonte se encontra [1/2]: ')
+            
+            print('\n Escolha o tipo de fonte: \n')
+            print('   0: FBP')
+            print('   1: FBP-DCLink\n')
+            ps_model = int(input(' Digite o numero correspondente: '))
+            
+            if ps_model == 0:
+                crate = '_crate_' + input('\n Digite a posicao do bastidor, de cima para baixo. Leve em conta os bastidores que ainda nao foram instalados : ')
+                
+            else:
+                crate = ''
+            
+            file_dir = '../ps_parameters/IA-' + sector + '/' + ps_models[ps_model] + '/'
+            
+            file_name = 'parameters_' + ps_models[ps_model] + '_IA-' + sector + 'RaPS0' + rack + crate + '.csv'
+            
+            file_path = file_dir + file_name
+            
+            print('\n Banco de parametros a ser utilizado: ' + file_path)
+            
+        elif area == 1 or area == 2:
+            print('\n ### EM CONSTRUCAO ###\n')
+            return
+            
+        
+        self.SetSlaveAdd(add)
+        
+        if ps_model == 0:
+            print('\n Enviando parametros de controle para controlador ...')
+            self.set_dsp_coeffs(3,0,[kp,ki,umax,umin])
+            self.set_dsp_coeffs(3,1,[kp,ki,umax,umin])
+            self.set_dsp_coeffs(3,2,[kp,ki,umax,umin])
+            self.set_dsp_coeffs(3,3,[kp,ki,umax,umin])
+            time.sleep(1)
+            print('\n Gravando parametros de controle na memoria ...')
+            time.sleep(1)
+            self.save_dsp_modules_eeprom()
+            
+        print('\n Enviando parametros de operacao para controlador ...\n')
+        time.sleep(1)
+        self.set_param_bank(file_path)
+        print('\n Gravando parametros de operacao na memoria ...')
+        time.sleep(5)
+        
+
+        print('\n Resetando UDC ...')
+        self.reset_udc()
+        time.sleep(2)
+        
+        print('\n Pronto! Não se esqueça de utilizar o novo endereço serial para se comunicar com esta fonte! :)\n')
+        
