@@ -1747,6 +1747,10 @@ class SerialDRS(object):
         reply_msg = self.ser.read(133)
         val = struct.unpack('16s',reply_msg[20:36])
         return val[0].decode('utf-8')
+    
+    def read_udc_version(self):
+        print('\n ARM: ' + self.read_udc_arm_version)
+        print(' C28: ' + self.read_udc_c28_version + '\n')
 
     def Read_iLoad1(self):
         self.read_var(self.index_to_hex(ListVar.index('iLoad1')))
@@ -3401,21 +3405,18 @@ class SerialDRS(object):
                         break
         self.save_param_bank()
 
-    def select_param_bank(self, add = 1):
+    def select_param_bank(self, cfg_dsp_modules = 0):
 
-        ans = input('\nVoce tem certeza que o bastidor que sera configurado esta com o endereco serial ' + str(add) + '? [Y/N]: ')
+        add = int(input('\n Digite o endereco serial atual do controlador a ser configurado: '))
         
-        if ans == 'N' or ans == 'n':
-            print('\n ### Operacao cancelada! ###')
-            return
+        oldadd = self.GetSlaveAdd()
+        self.SetSlaveAdd(add)
             
         rooms = ['IA','LA','PA']
-        ps_models = ['fbp','fbp_dclink']
-
-        kp = 0
-        ki = 0
-        umax = 0
-        umin = 0
+        ps_models = ['fbp','fbp_dclink','fap','fap_4p']
+        la_fap = ['TB-Fam:PS-B','TS-01:PS-QF1A','TS-01:PS-QF1B','TS-02:PS-QD2',
+                  'TS-02:PS-QF2','TS-03:PS-QF3','TS-04:PS-QD4A','TS-04:PS-QD4B',
+                  'TS-04:PS-QF4']
         
         print('\n Selecione area: \n')
         print('   0: Sala de racks')
@@ -3450,6 +3451,34 @@ class SerialDRS(object):
             
             print('\n Banco de parametros a ser utilizado: ' + file_path)
             
+        elif area == 99999:
+            
+            print('\n Escolha o tipo de fonte: \n')
+            print('   0: FBP')
+            print('   1: FBP-DCLink')
+            print('   2: FAP')
+            print('   3: FAP-4P')
+            
+            ps_model = int(input(' Digite o numero correspondente: '))
+            
+            if ps_model == 0 or ps_model == 1:
+            
+                crate = input('\n Digite a posicao do bastidor, de cima para baixo. Leve em conta os bastidores que ainda nao foram instalados : ')
+                ps_name = 'LA-RaPS06_crate_' + crate
+                    
+            elif ps_model == 2:
+                
+            else:
+                ps_name = 'TS-Fam_PS-B'
+            
+            file_dir = '../ps_parameters/LA/' + ps_models[ps_model] + '/'
+            
+            file_name = 'parameters_' + ps_models[ps_model] + ps_name + '.csv'
+            
+            file_path = file_dir + file_name
+            
+            print('\n Banco de parametros a ser utilizado: ' + file_path)
+        
         elif area == 1 or area == 2:
             print('\n ### EM CONSTRUCAO ###\n')
             return
@@ -3457,13 +3486,12 @@ class SerialDRS(object):
         
         self.SetSlaveAdd(add)
         
-        if ps_model == 0:
+        if ps_model == 0 and cfg_dsp_modules == 1:
             print('\n Enviando parametros de controle para controlador ...')
-            self.set_dsp_coeffs(3,0,[kp,ki,umax,umin])
-            self.set_dsp_coeffs(3,1,[kp,ki,umax,umin])
-            self.set_dsp_coeffs(3,2,[kp,ki,umax,umin])
-            self.set_dsp_coeffs(3,3,[kp,ki,umax,umin])
-            time.sleep(1)
+            dsp_file_path = '../dsp' + file_path[5:]
+            
+            self.set_dsp_modules_bank(dsp_file_path)
+            
             print('\n Gravando parametros de controle na memoria ...')
             time.sleep(1)
             self.save_dsp_modules_eeprom()
@@ -3481,3 +3509,4 @@ class SerialDRS(object):
         
         print('\n Pronto! Não se esqueça de utilizar o novo endereço serial para se comunicar com esta fonte! :)\n')
         
+        self.SetSlaveAdd(oldadd)
