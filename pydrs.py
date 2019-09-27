@@ -71,6 +71,7 @@ ListVar_v2_1 = ['ps_status','ps_setpoint','ps_reference','firmware_version',
                 'wfmref_offset','p_wfmref_start','p_wfmref_end','p_wfmref_idx']
                 
 ListCurv_v2_1 = ['wfmref','buf_samples_ctom','buf_samples_mtoc']
+#ListCurv_v2_1 = ['wfmref_data_0','wfmref_data_1','buf_samples_ctom']
 
 ListFunc_v2_1 = ['turn_on','turn_off','open_loop','closed_loop','select_op_mode',
                  'select_ps_model','reset_interlocks','remote_interface',
@@ -1590,14 +1591,17 @@ class SerialDRS(object):
             print(reply_msg)
         return reply_msg
 
-    def run_bsmp_func_all_ps(self,p_func,add_list,arg = None,delay = 0.5):
+    def run_bsmp_func_all_ps(self,p_func,add_list,arg = None,delay = 0.5, print_reply = 1):
         old_add = self.GetSlaveAdd()
         for add in add_list:
             self.SetSlaveAdd(add)
             if arg == None:
-                p_func()
+                r = p_func()
             else:
-                p_func(arg)
+                r = p_func(arg)
+            if print_reply:
+                print('\n Add ' + str(add))
+                print(r)
             time.sleep(delay)
         self.SetSlaveAdd(old_add)
 
@@ -1694,12 +1698,29 @@ class SerialDRS(object):
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
         
+    def select_wfmref(self,idx):
+        payload_size = self.size_to_hex(1+2) #Payload: ID + idx
+        hex_idx  = self.double_to_hex(idx)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('select_wfmref'))+hex_idx
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
+        
     def reset_wfmref(self):
         payload_size = self.size_to_hex(1) #Payload: ID
         send_packet  = self.ComFunction+payload_size + self.index_to_hex(ListFunc_v2_1.index('reset_wfmref'))
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
+    
+    def get_wfmref_param(self,curve_id):
+        print('\n### WfmRef Parameters ###\n')
+        print('Length: ' + str((self.read_bsmp_variable(19+curve_id*3,'uint32_t')-self.read_bsmp_variable(18+curve_id*3,'uint32_t'))/2+1))
+        print('Index: ' + str((self.read_bsmp_variable(20+curve_id*3,'uint32_t')-self.read_bsmp_variable(18+curve_id*3,'uint32_t'))/2+1))
+        print('WfmRef Selected: ' + str(self.read_bsmp_variable(14,'uint16_t')))
+        print('Sync Mode: ' + str(self.read_bsmp_variable(15,'uint16_t')))
+        print('Gain: ' + str(self.read_bsmp_variable(16,'float')))
+        print('Offset: ' + str(self.read_bsmp_variable(17,'float')))
         
     def read_csv_file(self,filename, type = 'float'):
         csv_list = []
@@ -1749,8 +1770,8 @@ class SerialDRS(object):
         return val[0].decode('utf-8')
     
     def read_udc_version(self):
-        print('\n ARM: ' + self.read_udc_arm_version)
-        print(' C28: ' + self.read_udc_c28_version + '\n')
+        print('\n ARM: ' + self.read_udc_arm_version())
+        print(' C28: ' + self.read_udc_c28_version())
 
     def Read_iLoad1(self):
         self.read_var(self.index_to_hex(ListVar.index('iLoad1')))
@@ -2317,8 +2338,8 @@ class SerialDRS(object):
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(5)
     
-    def write_wfmref(self,data):
-        curve = ListCurv_v2_1.index('wfmref')
+    def write_wfmref(self,curve,data):
+        #curve = ListCurv_v2_1.index('wfmref')
         block_size = int(size_curve_block[curve]/4)
         print(block_size)
         
@@ -3466,8 +3487,6 @@ class SerialDRS(object):
                 crate = input('\n Digite a posicao do bastidor, de cima para baixo. Leve em conta os bastidores que ainda nao foram instalados : ')
                 ps_name = 'LA-RaPS06_crate_' + crate
                     
-            elif ps_model == 2:
-                
             else:
                 ps_name = 'TS-Fam_PS-B'
             
@@ -3488,7 +3507,12 @@ class SerialDRS(object):
         
         if ps_model == 0 and cfg_dsp_modules == 1:
             print('\n Enviando parametros de controle para controlador ...')
-            dsp_file_path = '../dsp' + file_path[5:]
+            
+            dsp_file_dir = '../dsp_parameters/IA-' + sector + '/' + ps_models[ps_model] + '/'
+            
+            dsp_file_name = 'dsp_parameters_' + ps_models[ps_model] + '_IA-' + sector + 'RaPS0' + rack + crate + '.csv'
+            
+            dsp_file_path = dsp_file_dir + dsp_file_name
             
             self.set_dsp_modules_bank(dsp_file_path)
             
