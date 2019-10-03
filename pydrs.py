@@ -25,7 +25,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.35 2019-05-28"
+UDC_FIRMWARE_VERSION = "0.36w2019-10-02"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -70,8 +70,8 @@ ListVar_v2_1 = ['ps_status','ps_setpoint','ps_reference','firmware_version',
                 'wfmref_selected','wfmref_sync_mode','wfmref_gain',
                 'wfmref_offset','p_wfmref_start','p_wfmref_end','p_wfmref_idx']
                 
-ListCurv_v2_1 = ['wfmref','buf_samples_ctom','buf_samples_mtoc']
-#ListCurv_v2_1 = ['wfmref_data_0','wfmref_data_1','buf_samples_ctom']
+#ListCurv_v2_1 = ['wfmref','buf_samples_ctom','buf_samples_mtoc']
+ListCurv_v2_1 = ['wfmref_data_0','wfmref_data_1','buf_samples_ctom']
 
 ListFunc_v2_1 = ['turn_on','turn_off','open_loop','closed_loop','select_op_mode',
                  'select_ps_model','reset_interlocks','remote_interface',
@@ -124,9 +124,8 @@ bytesFormat = {'Uint16': 'H', 'Uint32': 'L', 'Uint64': 'Q', 'float': 'f'}
 
 typeSize   = {'uint8_t': 6, 'uint16_t': 7, 'uint32_t': 9, 'float': 9}
 
-num_blocks_curves = [16, 16, 16]
+num_blocks_curves = [4, 4, 4]
 size_curve_block = [1024, 1024, 1024]
-size_wfmref = 4000
 
 ufmOffset = {'serial': 0, 'calibdate': 4, 'variant': 9, 'rburden': 10,
              'calibtemp': 12, 'vin_gain': 14, 'vin_offset': 16,
@@ -2347,14 +2346,16 @@ class SerialDRS(object):
         
         ps_status = self.read_ps_status()
         
+        wfmref_selected = self.read_bsmp_variable(14,'uint16_t')
         
-        if ps_status['state'] == 'RmpWfm' or ps_status['state'] == 'MigWfm':
-            print( "\nPS is on " + ps_status['state'] + " state. Select another operation mode before writing a new WfmRef.\n")
+        if( (wfmref_selected == curve) and (ps_status['state'] == 'RmpWfm' or ps_status['state'] == 'MigWfm') ): 
+            print("\n The specified curve ID is currently selected and PS is on " + ps_status['state'] + " state. Choose a different curve ID to proceed.\n")
+
         else:
             for block_id in range(len(blocks)):
                 self.write_curve_block(curve, block_id, blocks[block_id])
                 print(blocks[block_id])
-    
+
     def read_buf_samples_ctom(self):
         buf = []
         curve_id = ListCurv_v2_1.index('buf_samples_ctom')
