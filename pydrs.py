@@ -25,7 +25,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.36w2019-10-02"
+UDC_FIRMWARE_VERSION = "0.36w2019-10-03"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -124,7 +124,8 @@ bytesFormat = {'Uint16': 'H', 'Uint32': 'L', 'Uint64': 'Q', 'float': 'f'}
 
 typeSize   = {'uint8_t': 6, 'uint16_t': 7, 'uint32_t': 9, 'float': 9}
 
-num_blocks_curves = [4, 4, 4]
+num_blocks_curves_fbp = [4, 4, 4]
+num_blocks_curves_fax = [16, 16, 16]
 size_curve_block = [1024, 1024, 1024]
 
 ufmOffset = {'serial': 0, 'calibdate': 4, 'variant': 9, 'rburden': 10,
@@ -2360,8 +2361,13 @@ class SerialDRS(object):
         buf = []
         curve_id = ListCurv_v2_1.index('buf_samples_ctom')
         
-        for i in range(num_blocks_curves[curve_id]):
-            buf.extend(self.read_curve_block(curve_id,i))
+        ps_status = self.read_ps_status()
+        if ps_status['model'] == 'FBP':
+            for i in range(num_blocks_curves_fbp[curve_id]):
+                buf.extend(self.read_curve_block(curve_id,i))
+        else:
+            for i in range(num_blocks_curves_fax[curve_id]):
+                buf.extend(self.read_curve_block(curve_id,i))
             
         return buf
         
