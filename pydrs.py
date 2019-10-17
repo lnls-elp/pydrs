@@ -3362,9 +3362,9 @@ class SerialDRS(object):
         drs.save_dsp_modules_eeprom()
 
     def set_prbs_sampling_freq(self,freq):
-        drs.set_param('Freq_TimeSlicer',0,freq)
-        drs.set_param('Freq_TimeSlicer',1,freq)
-        drs.save_param_bank()
+        self.set_param('Freq_TimeSlicer',0,freq)
+        self.set_param('Freq_TimeSlicer',1,freq)
+        self.save_param_bank()
 
     def get_dsp_modules_bank(self, list_dsp_classes = [1,2,3,4,5,6], print_modules = 1):
         dsp_modules_bank = []
