@@ -389,7 +389,11 @@ list_fap_4p_hard_interlocks = ['Load Overcurrent',
                                'DCLink Mod 1 Undervoltage',
                                'DCLink Mod 2 Undervoltage',
                                'DCLink Mod 3 Undervoltage',
-                               'DCLink Mod 4_Undervoltage']
+                               'DCLink Mod 4_Undervoltage',
+                               'IIB Mod 1 Itlk',
+                               'IIB Mod 2 Itlk',
+                               'IIB Mod 3 Itlk',
+                               'IIB Mod 4 Itlk']
                                
 list_fap_4p_iib_interlocks = ['Input Overvoltage',
                               'Output Overvoltage',
@@ -3541,3 +3545,22 @@ class SerialDRS(object):
         print('\n Pronto! Não se esqueça de utilizar o novo endereço serial para se comunicar com esta fonte! :)\n')
         
         self.SetSlaveAdd(oldadd)
+
+    def get_siggen_vars(self):
+        print('\n### SigGen Variables ###\n')
+        print('Enable: ' + str((self.read_bsmp_variable(6,'uint16_t'))))
+        print('Type: ' + ListSigGenTypes_v2_1[int(self.read_bsmp_variable(7,'uint16_t'))])
+        print('Num Cycles: ' + str(self.read_bsmp_variable(8,'uint16_t')))
+        print('Index: ' + str(self.read_bsmp_variable(9,'float')))
+        print('Frequency: ' + str(self.read_bsmp_variable(10,'float')))
+        print('Amplitude: ' + str(self.read_bsmp_variable(11,'float')))
+        print('Offset: ' + str(self.read_bsmp_variable(12,'float')))
+        
+        self.read_var(self.index_to_hex(13))
+        reply_msg = self.ser.read(21)
+        val = struct.unpack('BBHffffB',reply_msg)
+        
+        print('Aux Param 0: ' + str(val[3]))
+        print('Aux Param 1: ' + str(val[4]))
+        print('Aux Param 2: ' + str(val[5]))
+        print('Aux Param 3: ' + str(val[6]))
