@@ -15,6 +15,7 @@ import csv
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 from datetime import datetime
 
@@ -3444,8 +3445,9 @@ class SerialDRS(object):
         oldadd = self.GetSlaveAdd()
         self.SetSlaveAdd(add)
             
-        rooms = ['IA','LA','PA']
-        ps_models = ['fbp','fbp_dclink','fap','fap_4p']
+        areas = ['IA','LA','PA']
+        ps_models = ['fbp','fbp_dclink','fap','fap_4p','fap_2p4s','fac','fac_2s']
+        ps_folders = ['fbp','fbp_dclink','fap','fap',]
         la_fap = ['TB-Fam:PS-B','TS-01:PS-QF1A','TS-01:PS-QF1B','TS-02:PS-QD2',
                   'TS-02:PS-QF2','TS-03:PS-QF3','TS-04:PS-QD4A','TS-04:PS-QD4B',
                   'TS-04:PS-QF4']
@@ -3455,7 +3457,7 @@ class SerialDRS(object):
         print('   1: Linhas de transporte')
         print('   2: Sala de fontes\n')
         area = int(input(' Digite o numero correspondente: '))
-       
+        
         if area == 0:
             sector = input('\n Digite o setor da sala de racks [1 a 20]: ')
             
@@ -3464,6 +3466,10 @@ class SerialDRS(object):
             
             rack = input('\n Escolha o rack em que a fonte se encontra [1/2]: ')
             
+            if (rack != '1') and (rack != '2'):
+                print(' \n *** RACK INEXISTENTE ***\n')
+                return
+                
             print('\n Escolha o tipo de fonte: \n')
             print('   0: FBP')
             print('   1: FBP-DCLink\n')
@@ -3472,8 +3478,12 @@ class SerialDRS(object):
             if ps_model == 0:
                 crate = '_crate_' + input('\n Digite a posicao do bastidor, de cima para baixo. Leve em conta os bastidores que ainda nao foram instalados : ')
                 
-            else:
+            elif ps_model == 1:
                 crate = ''
+            
+            else:
+                print(' \n *** TIPO DE FONTE INEXISTENTE ***\n')
+                return
             
             file_dir = '../ps_parameters/IA-' + sector + '/' + ps_models[ps_model] + '/'
             
@@ -3483,37 +3493,106 @@ class SerialDRS(object):
             
             print('\n Banco de parametros a ser utilizado: ' + file_path)
             
-        elif area == 99999:
+        elif area == 1:
             
             print('\n Escolha o tipo de fonte: \n')
             print('   0: FBP')
             print('   1: FBP-DCLink')
-            print('   2: FAP')
-            print('   3: FAP-4P')
+            print('   2: FAP\n')
             
             ps_model = int(input(' Digite o numero correspondente: '))
             
             if ps_model == 0 or ps_model == 1:
             
                 crate = input('\n Digite a posicao do bastidor, de cima para baixo. Leve em conta os bastidores que ainda nao foram instalados : ')
-                ps_name = 'LA-RaPS06_crate_' + crate
-                    
+                ps_name = '_LA-RaPS06_crate_' + crate
+                
+                file_dir = '../ps_parameters/LA/' + ps_models[ps_model] + '/'
+                file_name = 'parameters_' + ps_models[ps_model] + ps_name + '.csv'
+                file_path = file_dir + file_name
+            
+            elif ps_model == 2:
+            
+                ps_list = []
+                
+                file_dir = '../ps_parameters/LA/fap/'
+                for entry in os.listdir(file_dir):
+                    if os.path.isfile(os.path.join(file_dir, entry)):
+                        ps_list.append(entry)
+
+                print('\n ### Lista de fontes FAP da linha de transporte ### \n')
+                
+                for idx, ps in enumerate(ps_list):
+                    print('   ' + str(idx) + ': ' + ps)
+
+                ps_idx = int(input('\n Escolha o índice da fonte correspondente: '))            
+            
+                file_path = file_dir + ps_list[ps_idx]      
+            
             else:
-                ps_name = 'TS-Fam_PS-B'
-            
-            file_dir = '../ps_parameters/LA/' + ps_models[ps_model] + '/'
-            
-            file_name = 'parameters_' + ps_models[ps_model] + ps_name + '.csv'
-            
-            file_path = file_dir + file_name
-            
+                print(' \n *** TIPO DE FONTE INEXISTENTE ***\n')
+                return
+                
             print('\n Banco de parametros a ser utilizado: ' + file_path)
         
-        elif area == 1 or area == 2:
-            print('\n ### EM CONSTRUCAO ###\n')
+        elif area == 2:
+            print('\n Escolha o tipo de fonte: \n')
+            print('   0: FAC')
+            print('   1: FAP\n')
+            
+            ps_model = int(input(' Digite o numero correspondente: '))
+            
+            if ps_model == 0:
+            
+                ps_list = []
+                
+                file_dir = '../ps_parameters/PA/fac/'
+                for entry in os.listdir(file_dir):
+                    if os.path.isfile(os.path.join(file_dir, entry)):
+                        ps_list.append(entry)
+
+                print('\n ### Lista de bastidores de controle FAC da sala de fontes ### \n')
+                
+                for idx, ps in enumerate(ps_list):
+                    print(' ', idx, ': ', ps)
+
+                ps_idx = int(input('\n Escolha o índice da fonte correspondente: '))            
+            
+                file_path = file_dir + ps_list[ps_idx]     
+                
+            elif ps_model == 1:
+            
+                ps_list = []
+                
+                file_dir = '../ps_parameters/PA/fap/'
+                for entry in os.listdir(file_dir):
+                    if os.path.isfile(os.path.join(file_dir, entry)):
+                        ps_list.append(entry)
+
+                print('\n ### Lista de bastidores de controle FAP da sala de fontes ### \n')
+                
+                for idx, ps in enumerate(ps_list):
+                    print(' ', idx, ': ', ps)
+
+                ps_idx = int(input('\n Escolha o índice da fonte correspondente: '))            
+            
+                file_path = file_dir + ps_list[ps_idx]  
+                
+            else:
+                print(' \n *** TIPO DE FONTE INEXISTENTE ***\n')
+                return
+                
+            print('\n Banco de parametros a ser utilizado: ' + file_path)
+            
+        else:
+            print(' \n *** SALA INEXISTENTE ***\n')
             return
             
+        r = input('\n Tem certeza que deseja prosseguir? [Y/N]: ')
         
+        if (r != 'Y') and (r != 'y'):
+            print(' \n *** OPERAÇÃO CANCELADA ***\n')
+            return
         self.SetSlaveAdd(add)
         
         if ps_model == 0 and cfg_dsp_modules == 1:
