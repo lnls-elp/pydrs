@@ -1508,24 +1508,49 @@ class SerialDRS(object):
                         break
         self.save_param_bank()
         
-    def get_param_bank(self):
+    def get_param_bank(self, list_param = ListParameters, timeout = 0.5, print_modules = True):
         timeout_old = self.ser.timeout
         #self.ser.timeout = 0.05
+        param_bank = []
         
-        for param in ListParameters:
+        for param_name in list_param:
+        
+            param_row = [param_name]
+            
             for n in range(64):
-                if param == 'PS_Name':
-                    print('PS_Name: ' + self.get_ps_name())
-                    self.ser.timeout = 0.5
+                if param_name == 'PS_Name':
+                
+                    p = self.get_ps_name()
+                    param_row.append(p)
+                    #if(print_modules):
+                        #print('PS_Name: ' + p)                
+                    self.ser.timeout = timeout
                     break
+                    
                 else:
-                    p = self.get_param(param,n)
+                    p = self.get_param(param_name,n)
                     if math.isnan(p):
                         break
-                    print(param + "[" + str(n) + "]: " + str(p))
+                    param_row.append(p)
+                    #if(print_modules):
+                        #print(param_name + "[" + str(n) + "]: " + str(p))
+                        
+            if(print_modules):
+                print(param_row)
+                
+            param_bank.append(param_row)
                 
         self.ser.timeout = timeout_old
+        
+        return param_bank
 
+    def store_param_bank_csv(self, bank):
+        filename = input('Digite o nome do arquivo: ')
+        with open( filename + '.csv', 'w', newline='') as f:
+            writer = csv.writer(f, delimiter=',')
+            for param_row in bank:
+                writer.writerow(param_row)
+                
     def set_dsp_coeffs(self, dsp_class, dsp_id, coeffs_list = [0,0,0,0,0,0,0,0,0,0,0,0]):
         coeffs_list_full = self.format_list_size(coeffs_list, NUM_MAX_COEFFS_DSP)
         payload_size = self.size_to_hex(1+2+2+4*NUM_MAX_COEFFS_DSP)
