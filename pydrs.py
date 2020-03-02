@@ -62,7 +62,8 @@ ListPSModels = ['FBP_100kHz', 'FBP_Parallel_100kHz', 'FAC_ACDC_10kHz', 'FAC_DCDC
 
 ListPSModels_v2_1 = ['Empty','FBP','FBP_DCLink','FAC_ACDC','FAC_DCDC',
                      'FAC_2S_ACDC','FAC_2S_DCDC','FAC_2P4S_ACDC','FAC_2P4S_DCDC',
-                     'FAP','FAP_4P','FAC_DCDC_EMA','FAP_2P2S']
+                     'FAP','FAP_4P','FAC_DCDC_EMA','FAP_2P2S','FAP_IMAS',
+                     'FAC_2P_ACDC_IMAS','FAC_2P_DCDC_IMAS']
 
 ListVar_v2_1 = ['ps_status','ps_setpoint','ps_reference','firmware_version',
                 'counter_set_slowref','counter_sync_pulse','siggen_enable',
@@ -491,7 +492,30 @@ list_fap_225A_hard_interlocks = ['Load Overcurrent',
                                  'DCLink Contactor Fault', 
                                  'IGBT 1 Overcurrent',
                                  'IGBT 2 Overcurrent']
-                                 
+
+# FAC-2P ACDC
+list_fac_2p_acdc_imas_soft_interlocks = []                              
+
+list_fac_2p_acdc_imas_hard_interlocks = ['CapBank_Overvoltage',
+                                         'Rectifier_Overcurrent',
+                                         'AC_Mains_Contactor_Fault',
+                                         'Module_A_Interlock',
+                                         'Module_B_Interlock',
+                                         'DCDC_Interlock']
+
+# FAC-2P DCDC
+list_fac_2p_dcdc_imas_soft_interlocks = []                              
+
+list_fac_2p_dcdc_imas_hard_interlocks = ['Load_Overcurrent',
+                                         'Module_1_CapBank_Overvoltage',
+                                         'Module_2_CapBank_Overvoltage',
+                                         'Module_1_CapBank_Undervoltage',
+                                         'Module_2_CapBank_Undervoltage',
+                                         'Arm_1_Overcurrent',
+                                         'Arm_2_Overcurrent',
+                                         'Arms_High_Difference',
+                                         'ACDC_Interlock']
+
 class SerialDRS(object):
 
     ser = serial.Serial()
@@ -3271,6 +3295,106 @@ class SerialDRS(object):
             self.SetSlaveAdd(old_add)
         except:
             self.SetSlaveAdd(old_add)
+            
+    def read_vars_fac_2p_acdc_imas(self, n = 1, add_mod_a = 2, dt = 0.5, iib = 0):
+    
+        old_add = self.GetSlaveAdd()
+        
+        try:
+            for i in range(n):
+            
+                self.SetSlaveAdd(add_mod_a)
+            
+                print('\n--- Measurement #' + str(i+1) + ' ------------------------------------------\n')
+                self.read_vars_common()
+    
+                print('\n *** MODULE A ***')
+    
+                soft_itlks = self.read_bsmp_variable(25,'uint32_t')
+                print("\nSoft Interlocks: " + str(soft_itlks))
+                if(soft_itlks):
+                    self.decode_interlocks(soft_itlks, list_fac_2p_acdc_imas_soft_interlocks)
+                    print('')
+                
+                hard_itlks = self.read_bsmp_variable(26,'uint32_t')
+                print("Hard Interlocks: " + str(hard_itlks))
+                if(hard_itlks):
+                    self.decode_interlocks(hard_itlks, list_fac_2p_acdc_imas_hard_interlocks)
+                
+                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(27,'float')) + " V")
+                print("Rectifier Current: " + str(self.read_bsmp_variable(28,'float')) + " A")
+                print("Duty-Cycle: " + str(self.read_bsmp_variable(29,'float')) + " %")
+                        
+                self.SetSlaveAdd(add_mod_a+1)
+                
+                print('\n *** MODULE B ***')
+                
+                soft_itlks = self.read_bsmp_variable(25,'uint32_t')
+                print("\nSoft Interlocks: " + str(soft_itlks))
+                if(soft_itlks):
+                    self.decode_interlocks(soft_itlks, list_fac_2p_acdc_imas_soft_interlocks)
+                    print('')
+                
+                hard_itlks = self.read_bsmp_variable(26,'uint32_t')
+                print("Hard Interlocks: " + str(hard_itlks))
+                if(hard_itlks):
+                    self.decode_interlocks(hard_itlks, list_fac_2p_acdc_imas_hard_interlocks)
+        
+                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(27,'float')) + " V")
+                print("Rectifier Current: " + str(self.read_bsmp_variable(28,'float')) + " A")
+                print("Duty-Cycle: " + str(self.read_bsmp_variable(29,'float')) + " %")
+                        
+                time.sleep(dt)
+                
+            self.SetSlaveAdd(old_add)
+        except:
+            self.SetSlaveAdd(old_add)            
+            raise
+            
+    def read_vars_fac_2p_dcdc_imas(self, n = 1, com_add = 1, dt = 0.5, iib = 0):
+    
+        old_add = self.GetSlaveAdd()
+        
+        try:
+            for i in range(n):
+    
+                self.SetSlaveAdd(com_add)
+            
+                print('\n--- Measurement #' + str(i+1) + ' ------------------------------------------\n')
+                
+                self.read_vars_common()
+                
+                print("\nSync Pulse Counter: " + str(self.read_bsmp_variable(5,'uint32_t')))
+                print("WfmRef Index: " + str( (self.read_bsmp_variable(20,'uint32_t') - self.read_bsmp_variable(18,'uint32_t'))/2))
+                                
+                soft_itlks = self.read_bsmp_variable(25,'uint32_t')
+                print("\nSoft Interlocks: " + str(soft_itlks))
+                if(soft_itlks):
+                    self.decode_interlocks(soft_itlks, list_fac_2p_dcdc_imas_soft_interlocks)
+                    print('')
+                
+                hard_itlks = self.read_bsmp_variable(26,'uint32_t')
+                print("Hard Interlocks: " + str(hard_itlks))
+                if(hard_itlks):
+                    self.decode_interlocks(hard_itlks, list_fac_2p_dcdc_imas_hard_interlocks)
+                
+                print("\nLoad Current: " + str(self.read_bsmp_variable(27,'float')))
+                print("\nArm 1 Current: " + str(self.read_bsmp_variable(28,'float')))
+                print("Arm 2 Current:: " + str(self.read_bsmp_variable(29,'float')))
+                
+                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(30,'float')))
+                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(31,'float')))
+                
+                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(32,'float')))
+                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(33,'float')))
+                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(34,'float')))
+
+                time.sleep(dt)
+                
+            self.SetSlaveAdd(old_add)
+        except:
+            self.SetSlaveAdd(old_add)            
+            raise
             
     def check_param_bank(self, param_file):
         fbp_param_list = []
