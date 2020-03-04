@@ -3378,16 +3378,19 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2p_dcdc_imas_hard_interlocks)
                 
-                print("\nLoad Current: " + str(self.read_bsmp_variable(27,'float')))
-                print("\nArm 1 Current: " + str(self.read_bsmp_variable(28,'float')))
-                print("Arm 2 Current:: " + str(self.read_bsmp_variable(29,'float')))
+                print("\nLoad Current: " + str(self.read_bsmp_variable(27,'float')) + ' A')
+                print("Load Current Error: " + str(self.read_bsmp_variable(28,'float')) + ' A')
                 
-                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(30,'float')))
-                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(31,'float')))
+                print("\nArm 1 Current: " + str(self.read_bsmp_variable(29,'float')) + ' A')
+                print("Arm 2 Current: " + str(self.read_bsmp_variable(30,'float')) + ' A')
+                print("Arms Current Diff: " + str(self.read_bsmp_variable(31,'float')) + ' A')
                 
-                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(32,'float')))
-                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(33,'float')))
-                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(34,'float')))
+                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(32,'float')) + ' V')
+                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(33,'float')) + ' V')
+                
+                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(34,'float')) + ' %')
+                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(35,'float')) + ' %')
+                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(36,'float')) + ' %')
 
                 time.sleep(dt)
                 
