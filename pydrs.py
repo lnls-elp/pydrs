@@ -298,7 +298,6 @@ list_fac_2p4s_dcdc_soft_interlocks = ['Inductors Overtemperature',
                                       'Arms High Difference']
                             
 list_fac_2p4s_dcdc_hard_interlocks = ['Load Overcurrent','Load Overvoltage',
-                                      'IGBT Driver Fault',
                                       'Module 1 CapBank Overvoltage',
                                       'Module 2 CapBank Overvoltage',
                                       'Module 3 CapBank Overvoltage',
@@ -323,12 +322,14 @@ list_fac_2p4s_dcdc_hard_interlocks = ['Load Overcurrent','Load Overvoltage',
                                       'Module 6 Output Overvoltage',
                                       'Module 7 Output Overvoltage',
                                       'Module 8 Output Overvoltage',
-                                      'IIB Itlk',
-                                      'DRS Master Interlock',    
-                                      'DRS Slave_1 Interlock',    
-                                      'DRS Slave_2 Interlock',    
-                                      'DRS Slave_3 Interlock',    
-                                      'DRS Slave_4 Interlock']
+                                      'IIB_1_Itlk',
+                                      'IIB_2_Itlk',
+                                      'IIB_3_Itlk',
+                                      'IIB_4_Itlk',
+                                      'IIB_5_Itlk',
+                                      'IIB_6_Itlk',
+                                      'IIB_7_Itlk',
+                                      'IIB_8_Itlk']
                                       
 # FAP                                 
 list_fap_soft_interlocks = ['DCCT 1 Fault',
