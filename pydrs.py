@@ -3011,7 +3011,7 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fap_hard_interlocks)
                     
-                iib_itlks = self.read_bsmp_variable(47,'uint32_t')
+                iib_itlks = self.read_bsmp_variable(48,'uint32_t')
                 print("IIB Interlocks: " + str(iib_itlks))
                 if(iib_itlks):
                     self.decode_interlocks(iib_itlks, list_fap_iib_interlocks)
