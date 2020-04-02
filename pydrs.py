@@ -3047,7 +3047,8 @@ class SerialDRS(object):
                     print("IIB Driver Current 2: " + str(self.read_bsmp_variable(44,'float')) + " A")
                     print("IIB Inductor Temp: " + str(self.read_bsmp_variable(45,'float')) + " ºC")
                     print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(46,'float')) + " ºC")
-                    #print("IIB Interlocks: " + str(self.read_bsmp_variable(47,'float')))
+                    print("IIB Ground Leakage Current: " + str(self.read_bsmp_variable(47,'float')) + " A")
+                    print("IIB Interlocks: " + str(self.read_bsmp_variable(48,'uint32_t')))
                 time.sleep(dt)
                 
             self.SetSlaveAdd(old_add)
