@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.36w2019-10-03"
+UDC_FIRMWARE_VERSION = "0.39p2020-05-08"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -63,7 +63,10 @@ ListPSModels = ['FBP_100kHz', 'FBP_Parallel_100kHz', 'FAC_ACDC_10kHz', 'FAC_DCDC
 ListPSModels_v2_1 = ['Empty','FBP','FBP_DCLink','FAC_ACDC','FAC_DCDC',
                      'FAC_2S_ACDC','FAC_2S_DCDC','FAC_2P4S_ACDC','FAC_2P4S_DCDC',
                      'FAP','FAP_4P','FAC_DCDC_EMA','FAP_2P2S','FAP_IMAS',
-                     'FAC_2P_ACDC_IMAS','FAC_2P_DCDC_IMAS']
+                     'FAC_2P_ACDC_IMAS','FAC_2P_DCDC_IMAS','Invalid','Invalid',
+                     'Invalid','Invalid','Invalid','Invalid','Invalid','Invalid',
+                     'Invalid','Invalid','Invalid','Invalid','Invalid','Invalid',
+                     'Invalid','Uninitialized']
 
 ListVar_v2_1 = ['ps_status','ps_setpoint','ps_reference','firmware_version',
                 'counter_set_slowref','counter_sync_pulse','siggen_enable',
@@ -77,9 +80,9 @@ ListCurv_v2_1 = ['wfmref_data_0','wfmref_data_1','buf_samples_ctom']
 
 ListFunc_v2_1 = ['turn_on','turn_off','open_loop','closed_loop','select_op_mode',
                  'select_ps_model','reset_interlocks','remote_interface',
-                 'set_serial_address','set_serial_termination','unlock_udc',
-                 'lock_udc','cfg_buf_samples','enable_buf_samples',
-                 'disable_buf_samples','sync_pulse','set_slowref',
+                 'set_serial_address','set_serial_termination','cfg_source_scope',
+                 'cfg_freq_scope','cfg_duration_scope','enable_scope',
+                 'disable_scope','sync_pulse','set_slowref',
                  'set_slowref_fbp','reset_counters','scale_wfmref',
                  'select_wfmref','save_wfmref','reset_wfmref','cfg_siggen',
                  'set_siggen','enable_siggen','disable_siggen','set_slowref_readback',
@@ -113,7 +116,9 @@ ListParameters = ['PS_Name','PS_Model','Num_PS_Modules','Command_Interface',
                   'WfmRef_SyncMode','WfmRef_Gain','WfmRef_Offset',
                   'Analog_Var_Max','Analog_Var_Min',
                   'Hard_Interlocks_Debounce_Time','Hard_Interlocks_Reset_Time',
-                  'Soft_Interlocks_Debounce_Time','Soft_Interlocks_Reset_Time']
+                  'Soft_Interlocks_Debounce_Time','Soft_Interlocks_Reset_Time',
+                  'Scope_Sampling_Frequency','Scope_Source','','','','','','','',
+                  '','','Enable_Onboard_EEPROM']
 
 ListBCBFunc = ['ClearPof', 'SetPof', 'ReadPof', 'EnableBuzzer', 'DisableBuzzer',
                 'SendUartData', 'GetUartData', 'SendCanData', 'GetCanData',
@@ -574,6 +579,11 @@ class SerialDRS(object):
     # Converte double para hexadecimal
     def double_to_hex(self,value):
         hex_value = struct.pack('H',value)
+        return hex_value.decode('ISO-8859-1')
+
+    # Converte unsigned int para hexadecimal 
+    def uint32_to_hex(self,value):
+        hex_value = struct.pack('I',value)
         return hex_value.decode('ISO-8859-1')
 
     # Converte indice para hexadecimal
@@ -1469,14 +1479,15 @@ class SerialDRS(object):
             #print('Invalid parameter')
             return float('nan')
 
-    def save_param_eeprom(self, param_id, n = 0):
-        payload_size = self.size_to_hex(1+2+2) #Payload: ID + param id + [n] + value
+    def save_param_eeprom(self, param_id, n = 0, type_memory = 1):
+        payload_size = self.size_to_hex(1+2+2+2) #Payload: ID + param id + [n] + memory type
         if type(param_id) == str:
             hex_id       = self.double_to_hex(ListParameters.index(param_id))
         if type(param_id) == int:
             hex_id       = self.double_to_hex(param_id)
         hex_n        = self.double_to_hex(n)
-        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_param_eeprom'))+hex_id+hex_n
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_param_eeprom'))+hex_id+hex_n+hex_type
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         reply_msg = self.ser.read(6)
@@ -1484,14 +1495,15 @@ class SerialDRS(object):
             print('Invalid parameter')
         return reply_msg
 
-    def load_param_eeprom(self, param_id, n = 0):
-        payload_size = self.size_to_hex(1+2+2) #Payload: ID + param id + [n]
+    def load_param_eeprom(self, param_id, n = 0, type_memory = 1):
+        payload_size = self.size_to_hex(1+2+2+2) #Payload: ID + param id + [n] + memory type
         if type(param_id) == str:
             hex_id       = self.double_to_hex(ListParameters.index(param_id))
         if type(param_id) == int:
             hex_id       = self.double_to_hex(param_id)
         hex_n        = self.double_to_hex(n)
-        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_param_eeprom'))+hex_id+hex_n
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_param_eeprom'))+hex_id+hex_n+hex_type
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         reply_msg = self.ser.read(6)
@@ -1499,16 +1511,18 @@ class SerialDRS(object):
             print('Invalid parameter')
         return reply_msg
 
-    def save_param_bank(self):
-        payload_size   = self.size_to_hex(1) #Payload: ID
-        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_param_bank'))
+    def save_param_bank(self, type_memory = 1):
+        payload_size   = self.size_to_hex(1+2) #Payload: ID + memory type
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_param_bank'))+hex_type
         send_msg       = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
 
-    def load_param_bank(self):
-        payload_size   = self.size_to_hex(1) #Payload: ID
-        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_param_bank'))
+    def load_param_bank(self, type_memory = 1):
+        payload_size   = self.size_to_hex(1+2) #Payload: ID + memory type
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_param_bank'))+hex_type
         send_msg       = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
@@ -1531,7 +1545,7 @@ class SerialDRS(object):
                         print(self.set_param(str(param[0]),n,float(param[n+1])))
                     except:
                         break
-        self.save_param_bank()
+        #self.save_param_bank()
         
     def get_param_bank(self, list_param = ListParameters, timeout = 0.5, print_modules = True):
         timeout_old = self.ser.timeout
@@ -1575,7 +1589,15 @@ class SerialDRS(object):
             writer = csv.writer(f, delimiter=',')
             for param_row in bank:
                 writer.writerow(param_row)
-                
+
+    def enable_onboard_eeprom(self):
+        self.set_param('Enable_Onboard_EEPROM',0,0)
+        self.save_param_eeprom('Enable_Onboard_EEPROM',0,2)
+    
+    def disable_onboard_eeprom(self):
+        self.set_param('Enable_Onboard_EEPROM',0,1)
+        self.save_param_eeprom('Enable_Onboard_EEPROM',0,2)
+    
     def set_dsp_coeffs(self, dsp_class, dsp_id, coeffs_list = [0,0,0,0,0,0,0,0,0,0,0,0]):
         coeffs_list_full = self.format_list_size(coeffs_list, NUM_MAX_COEFFS_DSP)
         payload_size = self.size_to_hex(1+2+2+4*NUM_MAX_COEFFS_DSP)
@@ -1665,16 +1687,40 @@ class SerialDRS(object):
             time.sleep(delay)
         self.SetSlaveAdd(old_add)
 
-    def enable_buf_samples(self):
+    def cfg_source_scope(self,p_source):
+        payload_size = self.size_to_hex(1+4) #Payload: ID + p_source
+        hex_op_mode  = self.uint32_to_hex(p_source)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('cfg_source_scope'))+hex_op_mode
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
+
+    def cfg_freq_scope(self,freq):
+        payload_size = self.size_to_hex(1+4) #Payload: ID + freq
+        hex_op_mode  = self.float_to_hex(freq)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('cfg_freq_scope'))+hex_op_mode
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
+
+    def cfg_duration_scope(self,duration):
+        payload_size = self.size_to_hex(1+4) #Payload: ID + duration
+        hex_op_mode  = self.float_to_hex(duration)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('cfg_duration_scope'))+hex_op_mode
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
+
+    def enable_scope(self):
         payload_size = self.size_to_hex(1) #Payload: ID
-        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('enable_buf_samples'))
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('enable_scope'))
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
     
-    def disable_buf_samples(self):
+    def disable_scope(self):
         payload_size = self.size_to_hex(1) #Payload: ID
-        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('disable_buf_samples'))
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('disable_scope'))
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
@@ -3445,7 +3491,7 @@ class SerialDRS(object):
                         print(self.set_param(str(param[0]),n,float(param[n+1])))
                     except:
                         break
-        self.save_param_bank()
+        #self.save_param_bank()
         
     def get_default_ramp_waveform(self, interval=500, nrpts=4000, ti=None, fi=None, forms=None):
         from siriuspy.magnet.util import get_default_ramp_waveform
@@ -3525,10 +3571,10 @@ class SerialDRS(object):
         drs.set_dsp_coeffs(3,1,[kp_share,ki_share,0.0015,-0.0015])
         drs.save_dsp_modules_eeprom()
 
-    def set_prbs_sampling_freq(self,freq):
+    def set_prbs_sampling_freq(self,freq, type_memory):
         self.set_param('Freq_TimeSlicer',0,freq)
         self.set_param('Freq_TimeSlicer',1,freq)
-        self.save_param_bank()
+        self.save_param_bank(type_memory)
 
     def get_dsp_modules_bank(self, list_dsp_classes = [1,2,3,4,5,6], print_modules = 1):
         dsp_modules_bank = []
@@ -3595,7 +3641,7 @@ class SerialDRS(object):
                         print(self.set_param(str(param[0]),n,float(param[n+1])))
                     except:
                         break
-        self.save_param_bank()
+        #self.save_param_bank()
 
     def select_param_bank(self, cfg_dsp_modules = 0):
 
