@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.38h2020-05-13"
+UDC_FIRMWARE_VERSION = "0.38h2020-05-15"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -76,7 +76,7 @@ ListVar_v2_1 = ['ps_status','ps_setpoint','ps_reference','firmware_version',
 ListCurv_v2_1 = ['wfmref_data_0','wfmref_data_1','buf_samples_ctom']
 
 ListFunc_v2_1 = ['turn_on','turn_off','open_loop','closed_loop','select_op_mode',
-                 'select_ps_model','reset_interlocks','remote_interface',
+                 'select_ps_model','reset_interlocks','set_command_interface',
                  'set_serial_address','set_serial_termination','unlock_udc',
                  'lock_udc','cfg_buf_samples','enable_buf_samples',
                  'disable_buf_samples','sync_pulse','set_slowref',
@@ -1703,6 +1703,14 @@ class SerialDRS(object):
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
         
+    def set_command_interface(self,interface):
+        payload_size = self.size_to_hex(1+2) #Payload: ID + enable
+        hex_interface  = self.double_to_hex(interface)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('set_command_interface'))+hex_interface
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
+    
     def unlock_udc(self,password):
         payload_size = self.size_to_hex(1+2) #Payload: ID + password
         hex_password  = self.double_to_hex(password)
