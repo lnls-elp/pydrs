@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.36w2019-10-03"
+UDC_FIRMWARE_VERSION = "0.38h2020-05-13"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -99,6 +99,7 @@ ListParameters = ['PS_Name','PS_Model','Num_PS_Modules','Command_Interface',
                   'RS485_Baudrate','RS485_Address','RS485_Termination',
                   'UDCNet_Address','Ethernet_IP','Ethernet_Subnet_Mask', 
                   'Buzzer_Volume','Freq_ISR_Controller','Freq_TimeSlicer',
+                  'Control_Loop_State',
                   'Max_Ref','Min_Ref','Max_Ref_OpenLoop','Min_Ref_OpenLoop',
                   'Max_SlewRate_SlowRef','Max_SlewRate_SigGen_Amp',
                   'Max_SlewRate_SigGen_Offset','Max_SlewRate_WfmRef','PWM_Freq',
@@ -1698,6 +1699,22 @@ class SerialDRS(object):
         payload_size = self.size_to_hex(1+2) #Payload: ID + enable
         hex_enable  = self.double_to_hex(term_enable)
         send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('set_serial_termination'))+hex_enable
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
+        
+    def unlock_udc(self,password):
+        payload_size = self.size_to_hex(1+2) #Payload: ID + password
+        hex_password  = self.double_to_hex(password)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('unlock_udc'))+hex_password
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
+        
+    def lock_udc(self,password):
+        payload_size = self.size_to_hex(1+2) #Payload: ID + password
+        hex_password  = self.double_to_hex(password)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('lock_udc'))+hex_password
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
