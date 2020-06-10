@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.40u2020-05-21"
+UDC_FIRMWARE_VERSION = "0.40u2020-06-05"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -119,7 +119,7 @@ ListParameters = ['PS_Name','PS_Model','Num_PS_Modules','Command_Interface',
                   'Hard_Interlocks_Debounce_Time','Hard_Interlocks_Reset_Time',
                   'Soft_Interlocks_Debounce_Time','Soft_Interlocks_Reset_Time',
                   'Scope_Sampling_Frequency','Scope_Source','','','','','','',
-                  '','','Enable_Onboard_EEPROM']
+                  '','Password','Enable_Onboard_EEPROM']
 
 ListBCBFunc = ['ClearPof', 'SetPof', 'ReadPof', 'EnableBuzzer', 'DisableBuzzer',
                 'SendUartData', 'GetUartData', 'SendCanData', 'GetCanData',
