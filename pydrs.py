@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.40u2020-06-05"
+UDC_FIRMWARE_VERSION = "0.40u2020-07-01"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -102,11 +102,11 @@ ListParameters = ['PS_Name','PS_Model','Num_PS_Modules','Command_Interface',
                   'RS485_Baudrate','RS485_Address','RS485_Termination',
                   'UDCNet_Address','Ethernet_IP','Ethernet_Subnet_Mask', 
                   'Buzzer_Volume','Freq_ISR_Controller','Freq_TimeSlicer',
-                  'Control_Loop_State',
-                  'Max_Ref','Min_Ref','Max_Ref_OpenLoop','Min_Ref_OpenLoop',
-                  'Max_SlewRate_SlowRef','Max_SlewRate_SigGen_Amp',
-                  'Max_SlewRate_SigGen_Offset','Max_SlewRate_WfmRef','PWM_Freq',
-                  'PWM_DeadTime','PWM_Max_Duty','PWM_Min_Duty',
+                  'Control_Loop_State','Max_Ref','Min_Ref','Max_Ref_OpenLoop',
+                  'Min_Ref_OpenLoop',
+                  #'Max_SlewRate_SlowRef','Max_SlewRate_SigGen_Amp',
+                  #'Max_SlewRate_SigGen_Offset','Max_SlewRate_WfmRef',
+                  'PWM_Freq','PWM_DeadTime','PWM_Max_Duty','PWM_Min_Duty',
                   'PWM_Max_Duty_OpenLoop','PWM_Min_Duty_OpenLoop',
                   'PWM_Lim_Duty_Share','HRADC_Num_Boards','HRADC_Freq_SPICLK',
                   'HRADC_Freq_Sampling','HRADC_Enable_Heater',
@@ -114,12 +114,12 @@ ListParameters = ['PS_Name','PS_Model','Num_PS_Modules','Command_Interface',
                   'HRADC_Gain_Transducer','HRADC_Offset_Transducer','SigGen_Type',
                   'SigGen_Num_Cycles','SigGen_Freq','SigGen_Amplitude',
                   'SigGen_Offset','SigGen_Aux_Param','WfmRef_ID_WfmRef',
-                  'WfmRef_SyncMode','WfmRef_Gain','WfmRef_Offset',
-                  'Analog_Var_Max','Analog_Var_Min',
+                  'WfmRef_SyncMode','WfmRef_Frequency','WfmRef_Gain',
+                  'WfmRef_Offset','Analog_Var_Max','Analog_Var_Min',
                   'Hard_Interlocks_Debounce_Time','Hard_Interlocks_Reset_Time',
                   'Soft_Interlocks_Debounce_Time','Soft_Interlocks_Reset_Time',
                   'Scope_Sampling_Frequency','Scope_Source','','','','','','',
-                  '','Password','Enable_Onboard_EEPROM']
+                  '','','','','Password','Enable_Onboard_EEPROM']
 
 ListBCBFunc = ['ClearPof', 'SetPof', 'ReadPof', 'EnableBuzzer', 'DisableBuzzer',
                 'SendUartData', 'GetUartData', 'SendCanData', 'GetCanData',
