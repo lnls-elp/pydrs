@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.40u2020-07-01"
+UDC_FIRMWARE_VERSION = "0.41u2020-07-07"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -368,9 +368,27 @@ list_fap_iib_interlocks = ['Input Overvoltage',
                            'Inductors Overtemperature',
                            'Heat-Sink Overtemperature',
                            'DCLink Contactor Fault',
+                           'Contact Sticking of Contactor',
                            'External Interlock',
+                           'Rack Interlock',
                            'High Leakage Current',
-                           'Rack Interlock']
+                           'Board IIB Overtemperature',
+                           'Module Overhumidity']
+                            
+list_fap_iib_alarms = ['Input Overvoltage',
+                       'Output Overvoltage',
+                       'IGBT 1 Overcurrent',
+                       'IGBT 2 Overcurrent',
+                       'IGBT 1 Overtemperature',
+                       'IGBT 2 Overtemperature',
+                       'Driver Overvoltage',
+                       'Driver 1 Overcurrent',
+                       'Driver 2 Overcurrent',
+                       'Inductors Overtemperature',
+                       'Heat-Sink Overtemperature',
+                       'High Leakage Current',
+                       'Board IIB Overtemperature',
+                       'Module Overhumidity']
 
 # FAP-4P                                 
 list_fap_4p_soft_interlocks = ['DCCT 1 Fault',
@@ -3082,10 +3100,15 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fap_hard_interlocks)
                     
-                iib_itlks = self.read_bsmp_variable(48,'uint32_t')
-                print("IIB Interlocks: " + str(iib_itlks))
+                iib_itlks = self.read_bsmp_variable(50,'uint32_t')
+                print("\nIIB Interlocks: " + str(iib_itlks))
                 if(iib_itlks):
                     self.decode_interlocks(iib_itlks, list_fap_iib_interlocks)
+                    
+                iib_alarms = self.read_bsmp_variable(51,'uint32_t')
+                print("\nIIB Alarms: " + str(iib_alarms))
+                if(iib_alarms):
+                    self.decode_interlocks(iib_alarms, list_fap_iib_alarms)
 
                 iload = self.read_bsmp_variable(27,'float')
                 
@@ -3119,7 +3142,10 @@ class SerialDRS(object):
                     print("IIB Inductor Temp: " + str(self.read_bsmp_variable(45,'float')) + " ºC")
                     print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(46,'float')) + " ºC")
                     print("IIB Ground Leakage Current: " + str(self.read_bsmp_variable(47,'float')) + " A")
-                    print("IIB Interlocks: " + str(self.read_bsmp_variable(48,'uint32_t')))
+                    print("IIB Board Temp: " + str(self.read_bsmp_variable(48,'float')) + " ºC")
+                    print("IIB Board RH: " + str(self.read_bsmp_variable(49,'float')) + " %")
+                    print("IIB Interlocks: " + str(self.read_bsmp_variable(50,'uint32_t')))
+                    print("IIB Alarms: " + str(self.read_bsmp_variable(51,'uint32_t')))
                 time.sleep(dt)
                 
             self.SetSlaveAdd(old_add)
