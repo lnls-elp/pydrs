@@ -1876,12 +1876,12 @@ class SerialDRS(object):
         return self.ser.read(6)
     
     def get_wfmref_vars(self,curve_id):
-        print('\n### WfmRef Variables ###\n')
+        print('\n### WfmRef ' + str(curve_id) + ' Variables ###\n')
         print('Length: ' + str((self.read_bsmp_variable(20+curve_id*3,'uint32_t')-self.read_bsmp_variable(19+curve_id*3,'uint32_t'))/2+1))
         print('Index: ' + str((self.read_bsmp_variable(21+curve_id*3,'uint32_t')-self.read_bsmp_variable(19+curve_id*3,'uint32_t'))/2+1))
         print('WfmRef Selected: ' + str(self.read_bsmp_variable(14,'uint16_t')))
         print('Sync Mode: ' + str(self.read_bsmp_variable(15,'uint16_t')))
-        print('Frequency: ' + str(self.read_bsmp_variable(16,'uint16_t')) + " Hz")
+        print('Frequency: ' + str(self.read_bsmp_variable(16,'float')) + " Hz")
         print('Gain: ' + str(self.read_bsmp_variable(17,'float')))
         print('Offset: ' + str(self.read_bsmp_variable(18,'float')))
         
@@ -2595,7 +2595,8 @@ class SerialDRS(object):
             print("Counter sync pulse: " + str(self.read_bsmp_variable(5,'uint32_t')))
             
             self.get_siggen_vars()
-            self.get_wfmref_vars()
+            self.get_wfmref_vars(0)
+            self.get_wfmref_vars(1)
             self.get_scope_vars()
         
     def decode_interlocks(self,reg_interlocks,list_interlocks):
