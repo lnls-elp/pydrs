@@ -1501,7 +1501,7 @@ class SerialDRS(object):
             #print('Invalid parameter')
             return float('nan')
 
-    def save_param_eeprom(self, param_id, n = 0, type_memory = 1):
+    def save_param_eeprom(self, param_id, n = 0, type_memory = 2):
         payload_size = self.size_to_hex(1+2+2+2) #Payload: ID + param id + [n] + memory type
         if type(param_id) == str:
             hex_id       = self.double_to_hex(ListParameters.index(param_id))
@@ -1517,7 +1517,7 @@ class SerialDRS(object):
             print('Invalid parameter')
         return reply_msg
 
-    def load_param_eeprom(self, param_id, n = 0, type_memory = 1):
+    def load_param_eeprom(self, param_id, n = 0, type_memory = 2):
         payload_size = self.size_to_hex(1+2+2+2) #Payload: ID + param id + [n] + memory type
         if type(param_id) == str:
             hex_id       = self.double_to_hex(ListParameters.index(param_id))
@@ -1533,7 +1533,7 @@ class SerialDRS(object):
             print('Invalid parameter')
         return reply_msg
 
-    def save_param_bank(self, type_memory = 1):
+    def save_param_bank(self, type_memory = 2):
         payload_size   = self.size_to_hex(1+2) #Payload: ID + memory type
         hex_type        = self.double_to_hex(type_memory)
         send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_param_bank'))+hex_type
@@ -1541,7 +1541,7 @@ class SerialDRS(object):
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
 
-    def load_param_bank(self, type_memory = 1):
+    def load_param_bank(self, type_memory = 2):
         payload_size   = self.size_to_hex(1+2) #Payload: ID + memory type
         hex_type        = self.double_to_hex(type_memory)
         send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_param_bank'))+hex_type
@@ -1645,34 +1645,38 @@ class SerialDRS(object):
         val = struct.unpack('BBHfB',reply_msg)
         return val[3]
 
-    def save_dsp_coeffs_eeprom(self, dsp_class, dsp_id):
-        payload_size = self.size_to_hex(1+2+2)
+    def save_dsp_coeffs_eeprom(self, dsp_class, dsp_id, type_memory = 2):
+        payload_size = self.size_to_hex(1+2+2+2)
         hex_dsp_class= self.double_to_hex(dsp_class)
         hex_dsp_id   = self.double_to_hex(dsp_id)
-        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_dsp_coeffs_eeprom'))+hex_dsp_class+hex_dsp_id
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_dsp_coeffs_eeprom'))+hex_dsp_class+hex_dsp_id+hex_type
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
 
-    def load_dsp_coeffs_eeprom(self, dsp_class, dsp_id):
-        payload_size = self.size_to_hex(1+2+2)
+    def load_dsp_coeffs_eeprom(self, dsp_class, dsp_id, type_memory = 2):
+        payload_size = self.size_to_hex(1+2+2+2)
         hex_dsp_class= self.double_to_hex(dsp_class)
         hex_dsp_id   = self.double_to_hex(dsp_id)
-        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_dsp_coeffs_eeprom'))+hex_dsp_class+hex_dsp_id
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_dsp_coeffs_eeprom'))+hex_dsp_class+hex_dsp_id+hex_type
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
 
-    def save_dsp_modules_eeprom(self):
-        payload_size   = self.size_to_hex(1) #Payload: ID
-        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_dsp_modules_eeprom'))
+    def save_dsp_modules_eeprom(self, type_memory = 2):
+        payload_size   = self.size_to_hex(1+2) #Payload: ID + memory type
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('save_dsp_modules_eeprom'))+hex_type
         send_msg       = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
 
-    def load_dsp_modules_eeprom(self):
-        payload_size   = self.size_to_hex(1) #Payload: ID
-        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_dsp_modules_eeprom'))
+    def load_dsp_modules_eeprom(self, type_memory = 2):
+        payload_size   = self.size_to_hex(1+2) #Payload: ID + memory type
+        hex_type        = self.double_to_hex(type_memory)
+        send_packet    = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('load_dsp_modules_eeprom'))+hex_type
         send_msg       = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
@@ -3886,7 +3890,8 @@ class SerialDRS(object):
         print('\n Enviando parametros de operacao para controlador ...\n')
         time.sleep(1)
         self.set_param_bank(file_path)
-        print('\n Gravando parametros de operacao na memoria ...')
+        print('\n Gravando parametros de operacao na memoria EEPROM onboard ...')
+        self.save_param_bank(2)
         time.sleep(5)
         
 
