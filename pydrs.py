@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41u2020-07-10"
+UDC_FIRMWARE_VERSION = "0.41u2020-07-27"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -180,8 +180,7 @@ list_fbp_dclink_hard_interlocks = ['Power_Module_1_Fault',
                                    'Smoke_Detector','External_Interlock']
 
 # FAC ACDC
-list_fac_acdc_soft_interlocks = ['Heat-Sink Overtemperature',
-                                 'Inductors Overtemperature']
+list_fac_acdc_soft_interlocks = []
 
 list_fac_acdc_hard_interlocks = ['CapBank Overvoltage',
                                  'Rectifier Overvoltage',
@@ -189,13 +188,60 @@ list_fac_acdc_hard_interlocks = ['CapBank Overvoltage',
                                  'Rectifier Overcurrent',
                                  'Welded Contactor Fault',
                                  'Opened Contactor Fault',
-                                 'IGBT_Driver Fault',
-                                 'DRS_Master Interlock']
+                                 'IIB Input Stage Interlock',
+                                 'IIB Command Interlock']
+
+list_fac_acdc_iib_is_interlocks = ['Capbank Overvoltage',
+                                   'Input Overcurrent',
+                                   'IGBT Overtemperature',
+                                   'IGBT Overtemperature HW',
+                                   'Driver Overvoltage',
+                                   'Driver Overcurrent',
+                                   'Top Driver Error',
+                                   'Bottom Driver Error',
+                                   'Inductors Overtemperature',
+                                   'Heat-Sink Overtemperature',
+                                   'Board IIB Overtemperature',
+                                   'Module Overhumidity']
+
+list_fac_acdc_iib_is_alarms = ['Capbank Overvoltage',
+                               'Input Overcurrent',
+                               'IGBT Overtemperature',
+                               'Driver Overvoltage',
+                               'Driver Overcurrent',
+                               'Inductors Overtemperature',
+                               'Heat-Sink Overtemperature',
+                               'Board IIB Overtemperature',
+                               'Module Overhumidity']
+
+list_fac_acdc_iib_cmd_interlocks = ['Capbank Overvoltage',
+                                    'Output Overvoltage',
+                                    'External Boards Overvoltage',
+                                    'Auxiliary Board Overcurrent',
+                                    'IDB Board Overcurrent',
+                                    'Rectifier Inductor Overtemperature',
+                                    'Rectifier Heat-Sink Overtemperature',
+                                    'AC Mains Overcurrent',
+                                    'Emergency Button',
+                                    'AC Mains Undervoltage',
+                                    'AC Mains Overvoltage',
+                                    'Ground Leakage Overcurrent',
+                                    'Board IIB Overtemperature',
+                                    'Module Overhumidity']
+
+list_fac_acdc_iib_cmd_alarms = ['Capbank Overvoltage',
+                                'Output Overvoltage',
+                                'External Boards Overvoltage',
+                                'Auxiliary Board Overcurrent',
+                                'IDB Board Overcurrent',
+                                'Rectifier Inductor Overtemperature',
+                                'Rectifier Heat-Sink Overtemperature',
+                                'Ground Leakage Overcurrent',
+                                'Board IIB Overtemperature',
+                                'Module Overhumidity']
 
 # FAC DCDC
-list_fac_dcdc_soft_interlocks = ['Inductors Overtemperature',
-                                 'IGBT Overtemperature',
-                                 'DCCT 1 Fault',
+list_fac_dcdc_soft_interlocks = ['DCCT 1 Fault',
                                  'DCCT 2 Fault',
                                  'DCCT High Difference',
                                  'Load Feedback 1 Fault',
@@ -205,22 +251,41 @@ list_fac_dcdc_hard_interlocks = ['Load Overcurrent',
                                  'Load Overvoltage',
                                  'CapBank Overvoltage',
                                  'CapBank Undervoltage',
-                                 'IGBT Driver Fault',
-                                 'IIB Itlk',
-                                 'External_Interlock',
-                                 'Rack_Interlock']
+                                 'IIB Interlock',
+                                 'External Interlock',
+                                 'Rack Interlock']
 
-list_fac_dcdc_iib_interlocks = ['Input Overcurrent',
+list_fac_dcdc_iib_interlocks = ['Input Overvoltage',
+                                'Input Overcurrent',
                                 'Output Overcurrent',
-                                'Input Overvoltage',
                                 'IGBT 1 Overtemperature',
-                                'IGBT 1 Overtemperature',
+                                'IGBT 1 Overtemperature HW',
                                 'IGBT 2 Overtemperature',
-                                'IGBT 2 Overtemperature',
+                                'IGBT 2 Overtemperature HW',
+                                'Driver Overvoltage',
+                                'Driver 1 Overcurrent',
+                                'Driver 2 Overcurrent',
+                                'Top Driver 1 Error',
+                                'Bottom Driver 1 Error',
+                                'Top Driver 2 Error',
+                                'Bottom Driver 2 Error',
                                 'Inductors Overtemperature',
                                 'Heat-Sink Overtemperature',
-                                'Driver 1 Error',
-                                'Driver 2 Error']
+                                'Board IIB Overtemperature',
+                                'Module Overhumidity']
+                                
+list_fac_dcdc_iib_alarms = ['Input Overvoltage',
+                            'Input Overcurrent',
+                            'Output Overcurrent',
+                            'IGBT 1 Overtemperature',
+                            'IGBT 2 Overtemperature',
+                            'Driver Overvoltage',
+                            'Driver 1 Overcurrent',
+                            'Driver 2 Overcurrent',
+                            'Inductors Overtemperature',
+                            'Heat-Sink Overtemperature',
+                            'Board IIB Overtemperature',
+                            'Module Overhumidity']
 
 # FAC-2S AC/DC
 list_fac_2s_acdc_soft_interlocks = ['Heat-Sink Overtemperature',
@@ -265,8 +330,8 @@ list_fac_2s_dcdc_hard_interlocks = ['Load Overcurrent','Load Overvoltage',
                                     'Module 2 Output Overvoltage',
                                     'IIB_1 Itlk',
                                     'IIB_2 Itlk',
-                                    'External_Interlock',
-                                    'Rack_Interlock']
+                                    'External Interlock',
+                                    'Rack Interlock']
   
 list_fac_2s_dcdc_iib_interlocks = ['Input Overcurrent',
                                    'Output Overcurrent',
@@ -498,25 +563,25 @@ list_fap_225A_hard_interlocks = ['Load Overcurrent',
 # FAC-2P ACDC
 list_fac_2p_acdc_imas_soft_interlocks = []                              
 
-list_fac_2p_acdc_imas_hard_interlocks = ['CapBank_Overvoltage',
-                                         'Rectifier_Overcurrent',
-                                         'AC_Mains_Contactor_Fault',
-                                         'Module_A_Interlock',
-                                         'Module_B_Interlock',
-                                         'DCDC_Interlock']
+list_fac_2p_acdc_imas_hard_interlocks = ['CapBank Overvoltage',
+                                         'Rectifier Overcurrent',
+                                         'AC Mains Contactor Fault',
+                                         'Module A Interlock',
+                                         'Module B Interlock',
+                                         'DCDC Interlock']
 
 # FAC-2P DCDC
 list_fac_2p_dcdc_imas_soft_interlocks = []                              
 
-list_fac_2p_dcdc_imas_hard_interlocks = ['Load_Overcurrent',
-                                         'Module_1_CapBank_Overvoltage',
-                                         'Module_2_CapBank_Overvoltage',
-                                         'Module_1_CapBank_Undervoltage',
-                                         'Module_2_CapBank_Undervoltage',
-                                         'Arm_1_Overcurrent',
-                                         'Arm_2_Overcurrent',
-                                         'Arms_High_Difference',
-                                         'ACDC_Interlock']
+list_fac_2p_dcdc_imas_hard_interlocks = ['Load Overcurrent',
+                                         'Module 1 CapBank_Overvoltage',
+                                         'Module 2 CapBank_Overvoltage',
+                                         'Module 1 CapBank_Undervoltage',
+                                         'Module 2 CapBank_Undervoltage',
+                                         'Arm 1 Overcurrent',
+                                         'Arm 2 Overcurrent',
+                                         'Arms High_Difference',
+                                         'ACDC Interlock']
 
 class SerialDRS(object):
 
@@ -2687,24 +2752,57 @@ class SerialDRS(object):
             print("Hard Interlocks: " + str(hard_itlks))
             if(hard_itlks):
                 self.decode_interlocks(hard_itlks, list_fac_acdc_hard_interlocks)
-    
+                
+            iib_is_itlks = self.read_bsmp_variable(45,'uint32_t')
+            print("\nIIB IS Interlocks: " + str(iib_is_itlks))
+            if(iib_is_itlks):
+                self.decode_interlocks(iib_is_itlks, list_fac_acdc_iib_is_interlocks)
+                
+            iib_is_alarms = self.read_bsmp_variable(46,'uint32_t')
+            print("IIB IS Alarms: " + str(iib_is_alarms))
+            if(iib_is_alarms):
+                self.decode_interlocks(iib_is_alarms, list_fac_acdc_iib_is_alarms)
+
+            iib_cmd_itlks = self.read_bsmp_variable(57,'uint32_t')
+            print("\nIIB Cmd Interlocks: " + str(iib_cmd_itlks))
+            if(iib_cmd_itlks):
+                self.decode_interlocks(iib_cmd_itlks, list_fac_acdc_iib_cmd_interlocks)
+                
+            iib_cmd_alarms = self.read_bsmp_variable(58,'uint32_t')
+            print("IIB Cmd Alarms: " + str(iib_cmd_alarms))
+            if(iib_cmd_alarms):
+                self.decode_interlocks(iib_cmd_alarms, list_fac_acdc_iib_cmd_alarms)
+                
             print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-            print("Rectifier Voltage: " + str(self.read_bsmp_variable(34,'float')) + " V")
-            print("Rectifier Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
-            #print("Inductors Temp: " + str(self.read_bsmp_variable(30,'float')) + " ºC")
-            #print("IGBTs Temp: " + str(self.read_bsmp_variable(31,'float')) + " ºC")
-            print("Duty-Cycle: " + str(self.read_bsmp_variable(38,'float')) + " %")
+            print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
+            
+            print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
             
             if(iib):
-                print("\nIIB IS Input Current: " + str(self.read_bsmp_variable(39,'float')) + " A")
-                print("IIB IS Rectifier Output Voltage: " + str(self.read_bsmp_variable(40,'float')) + " V")
+                print("\nIIB IS Input Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
+                print("IIB IS Input Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
+                print("IIB IS IGBT Temp: " + str(self.read_bsmp_variable(38,'float')) + " ºC")
+                print("IIB IS Driver Voltage: " + str(self.read_bsmp_variable(39,'float')) + " V")
+                print("IIB IS Driver Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
                 print("IIB IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
                 print("IIB IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
+                print("IIB IS Board Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
+                print("IIB IS Board RH: " + str(self.read_bsmp_variable(44,'float')) + " %")
+                print("IIB IS Interlocks: " + str(self.read_bsmp_variable(45,'uint32_t')))
+                print("IIB IS Alarms: " + str(self.read_bsmp_variable(46,'uint32_t')))
                 
-                print("\nIIB Cmd Load Voltage: " + str(self.read_bsmp_variable(43,'float')) + " V")
-                print("IIB Cmd CapBank Voltage: " + str(self.read_bsmp_variable(44,'float')) + " V")
-                print("IIB Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(45,'float')) + " ºC")
-                print("IIB Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(46,'float')) + " ºC")
+                print("\nIIB Cmd Load Voltage: " + str(self.read_bsmp_variable(47,'float')) + " V")
+                print("IIB Cmd CapBank Voltage: " + str(self.read_bsmp_variable(48,'float')) + " V")
+                print("IIB Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
+                print("IIB Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(50,'float')) + " ºC")
+                print("IIB Cmd External Boards Voltage: " + str(self.read_bsmp_variable(51,'float')) + " V")
+                print("IIB Cmd Auxiliary Board Current: " + str(self.read_bsmp_variable(52,'float')) + " A")
+                print("IIB Cmd IDB Board Current: " + str(self.read_bsmp_variable(53,'float')) + " A")
+                print("IIB Cmd Ground Leakage Current: " + str(self.read_bsmp_variable(54,'float')) + " A")
+                print("IIB Cmd Board Temp: " + str(self.read_bsmp_variable(55,'float')) + " ºC")
+                print("IIB Cmd Board RH: " + str(self.read_bsmp_variable(56,'float')) + " %")
+                print("IIB Cmd Interlocks: " + str(self.read_bsmp_variable(57,'uint32_t')))
+                print("IIB Cmd Alarms: " + str(self.read_bsmp_variable(58,'uint32_t')))
             
             time.sleep(dt)
                 
@@ -2732,26 +2830,40 @@ class SerialDRS(object):
                 print("Hard Interlocks: " + str(hard_itlks))
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_dcdc_hard_interlocks)
+                    
+                iib_itlks = self.read_bsmp_variable(50,'uint32_t')
+                print("\nIIB Interlocks: " + str(iib_itlks))
+                if(iib_itlks):
+                    self.decode_interlocks(iib_itlks, list_fac_dcdc_iib_interlocks)
+                    
+                iib_alarms = self.read_bsmp_variable(51,'uint32_t')
+                print("IIB Alarms: " + str(iib_alarms))
+                if(iib_alarms):
+                    self.decode_interlocks(iib_alarms, list_fac_dcdc_iib_alarms)
         
                 print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(28,'float')) + " A")
-                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(29,'float')) + " A")
-                print("\nLoad Voltage: " + str(self.read_bsmp_variable(30,'float')) + " V")
-                print("CapBank Voltage: " + str(self.read_bsmp_variable(31,'float')) + " V")
-                #print("Temp Inductors: " + str(self.read_bsmp_variable(31,'float')))
-                #print("Temp IGBT: " + str(self.read_bsmp_variable(32,'float')))
-                print("\nDuty-Cycle: " + str(self.read_bsmp_variable(34,'float')) + " %")
+                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
+                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                
+                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(36,'float')) + " V")
+                
+                print("\nDuty-Cycle: " + str(self.read_bsmp_variable(37,'float')) + " %")
                 
                 if(iib):
-                    print("\nIIB Input Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
-                    print("IIB Output Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
-                    print("IIB CapBank Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
-                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(38,'float')) + " ºC")
-                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(39,'float')) + " ºC")
-                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(40,'float')) + " ºC")
-                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                    print("IIB Driver 1 Error: " + str(self.read_bsmp_variable(42,'float')))
-                    print("IIB Driver 2 Error: " + str(self.read_bsmp_variable(43,'float')))
+                    print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(38,'float')) + " V")
+                    print("IIB Input Current: " + str(self.read_bsmp_variable(39,'float')) + " A")
+                    print("IIB Output Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
+                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
+                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
+                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
+                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(44,'float')) + " ºC")
+                    print("IIB Driver Voltage: " + str(self.read_bsmp_variable(45,'float')) + " V")
+                    print("IIB Driver Current 1: " + str(self.read_bsmp_variable(46,'float')) + " A")
+                    print("IIB Driver Current 2: " + str(self.read_bsmp_variable(47,'float')) + " A")
+                    print("IIB Board Temp: " + str(self.read_bsmp_variable(48,'float')) + " ºC")
+                    print("IIB Board RH: " + str(self.read_bsmp_variable(49,'float')) + " %")
+                    print("IIB Interlocks: " + str(self.read_bsmp_variable(50,'uint32_t')))
+                    print("IIB Alarms: " + str(self.read_bsmp_variable(51,'uint32_t')))
                     
                 time.sleep(dt)
                 
