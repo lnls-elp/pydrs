@@ -4064,3 +4064,27 @@ class SerialDRS(object):
         print('Aux Param 1: ' + str(val[4]))
         print('Aux Param 2: ' + str(val[5]))
         print('Aux Param 3: ' + str(val[6]))
+
+    def firmware_initialization(self):
+        print("\n ### Inicialização de firmware ### \n")
+        
+        print("\n Lendo status...")
+        print(self.read_ps_status())
+        
+        print("\n Lendo versão de firmware...")
+        self.read_udc_version()
+        
+        print("\n Desbloqueando UDC...")
+        print(self.unlock_udc(0xFFFF))
+        
+        print("\n Habilitando EEPROM onboard...")
+        self.enable_onboard_eeprom()
+        
+        print("\n Alterando senha...")
+        print(self.set_param('Password',0,0xCAFE))
+        print(self.save_param_eeprom('Password',0,2))
+        
+        print("\n Configurando banco de parâmetros...")
+        self.select_param_bank()
+        
+        print("\n ### Fim da inicialização de firmware ### \n")
