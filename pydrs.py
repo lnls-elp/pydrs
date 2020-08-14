@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41u2020-08-13"
+UDC_FIRMWARE_VERSION = "0.41u2020-08-147"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -270,6 +270,7 @@ list_fac_dcdc_iib_interlocks = ['Input Overvoltage',
                                 'Bottom Driver 2 Error',
                                 'Inductors Overtemperature',
                                 'Heat-Sink Overtemperature',
+                                'Ground Leakage Overcurrent',
                                 'Board IIB Overtemperature',
                                 'Module Overhumidity']
                                 
@@ -283,6 +284,7 @@ list_fac_dcdc_iib_alarms = ['Input Overvoltage',
                             'Driver 2 Overcurrent',
                             'Inductors Overtemperature',
                             'Heat-Sink Overtemperature',
+                            'Ground Leakage Overcurrent',
                             'Board IIB Overtemperature',
                             'Module Overhumidity']
 
@@ -2868,10 +2870,11 @@ class SerialDRS(object):
                     print("IIB Driver Voltage: " + str(self.read_bsmp_variable(45,'float')) + " V")
                     print("IIB Driver Current 1: " + str(self.read_bsmp_variable(46,'float')) + " A")
                     print("IIB Driver Current 2: " + str(self.read_bsmp_variable(47,'float')) + " A")
-                    print("IIB Board Temp: " + str(self.read_bsmp_variable(48,'float')) + " ºC")
-                    print("IIB Board RH: " + str(self.read_bsmp_variable(49,'float')) + " %")
-                    print("IIB Interlocks: " + str(self.read_bsmp_variable(50,'uint32_t')))
-                    print("IIB Alarms: " + str(self.read_bsmp_variable(51,'uint32_t')))
+                    print("IIB Ground Leakage Current: " + str(self.read_bsmp_variable(48,'float')) + " A")
+                    print("IIB Board Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
+                    print("IIB Board RH: " + str(self.read_bsmp_variable(50,'float')) + " %")
+                    print("IIB Interlocks: " + str(self.read_bsmp_variable(51,'uint32_t')))
+                    print("IIB Alarms: " + str(self.read_bsmp_variable(52,'uint32_t')))
                     
                 time.sleep(dt)
                 
