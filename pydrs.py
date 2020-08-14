@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41u2020-08-147"
+UDC_FIRMWARE_VERSION = "0.41u2020-08-14"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -3412,12 +3412,12 @@ class SerialDRS(object):
                     self.decode_interlocks(hard_itlks, list_fap_2p2s_hard_interlocks)
                     
                 for j in range(4):
-                    iib_itlks = self.read_bsmp_variable(72 + j*16,'uint32_t')
+                    iib_itlks = self.read_bsmp_variable(78 + j*16,'uint32_t')
                     print("\nIIB " + str(j+1) + " Interlocks: " + str(iib_itlks))
                     if(iib_itlks):
                         self.decode_interlocks(iib_itlks, list_fap_4p_iib_interlocks)
                         
-                    iib_alarms = self.read_bsmp_variable(73 + j*16,'uint32_t')
+                    iib_alarms = self.read_bsmp_variable(79 + j*16,'uint32_t')
                     print("IIB " + str(j+1) + " Alarms: " + str(iib_alarms))
                     if(iib_alarms):
                         self.decode_interlocks(iib_alarms, list_fap_4p_iib_alarms)
