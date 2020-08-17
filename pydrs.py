@@ -3884,9 +3884,10 @@ class SerialDRS(object):
             if int(sector) < 10:
                 sector = '0' + sector
             
-            rack = input('\n Escolha o rack em que a fonte se encontra [1/2]: ')
+            rack = input('\n Escolha o rack em que a fonte se encontra [1/2/3]: ')
             
-            if (rack != '1') and (rack != '2'):
+            #if (rack != '1') and (rack != '2'):
+            if not ((rack == '1') or (rack == '2') or (sector == '09' and rack == '3')):
                 print(' \n *** RACK INEXISTENTE ***\n')
                 return
                 
