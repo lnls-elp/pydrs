@@ -2841,12 +2841,12 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_dcdc_hard_interlocks)
                     
-                iib_itlks = self.read_bsmp_variable(50,'uint32_t')
+                iib_itlks = self.read_bsmp_variable(51,'uint32_t')
                 print("\nIIB Interlocks: " + str(iib_itlks))
                 if(iib_itlks):
                     self.decode_interlocks(iib_itlks, list_fac_dcdc_iib_interlocks)
                     
-                iib_alarms = self.read_bsmp_variable(51,'uint32_t')
+                iib_alarms = self.read_bsmp_variable(52,'uint32_t')
                 print("IIB Alarms: " + str(iib_alarms))
                 if(iib_alarms):
                     self.decode_interlocks(iib_alarms, list_fac_dcdc_iib_alarms)
