@@ -3332,9 +3332,10 @@ class SerialDRS(object):
                     if(iib_alarms):
                         self.decode_interlocks(iib_alarms, list_fap_4p_iib_alarms)
         
-                print("\nLoad Current 1: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Current 2: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Mean Load Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                print("\n Mean Load Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
+                print("Load Current 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
+                print("Load Current 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                
                 print("Load Voltage: " + str(self.read_bsmp_variable(36,'float')) + " V")
                 
                 print("\nIGBT 1 Current Mod 1: " + str(self.read_bsmp_variable(37,'float')) + " A")
@@ -4089,3 +4090,48 @@ class SerialDRS(object):
         self.select_param_bank()
         
         print("\n ### Fim da inicialização de firmware ### \n")
+
+    def cfg_hensys_ps_model(self):
+    
+        list_files = ['fbp_dclink/parameters_fbp_dclink_hensys.csv',
+                      'fac/parameters_fac_acdc_hensys.csv',
+                      'fac/parameters_fac_dcdc_hensys.csv',
+                      'fap/parameters_fap_hensys.csv',
+                      'fap/parameters_fap_2p2s_hensys.csv',
+                      'fap/parameters_fap_4p_hensys.csv']
+        
+        print('\n Desbloqueando UDC ...')
+        print(self.unlock_udc(0xCAFE))
+        
+        print('\n *** Escolha o modelo de fonte a ser configurado ***\n')
+        print(' 0: FBP-DClink')
+        print(' 1: FAC-ACDC')
+        print(' 2: FAC-DCDC')
+        print(' 3: FAP')
+        print(' 4: FAP-2P2S')
+        print(' 5: FAP-4P')
+        
+        model_idx = int(input('\n Digite o índice correspondente: '))  
+        file_path = '../ps_parameters/development/' + list_files[model_idx]
+        
+        print('\n Banco de parametros a ser utilizado: ' + file_path)
+        
+        r = input('\n Tem certeza que deseja prosseguir? [Y/N]: ')
+        
+        if (r != 'Y') and (r != 'y'):
+            print(' \n *** OPERAÇÃO CANCELADA ***\n')
+            return
+
+        print('\n Enviando parametros de operacao para controlador ...\n')
+        time.sleep(1)
+        self.set_param_bank(file_path)
+        
+        print('\n Gravando parametros de operacao na memoria EEPROM onboard ...')
+        self.save_param_bank(2)
+        time.sleep(5)
+        
+        print('\n Resetando UDC ...')
+        self.reset_udc()
+        time.sleep(2)
+        
+        print('\n Pronto! Não se esqueça de utilizar o novo endereço serial para se comunicar com esta fonte! :)\n')
