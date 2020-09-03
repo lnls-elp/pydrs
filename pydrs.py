@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41u2020-08-14"
+UDC_FIRMWARE_VERSION = "0.41 2020-09-02"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -289,31 +289,19 @@ list_fac_dcdc_iib_alarms = ['Input Overvoltage',
                             'Module Overhumidity']
 
 # FAC-2S AC/DC
-list_fac_2s_acdc_soft_interlocks = ['Heat-Sink Overtemperature',
-                                    'Inductors Overtemperature']
-
 list_fac_2s_acdc_hard_interlocks = ['CapBank Overvoltage',
+                                    'Rectifier_Overvoltage',
+                                    'Rectifier_Undervoltage',
                                     'Rectifier Overcurrent',
                                     'Welded Contactor Fault',
                                     'Opened Contactor Fault',
-                                    'IIB 1 Itlk',
-                                    'IIB 2 Itlk',
-                                    'IIB 3 Itlk',
-                                    'IIB 4 Itlk',]
+                                    'IIB Input Stage Interlock',
+                                    'IIB Command Interlock']
 
-list_fac_2s_acdc_iib_is_interlocks = ['Input Overcurrent',
-                                      'Input Overvoltage',
-                                      'Heat-sink Overtemperature'
-                                      'Inductor Overtemperature'
-                                      'Driver 1 Error',
-                                      'Driver 2 Error']
-
-list_fac_2s_acdc_iib_cmd_interlocks = ['Capbank Overvoltage',
-                                       'Rack Output Overvoltage',
-                                       'Heat-sink Overtemperature'
-                                       'Inductor Overtemperature'
-                                       'AC Mains Overcurrent',
-                                       'Emergency Button']
+list_fac_2s_acdc_iib_is_interlocks = list_fac_acdc_iib_is_interlocks
+list_fac_2s_acdc_iib_cmd_interlocks = list_fac_acdc_iib_cmd_interlocks
+list_fac_2s_acdc_iib_is_alarms = list_fac_acdc_iib_is_alarms
+list_fac_2s_acdc_iib_cmd_alarms = list_fac_acdc_iib_cmd_alarms
 
 # FAC-2S DC/DC
 list_fac_2s_dcdc_soft_interlocks = ['DCCT 1 Fault',
@@ -361,6 +349,11 @@ list_fac_2p4s_acdc_hard_interlocks = ['CapBank Overvoltage',
                                       'DRS_Slave 2 Interlock',    
                                       'DRS_Slave 3 Interlock',    
                                       'DRS_Slave 4 Interlock']
+
+list_fac_2p4s_acdc_iib_is_interlocks = list_fac_acdc_iib_is_interlocks
+list_fac_2p4s_acdc_iib_cmd_interlocks = list_fac_acdc_iib_cmd_interlocks
+list_fac_2p4s_acdc_iib_is_alarms = list_fac_acdc_iib_is_alarms
+list_fac_2p4s_acdc_iib_cmd_alarms = list_fac_acdc_iib_cmd_alarms
 
 # FAC-2P4S DC/DC
 list_fac_2p4s_dcdc_soft_interlocks = ['Inductors Overtemperature',
@@ -2949,33 +2942,56 @@ class SerialDRS(object):
                 print("Hard Interlocks: " + str(hard_itlks))
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2s_acdc_hard_interlocks)
+                    
+                iib_is_itlks = self.read_bsmp_variable(45,'uint32_t')
+                print("\nIIB IS Interlocks: " + str(iib_is_itlks))
+                if(iib_is_itlks):
+                    self.decode_interlocks(iib_is_itlks, list_fac_2s_acdc_iib_is_interlocks)
+                    
+                iib_is_alarms = self.read_bsmp_variable(46,'uint32_t')
+                print("IIB IS Alarms: " + str(iib_is_alarms))
+                if(iib_is_alarms):
+                    self.decode_interlocks(iib_is_alarms, list_fac_2s_acdc_iib_is_alarms)
+
+                iib_cmd_itlks = self.read_bsmp_variable(57,'uint32_t')
+                print("\nIIB Cmd Interlocks: " + str(iib_cmd_itlks))
+                if(iib_cmd_itlks):
+                    self.decode_interlocks(iib_cmd_itlks, list_fac_2s_acdc_iib_cmd_interlocks)
+                    
+                iib_cmd_alarms = self.read_bsmp_variable(58,'uint32_t')
+                print("IIB Cmd Alarms: " + str(iib_cmd_alarms))
+                if(iib_cmd_alarms):
+                    self.decode_interlocks(iib_cmd_alarms, list_fac_2s_acdc_iib_cmd_alarms)
                 
                 print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(38,'float')) + " %")
+                print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
+                print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
                 
                 if(iib):
-                    print("\nIIB FAC-IS Input Current: " + str(self.read_bsmp_variable(39,'float')) + " A")
-                    print("IIB FAC-IS Input Voltage: " + str(self.read_bsmp_variable(40,'float')) + " V")
-                    print("IIB FAC-IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                    print("IIB FAC-IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
+                    print("\nIIB IS Input Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
+                    print("IIB IS Input Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
+                    print("IIB IS IGBT Temp: " + str(self.read_bsmp_variable(38,'float')) + " ºC")
+                    print("IIB IS Driver Voltage: " + str(self.read_bsmp_variable(39,'float')) + " V")
+                    print("IIB IS Driver Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
+                    print("IIB IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
+                    print("IIB IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
+                    print("IIB IS Board Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
+                    print("IIB IS Board RH: " + str(self.read_bsmp_variable(44,'float')) + " %")
+                    print("IIB IS Interlocks: " + str(self.read_bsmp_variable(45,'uint32_t')))
+                    print("IIB IS Alarms: " + str(self.read_bsmp_variable(46,'uint32_t')))
                     
-                    iib_is_itlks = self.read_bsmp_variable(48,'uint32_t')
-                    print("\nIIB FAC-IS Interlocks: " + str(iib_is_itlks))
-                    if(iib_is_itlks):
-                        self.decode_interlocks(iib_is_itlks, list_fac_2s_acdc_iib_is_interlocks)
-                        print('')
-                    
-                    print("\nIIB FAC-Cmd Rack Output Voltage: " + str(self.read_bsmp_variable(43,'float')) + " V")
-                    print("IIB FAC-Cmd Capbank Voltage: " + str(self.read_bsmp_variable(44,'float')) + " V")
-                    print("IIB FAC-Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(45,'float')) + " ºC")
-                    print("IIB FAC-Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(46,'float')) + " ºC")
-
-                    iib_cmd_itlks = self.read_bsmp_variable(49,'uint32_t')
-                    print("\nIIB FAC-Cmd Interlocks: " + str(iib_cmd_itlks))
-                    if(iib_cmd_itlks):
-                        self.decode_interlocks(iib_cmd_itlks, list_fac_2s_acdc_iib_cmd_interlocks)
-                        print('')
+                    print("\nIIB Cmd Load Voltage: " + str(self.read_bsmp_variable(47,'float')) + " V")
+                    print("IIB Cmd CapBank Voltage: " + str(self.read_bsmp_variable(48,'float')) + " V")
+                    print("IIB Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
+                    print("IIB Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(50,'float')) + " ºC")
+                    print("IIB Cmd External Boards Voltage: " + str(self.read_bsmp_variable(51,'float')) + " V")
+                    print("IIB Cmd Auxiliary Board Current: " + str(self.read_bsmp_variable(52,'float')) + " A")
+                    print("IIB Cmd IDB Board Current: " + str(self.read_bsmp_variable(53,'float')) + " A")
+                    print("IIB Cmd Ground Leakage Current: " + str(self.read_bsmp_variable(54,'float')) + " A")
+                    print("IIB Cmd Board Temp: " + str(self.read_bsmp_variable(55,'float')) + " ºC")
+                    print("IIB Cmd Board RH: " + str(self.read_bsmp_variable(56,'float')) + " %")
+                    print("IIB Cmd Interlocks: " + str(self.read_bsmp_variable(57,'uint32_t')))
+                    print("IIB Cmd Alarms: " + str(self.read_bsmp_variable(58,'uint32_t')))
                         
                 self.SetSlaveAdd(add_mod_a+1)
                 
@@ -2992,32 +3008,55 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2s_acdc_hard_interlocks)
         
+                iib_is_itlks = self.read_bsmp_variable(45,'uint32_t')
+                print("\nIIB IS Interlocks: " + str(iib_is_itlks))
+                if(iib_is_itlks):
+                    self.decode_interlocks(iib_is_itlks, list_fac_2s_acdc_iib_is_interlocks)
+                    
+                iib_is_alarms = self.read_bsmp_variable(46,'uint32_t')
+                print("IIB IS Alarms: " + str(iib_is_alarms))
+                if(iib_is_alarms):
+                    self.decode_interlocks(iib_is_alarms, list_fac_2s_acdc_iib_is_alarms)
+
+                iib_cmd_itlks = self.read_bsmp_variable(57,'uint32_t')
+                print("\nIIB Cmd Interlocks: " + str(iib_cmd_itlks))
+                if(iib_cmd_itlks):
+                    self.decode_interlocks(iib_cmd_itlks, list_fac_2s_acdc_iib_cmd_interlocks)
+                    
+                iib_cmd_alarms = self.read_bsmp_variable(58,'uint32_t')
+                print("IIB Cmd Alarms: " + str(iib_cmd_alarms))
+                if(iib_cmd_alarms):
+                    self.decode_interlocks(iib_cmd_alarms, list_fac_2s_acdc_iib_cmd_alarms)
+                
                 print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(38,'float')) + " %")
+                print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
+                print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
                 
                 if(iib):
-                    print("\nIIB FAC-IS Input Current: " + str(self.read_bsmp_variable(39,'float')) + " A")
-                    print("IIB FAC-IS Input Voltage: " + str(self.read_bsmp_variable(40,'float')) + " V")
-                    print("IIB FAC-IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                    print("IIB FAC-IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
+                    print("\nIIB IS Input Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
+                    print("IIB IS Input Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
+                    print("IIB IS IGBT Temp: " + str(self.read_bsmp_variable(38,'float')) + " ºC")
+                    print("IIB IS Driver Voltage: " + str(self.read_bsmp_variable(39,'float')) + " V")
+                    print("IIB IS Driver Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
+                    print("IIB IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
+                    print("IIB IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
+                    print("IIB IS Board Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
+                    print("IIB IS Board RH: " + str(self.read_bsmp_variable(44,'float')) + " %")
+                    print("IIB IS Interlocks: " + str(self.read_bsmp_variable(45,'uint32_t')))
+                    print("IIB IS Alarms: " + str(self.read_bsmp_variable(46,'uint32_t')))
                     
-                    iib_is_itlks = self.read_bsmp_variable(48,'uint32_t')
-                    print("\nIIB FAC-IS Interlocks: " + str(iib_is_itlks))
-                    if(iib_is_itlks):
-                        self.decode_interlocks(iib_is_itlks, list_fac_2s_acdc_iib_is_interlocks)
-                        print('')
-                    
-                    print("\nIIB FAC-Cmd Rack Output Voltage: " + str(self.read_bsmp_variable(43,'float')) + " V")
-                    print("IIB FAC-Cmd Capbank Voltage: " + str(self.read_bsmp_variable(44,'float')) + " V")
-                    print("IIB FAC-Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(45,'float')) + " ºC")
-                    print("IIB FAC-Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(46,'float')) + " ºC")
-
-                    iib_cmd_itlks = self.read_bsmp_variable(49,'uint32_t')
-                    print("\nIIB FAC-Cmd Interlocks: " + str(iib_cmd_itlks))
-                    if(iib_cmd_itlks):
-                        self.decode_interlocks(iib_cmd_itlks, list_fac_2s_acdc_iib_cmd_interlocks)
-                        print('')
+                    print("\nIIB Cmd Load Voltage: " + str(self.read_bsmp_variable(47,'float')) + " V")
+                    print("IIB Cmd CapBank Voltage: " + str(self.read_bsmp_variable(48,'float')) + " V")
+                    print("IIB Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
+                    print("IIB Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(50,'float')) + " ºC")
+                    print("IIB Cmd External Boards Voltage: " + str(self.read_bsmp_variable(51,'float')) + " V")
+                    print("IIB Cmd Auxiliary Board Current: " + str(self.read_bsmp_variable(52,'float')) + " A")
+                    print("IIB Cmd IDB Board Current: " + str(self.read_bsmp_variable(53,'float')) + " A")
+                    print("IIB Cmd Ground Leakage Current: " + str(self.read_bsmp_variable(54,'float')) + " A")
+                    print("IIB Cmd Board Temp: " + str(self.read_bsmp_variable(55,'float')) + " ºC")
+                    print("IIB Cmd Board RH: " + str(self.read_bsmp_variable(56,'float')) + " %")
+                    print("IIB Cmd Interlocks: " + str(self.read_bsmp_variable(57,'uint32_t')))
+                    print("IIB Cmd Alarms: " + str(self.read_bsmp_variable(58,'uint32_t')))
                         
                 time.sleep(dt)
                 
