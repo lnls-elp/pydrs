@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41 2020-09-02"
+UDC_FIRMWARE_VERSION = "0.41 2020-09-04"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -310,29 +310,18 @@ list_fac_2s_dcdc_soft_interlocks = ['DCCT 1 Fault',
                                     'Load Feedback 1 Fault',
                                     'Load Feedback 2 Fault']
                             
-list_fac_2s_dcdc_hard_interlocks = ['Load Overcurrent','Load Overvoltage',
+list_fac_2s_dcdc_hard_interlocks = ['Load Overcurrent',
                                     'Module 1 CapBank Overvoltage',
                                     'Module 2 CapBank Overvoltage',
                                     'Module 1 CapBank Undervoltage',
                                     'Module 2 CapBank Undervoltage',
-                                    'Module 1 Output Overvoltage',
-                                    'Module 2 Output Overvoltage',
-                                    'IIB_1 Itlk',
-                                    'IIB_2 Itlk',
+                                    'IIB Mod 1 Itlk',
+                                    'IIB Mod 2 Itlk',
                                     'External Interlock',
                                     'Rack Interlock']
   
-list_fac_2s_dcdc_iib_interlocks = ['Input Overcurrent',
-                                   'Output Overcurrent',
-                                   'Input Overvoltage',
-                                   'IGBT 1 Overtemperature',
-                                   'IGBT 1 HWR Overtemperature',
-                                   'IGBT 2 Overtemperature',
-                                   'IGBT 2 HWR Overtemperature',
-                                   'Inductor Overtemperature',
-                                   'Heat-Sink Overtemperature',
-                                   'Driver 1 Error',
-                                   'Driver 2 Error']
+list_fac_2s_dcdc_iib_interlocks = list_fac_dcdc_iib_interlocks
+list_fac_2s_dcdc_iib_alarms = list_fac_dcdc_iib_alarms
 
 # FAC-2P4S AC/DC
 list_fac_2p4s_acdc_soft_interlocks = ['Heat-Sink Overtemperature',
@@ -3067,6 +3056,7 @@ class SerialDRS(object):
     def read_vars_fac_2s_dcdc(self, n = 1, com_add = 1, dt = 0.5, iib = 0):
     
         old_add = self.GetSlaveAdd()
+        iib_offset = 14*(iib-1)
         
         try:
             for i in range(n):
@@ -3090,41 +3080,39 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2s_dcdc_hard_interlocks)
                 
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')))
-                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(34,'float')))
-                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(35,'float')))
+                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
+                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
+                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
                 
-                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(39,'float')))
-                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(40,'float')))
+                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(36,'float')) + " V")
+                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(37,'float')) + " V")
                 
-                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(41,'float')))
-                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(42,'float')))
-                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(43,'float')))
+                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(38,'float')) + " %")
+                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(39,'float')) + " %")
         
                 if(iib):
-                    print("\nIIB Module 1 Input Current: " + str(self.read_bsmp_variable(44,'float')) + " A")
-                    print("IIB Module 1 Output Current: " + str(self.read_bsmp_variable(45,'float')) + " A")
-                    print("IIB Module 1 Input Voltage: " + str(self.read_bsmp_variable(46,'float')) + " V")
-                    print("IIB Module 1 Inductor Temp: " + str(self.read_bsmp_variable(47,'float')) + " ºC")
-                    print("IIB Module 1 Heat-Sink Temp: " + str(self.read_bsmp_variable(48,'float')) + " ºC")
+                    print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(40 + iib_offset,'float')) + " V")
+                    print("IIB Input Current: " + str(self.read_bsmp_variable(41 + iib_offset,'float')) + " A")
+                    print("IIB Output Current: " + str(self.read_bsmp_variable(42 + iib_offset,'float')) + " A")
+                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(43 + iib_offset,'float')) + " ºC")
+                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(44 + iib_offset,'float')) + " ºC")
+                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(45 + iib_offset,'float')) + " ºC")
+                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(46 + iib_offset,'float')) + " ºC")
+                    print("IIB Driver Voltage: " + str(self.read_bsmp_variable(47 + iib_offset,'float')) + " V")
+                    print("IIB Driver Current 1: " + str(self.read_bsmp_variable(48 + iib_offset,'float')) + " A")
+                    print("IIB Driver Current 2: " + str(self.read_bsmp_variable(49 + iib_offset,'float')) + " A")
+                    print("IIB Board Temp: " + str(self.read_bsmp_variable(50 + iib_offset,'float')) + " ºC")
+                    print("IIB Board RH: " + str(self.read_bsmp_variable(51 + iib_offset,'float')) + " %")
                     
-                    print("\nIIB Module 2 Input Current: " + str(self.read_bsmp_variable(51,'float')) + " A")
-                    print("IIB Module 2 Output Current: " + str(self.read_bsmp_variable(52,'float')) + " A")
-                    print("IIB Module 2 Input Voltage: " + str(self.read_bsmp_variable(53,'float')) + " V")
-                    print("IIB Module 2 Inductor Temp: " + str(self.read_bsmp_variable(54,'float')) + " ºC")
-                    print("IIB Module 2 Heat-Sink Temp: " + str(self.read_bsmp_variable(55,'float')) + " ºC")
-                
-                    iib_1_itlks = self.read_bsmp_variable(58,'uint32_t')
-                    print("\nIIB Module 1 Interlocks: " + str(iib_1_itlks))
-                    if(iib_1_itlks):
-                        self.decode_interlocks(iib_1_itlks, list_fac_2s_dcdc_iib_interlocks)
-                        print('')
-
-                    iib_2_itlks = self.read_bsmp_variable(59,'uint32_t')
-                    print("IIB Module 2 Interlocks: " + str(iib_2_itlks))
-                    if(iib_2_itlks):
-                        self.decode_interlocks(iib_2_itlks, list_fac_2s_dcdc_iib_interlocks)
-                        print('')
+                    iib_itlks = self.read_bsmp_variable(52 + iib_offset,'uint32_t')
+                    print("\nIIB Interlocks: " + str(iib_itlks))
+                    if(iib_itlks):
+                        self.decode_interlocks(iib_itlks, list_fac_2s_dcdc_iib_interlocks)
+                        
+                    iib_alarms = self.read_bsmp_variable(53 + iib_offset,'uint32_t')
+                    print("IIB Alarms: " + str(iib_alarms))
+                    if(iib_alarms):
+                        self.decode_interlocks(iib_alarms, list_fac_2s_dcdc_iib_alarms)
 
                 time.sleep(dt)
                 
