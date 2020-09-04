@@ -3120,65 +3120,8 @@ class SerialDRS(object):
         except:
             self.SetSlaveAdd(old_add)
 
-    def read_vars_fac_2p4s_acdc(self, n = 1, add_mod_a = 2, dt = 0.5):
-    
-        old_add = self.GetSlaveAdd()
-        
-        try:
-            for i in range(n):
-            
-                self.SetSlaveAdd(add_mod_a)
-            
-                print('\n--- Measurement #' + str(i+1) + ' ------------------------------------------\n')
-                self.read_vars_common()
-    
-                print('\n *** MODULE A *** \n')
-    
-                soft_itlks = self.read_bsmp_variable(31,'uint32_t')
-                print("\nSoft Interlocks: " + str(soft_itlks))
-                if(soft_itlks):
-                    self.decode_interlocks(soft_itlks, list_fac_2p4s_acdc_soft_interlocks)
-                    print('')
-                
-                hard_itlks = self.read_bsmp_variable(32,'uint32_t')
-                print("Hard Interlocks: " + str(hard_itlks))
-                if(hard_itlks):
-                    self.decode_interlocks(hard_itlks, list_fac_2p4s_acdc_hard_interlocks)
-        
-                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Voltage: " + str(self.read_bsmp_variable(34,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
-                #print("Inductors Temp: " + str(self.read_bsmp_variable(36,'float')) + " ºC")
-                #print("IGBTs Temp: " + str(self.read_bsmp_variable(37,'float')) + " ºC")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(38,'float')) + " %")
-                
-                self.SetSlaveAdd(add_mod_a+1)
-                
-                print('\n *** MODULE B *** \n')
-                
-                soft_itlks = self.read_bsmp_variable(31,'uint32_t')
-                print("\nSoft Interlocks: " + str(soft_itlks))
-                if(soft_itlks):
-                    self.decode_interlocks(soft_itlks, list_fac_2p4s_acdc_soft_interlocks)
-                    print('')
-                
-                hard_itlks = self.read_bsmp_variable(32,'uint32_t')
-                print("Hard Interlocks: " + str(hard_itlks))
-                if(hard_itlks):
-                    self.decode_interlocks(hard_itlks, list_fac_2p4s_acdc_hard_interlocks)
-        
-                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Voltage: " + str(self.read_bsmp_variable(34,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
-                #print("Inductors Temp: " + str(self.read_bsmp_variable(36,'float')) + " ºC")
-                #print("IGBTs Temp: " + str(self.read_bsmp_variable(37,'float')) + " ºC")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(38,'float')) + " %")
-                
-                time.sleep(dt)
-                
-            self.SetSlaveAdd(old_add)
-        except:
-            self.SetSlaveAdd(old_add)
+    def read_vars_fac_2p4s_acdc(self, n = 1, add_mod_a = 2, dt = 0.5, iib = 0):
+        self.read_vars_fac_2s_acdc(n, add_mod_a, dt, iib)
             
     def read_vars_fac_2p4s_dcdc(self, n = 1, com_add = 1, dt = 0.5):
     
