@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41 2020-09-04"
+UDC_FIRMWARE_VERSION = "0.41 2020-09-08"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -3163,7 +3163,7 @@ class SerialDRS(object):
                 print("Duty-Cycle 8: " + str(self.read_bsmp_variable(53,'float')))   
 
                 if(iib):
-                   
+
                     print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(54,'float')) + " V")
                     print("IIB Input Current: " + str(self.read_bsmp_variable(55, 'float')) + " A")
                     print("IIB Output Current: " + str(self.read_bsmp_variable(56,'float')) + " A")
