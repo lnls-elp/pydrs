@@ -26,7 +26,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41 2020-09-08"
+UDC_FIRMWARE_VERSION = "0.41 2020-09-11"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -191,7 +191,7 @@ list_fac_acdc_hard_interlocks = ['CapBank Overvoltage',
                                  'IIB Input Stage Interlock',
                                  'IIB Command Interlock']
 
-list_fac_acdc_iib_is_interlocks = ['Input Overvoltage',
+list_fac_acdc_iib_is_interlocks = ['Rectifier Overvoltage',
                                    'Input Overcurrent',
                                    'IGBT Overtemperature',
                                    'IGBT Overtemperature HW',
@@ -204,7 +204,7 @@ list_fac_acdc_iib_is_interlocks = ['Input Overvoltage',
                                    'Board IIB Overtemperature',
                                    'Module Overhumidity']
 
-list_fac_acdc_iib_is_alarms = ['Capbank Overvoltage',
+list_fac_acdc_iib_is_alarms = ['Rectifier Overvoltage',
                                'Input Overcurrent',
                                'IGBT Overtemperature',
                                'Driver Overvoltage',
