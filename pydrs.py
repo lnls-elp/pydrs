@@ -3077,7 +3077,7 @@ class SerialDRS(object):
                 
                 print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(38,'float')) + " %")
                 print("Duty-Cycle 2: " + str(self.read_bsmp_variable(39,'float')) + " %")
-        
+                
                 if(iib):
                     print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(40 + iib_offset,'float')) + " V")
                     print("IIB Input Current: " + str(self.read_bsmp_variable(41 + iib_offset,'float')) + " A")
@@ -4128,4 +4128,62 @@ class SerialDRS(object):
         self.reset_udc()
         time.sleep(2)
         
-        print('\n Pronto! Não se esqueça de utilizar o novo endereço serial para se comunicar com esta fonte! :)\n')
+        print('\n Pronto! Nao se esqueca de utilizar o novo endereco serial para se comunicar com esta fonte! :)\n')
+        
+    def test_bid_board(self):
+    
+        r = input("\n Antes de iniciar, certifique-se que o bastidor foi energizado sem a placa BID.\n Para prosseguir, conecte a placa BID a ser testada e pressione qualquer tecla... ")
+        
+        print("\n Desbloqueando UDC ...")
+        print(self.unlock_udc(0xCAFE))
+        
+        print("\n Carregando banco de parametros da memoria onboard ...")
+        print(self.load_param_bank(type_memory = 2))
+        
+        print("\n Banco de parametros da memoria onboard:\n")
+
+        max_param = ListParameters.index('Scope_Source')
+        param_bank_onboard = []
+        
+        for param in ListParameters[0:max_param]:
+            val = self.get_param(param,0)
+            print(param + ':',val)
+            param_bank_onboard.append(val)
+        
+        print("\n Salvando banco de parametros na memoria offboard ...")
+        print(self.save_param_bank(type_memory = 1))
+        
+        time.sleep(5)
+        
+        print("\n Resetando UDC ...")
+        self.reset_udc()
+        
+        time.sleep(3)
+        
+        self.read_ps_status()
+        
+        print("\n Desbloqueando UDC ...")
+        print(self.unlock_udc(0xCAFE))
+        
+        print("\n Carregando banco de parametros da memoria offboard ...")
+        print(self.load_param_bank(type_memory = 1))
+        
+        self.read_ps_status()
+        
+        print("\n Verificando banco de parametros offboard apos reset ... \n")
+        try:
+            param_bank_offboard = []
+        
+            for param in ListParameters[0:max_param]:
+                val = self.get_param(param,0)
+                print(param, val)
+                param_bank_offboard.append(val)
+
+            if param_bank_onboard == param_bank_offboard:
+                print("\n Placa BID aprovada!\n")
+            else:
+                print("\n Placa BID reprovada!\n")
+                
+        except:
+            print(" Placa BID reprovada!\n")
+            
