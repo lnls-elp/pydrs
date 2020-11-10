@@ -91,7 +91,8 @@ ListFunc_v2_1 = ['turn_on','turn_off','open_loop','closed_loop','select_op_mode'
                  'save_param_eeprom','load_param_eeprom', 'save_param_bank',
                  'load_param_bank','set_dsp_coeffs','get_dsp_coeff',
                  'save_dsp_coeffs_eeprom', 'load_dsp_coeffs_eeprom',
-                 'save_dsp_modules_eeprom', 'load_dsp_modules_eeprom','reset_udc']
+                 'save_dsp_modules_eeprom', 'load_dsp_modules_eeprom','reset_udc',
+                 'cfg_trig_delay_scope']
 
 ListOpMode_v2_1 = ['Off','Interlock','Initializing','SlowRef','SlowRefSync',
                    'Cycle','RmpWfm','MigWfm','FastRef']
@@ -1781,6 +1782,14 @@ class SerialDRS(object):
         send_msg     = self.checksum(self.SlaveAdd+send_packet)
         self.ser.write(send_msg.encode('ISO-8859-1'))
         return self.ser.read(6)
+    
+    def cfg_trig_delay_scope(self,trig_delay):
+        payload_size = self.size_to_hex(1+4) #Payload: ID + trig_delay
+        hex_trig_delay = self.float_to_hex(trig_delay)
+        send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('cfg_trig_delay_scope'))+hex_trig_delay
+        send_msg     = self.checksum(self.SlaveAdd+send_packet)
+        self.ser.write(send_msg.encode('ISO-8859-1'))
+        return self.ser.read(6)
 
     def enable_scope(self):
         payload_size = self.size_to_hex(1) #Payload: ID
@@ -1802,7 +1811,18 @@ class SerialDRS(object):
         print('Duration: ' + str((self.read_bsmp_variable(26,'float'))))
         print('Source Data: ' + str((self.read_bsmp_variable(27,'uint32_t'))))
 
-        
+    def read_scope(self):
+        idx = int((self.read_bsmp_variable(30,'uint32_t') - self.read_bsmp_variable(28,'uint32_t'))/2)
+        fs = self.read_bsmp_variable(25,'float')
+        buf_raw = self.read_buf_samples_ctom()
+        t = [val/fs for val in range(len(buf_raw))]
+        buf = buf_raw[idx:]
+        buf.extend(buf_raw[:idx])
+        plt.plot(t,buf)
+        plt.xlabel('Time [s]')
+        plt.show()
+        return buf
+
     def sync_pulse(self):
         payload_size = self.size_to_hex(1) #Payload: ID
         send_packet  = self.ComFunction+payload_size+self.index_to_hex(ListFunc_v2_1.index('sync_pulse'))
