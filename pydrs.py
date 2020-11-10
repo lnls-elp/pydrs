@@ -465,7 +465,7 @@ list_fap_4p_hard_interlocks = ['Load Overcurrent',
                                'DCLink Mod 1 Undervoltage',
                                'DCLink Mod 2 Undervoltage',
                                'DCLink Mod 3 Undervoltage',
-                               'DCLink Mod 4_Undervoltage',
+                               'DCLink Mod 4 Undervoltage',
                                'IIB Mod 1 Itlk',
                                'IIB Mod 2 Itlk',
                                'IIB Mod 3 Itlk',
@@ -520,7 +520,7 @@ list_fap_2p2s_hard_interlocks = ['Load Overcurrent',
                                'DCLink Mod 1 Undervoltage',
                                'DCLink Mod 2 Undervoltage',
                                'DCLink Mod 3 Undervoltage',
-                               'DCLink Mod 4_Undervoltage',
+                               'DCLink Mod 4 Undervoltage',
                                'IIB Mod 1 Itlk',
                                'IIB Mod 2 Itlk',
                                'IIB Mod 3 Itlk',
@@ -4130,12 +4130,12 @@ class SerialDRS(object):
         
         print('\n Pronto! Nao se esqueca de utilizar o novo endereco serial para se comunicar com esta fonte! :)\n')
         
-    def test_bid_board(self):
+    def test_bid_board(self, password):
     
         r = input("\n Antes de iniciar, certifique-se que o bastidor foi energizado sem a placa BID.\n Para prosseguir, conecte a placa BID a ser testada e pressione qualquer tecla... ")
         
         print("\n Desbloqueando UDC ...")
-        print(self.unlock_udc(0xCAFE))
+        print(self.unlock_udc(password))
         
         print("\n Carregando banco de parametros da memoria onboard ...")
         print(self.load_param_bank(type_memory = 2))
@@ -4163,7 +4163,7 @@ class SerialDRS(object):
         self.read_ps_status()
         
         print("\n Desbloqueando UDC ...")
-        print(self.unlock_udc(0xCAFE))
+        print(self.unlock_udc(password))
         
         print("\n Carregando banco de parametros da memoria offboard ...")
         print(self.load_param_bank(type_memory = 1))
@@ -4187,3 +4187,40 @@ class SerialDRS(object):
         except:
             print(" Placa BID reprovada!\n")
             
+    def upload_parameters_bid(self, password):
+        print("\n Desbloqueando UDC ...")
+        print(self.unlock_udc(password))
+        
+        print("\n Carregando banco de parametros da memoria offboard ...")
+        print(self.load_param_bank(type_memory = 1))
+        time.sleep(1)
+        
+        print("\n Salvando banco de parametros na memoria onboard ...")
+        print(self.save_param_bank(type_memory = 2))
+        time.sleep(5)
+        
+        print("\n Carregando coeficientes de controle da memoria offboard ...")
+        print(self.load_dsp_modules_eeprom(type_memory = 1))
+        time.sleep(1)
+        
+        print("\n Salvando coeficientes de controle na memoria onboard ...\n")
+        print(self.save_dsp_modules_eeprom(type_memory = 2))
+        
+    def download_parameters_bid(self,password):
+        print("\n Desbloqueando UDC ...")
+        print(self.unlock_udc(password))
+        
+        print("\n Carregando banco de parametros da memoria onboard ...")
+        print(self.load_param_bank(type_memory = 2))
+        time.sleep(1)
+        
+        print("\n Salvando banco de parametros na memoria offboard ...")
+        print(self.save_param_bank(type_memory = 1))
+        time.sleep(5)
+        
+        print("\n Carregando coeficientes de controle da memoria onboard ...")
+        print(self.load_dsp_modules_eeprom(type_memory = 2))
+        time.sleep(1)
+        
+        print("\n Salvando coeficientes de controle na memoria offboard ...")
+        print(self.save_dsp_modules_eeprom(type_memory = 1))
