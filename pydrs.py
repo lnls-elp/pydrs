@@ -4090,6 +4090,10 @@ class SerialDRS(object):
         list_files = ['fbp_dclink/parameters_fbp_dclink_hensys.csv',
                       'fac/parameters_fac_acdc_hensys.csv',
                       'fac/parameters_fac_dcdc_hensys.csv',
+                      'fac/parameters_fac_2s_acdc_hensys.csv',
+                      'fac/parameters_fac_2s_dcdc_hensys.csv',
+                      'fac/parameters_fac_2p4s_acdc_hensys.csv',
+                      'fac/parameters_fac_2p4s_dcdc_hensys.csv',
                       'fap/parameters_fap_hensys.csv',
                       'fap/parameters_fap_2p2s_hensys.csv',
                       'fap/parameters_fap_4p_hensys.csv']
@@ -4101,9 +4105,13 @@ class SerialDRS(object):
         print(' 0: FBP-DClink')
         print(' 1: FAC-ACDC')
         print(' 2: FAC-DCDC')
-        print(' 3: FAP')
-        print(' 4: FAP-2P2S')
-        print(' 5: FAP-4P')
+        print(' 3: FAC-2S-ACDC')
+        print(' 4: FAC-2S-DCDC')
+        print(' 5: FAC-2P4S-ACDC')
+        print(' 6: FAC-2P4S-DCDC')
+        print(' 7: FAP')
+        print(' 8: FAP-2P2S')
+        print(' 9: FAP-4P')
         
         model_idx = int(input('\n Digite o índice correspondente: '))  
         file_path = '../ps_parameters/development/' + list_files[model_idx]
