@@ -21,3 +21,4 @@ repos:
     rev: master
     hooks:
       - id: mypy
+        args: [--ignore-missing-imports]
