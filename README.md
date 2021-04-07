@@ -1,4 +1,4 @@
-# PyDRS - Python module to communicate with Sirius Power Supplies.
+# PyDRS - Sirius Power Supplies communication.
 
 ![Linting and Static](https://github.com/lnls-sirius/pydrs/actions/workflows/lint.yml/badge.svg)
 ![Latest tag](https://img.shields.io/github/tag/lnls-sirius/pydrs.svg?style=flat)
