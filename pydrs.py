@@ -485,13 +485,48 @@ list_fac_dcdc_ema_soft_interlocks = ['DCCT Fault',
                                      'Load Feedback Fault']
                             
 list_fac_dcdc_ema_hard_interlocks = ['Load Overcurrent',
-                                     'CapBank Overvoltage',
-                                     'CapBank Undervoltage',
+                                     'DCLink Overvoltage',
+                                     'DCLink Undervoltage',
                                      'Emergency Button',
                                      'Load Waterflow',
                                      'Load Overtemperature',
                                      'IIB Itlk']
- 
+
+list_fac_dcdc_ema_iib_interlocks = ['Input Overvoltage',
+                                    'Input Overcurrent',
+                                    'Output Overcurrent',
+                                    'IGBT 1 Overtemperature',
+                                    'IGBT 1 Overtemperature HW',
+                                    'IGBT 2 Overtemperature',
+                                    'IGBT 2 Overtemperature HW',
+                                    'Driver Overvoltage',
+                                    'Driver 1 Overcurrent',
+                                    'Driver 2 Overcurrent',
+                                    'Top Driver 1 Error',
+                                    'Bottom Driver 1 Error',
+                                    'Top Driver 2 Error',
+                                    'Bottom Driver 2 Error',
+                                    'Inductors Overtemperature',
+                                    'Heat-Sink Overtemperature',
+                                    'Ground Leakage Overcurrent',
+                                    'Board IIB Overtemperature',
+                                    'Module Overhumidity']
+                                
+list_fac_dcdc_ema_iib_alarms = ['Input Overvoltage',
+                                'Input Overcurrent',
+                                'Output Overcurrent',
+                                'IGBT 1 Overtemperature',
+                                'IGBT 2 Overtemperature',
+                                'Driver Overvoltage',
+                                'Driver 1 Overcurrent',
+                                'Driver 2 Overcurrent',
+                                'Inductors Overtemperature',
+                                'Heat-Sink Overtemperature',
+                                'Ground Leakage Overcurrent',
+                                'Board IIB Overtemperature',
+                                'Module Overhumidity']
+
+
 # FAP-2P2S                                 
 list_fap_2p2s_soft_interlocks = ['DCCT 1 Fault',
                                'DCCT 2 Fault',
@@ -2876,26 +2911,37 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_dcdc_ema_hard_interlocks)
                     
-                iib_itlks = self.read_bsmp_variable(39,'uint32_t')
+                iib_itlks = self.read_bsmp_variable(49,'uint32_t')
                 print("IIB Interlocks: " + str(iib_itlks))
                 if(iib_itlks):
-                    self.decode_interlocks(iib_itlks, list_fac_dcdc_iib_interlocks)
+                    self.decode_interlocks(iib_itlks, list_fac_dcdc_ema_iib_interlocks)
+
+                iib_alarms = self.read_bsmp_variable(50,'uint32_t')
+                print("IIB Alarms: " + str(iib_alarms))
+                if(iib_alarms):
+                    self.decode_interlocks(iib_alarms, list_fac_dcdc_ema_iib_alarms)
         
                 print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)))
-                print("CapBank Voltage: " + str(round(self.read_bsmp_variable(34,'float'),3)))
+                print("DC-Link Voltage: " + str(round(self.read_bsmp_variable(34,'float'),3)))
                 print("\nDuty-Cycle: " + str(round(self.read_bsmp_variable(35,'float'),3)))
                 
                 if(iib):
-                    print("\nIIB Input Current: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " A")
-                    print("IIB Output Current: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " A")
-                    print("IIB CapBank Voltage: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " V")
-                    print("IIB IGBT Leg 1 Temp: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " °C")
-                    print("IIB IGBT Leg 2 Temp: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " °C")
+                    print("\nIIB Input Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
+                    print("IIB Input Current: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " A")
+                    print("IIB Output Current: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " A")
+                    print("IIB IGBT 1 Temp: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " °C")
+                    print("IIB IGBT 2 Temp: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " °C")
                     print("IIB Inductor Temp: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " °C")
                     print("IIB Heat-Sink Temp: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " °C")
-                    print("IIB Driver 1 Error: " + str(round(self.read_bsmp_variable(43,'float'),3)))
-                    print("IIB Driver 2 Error: " + str(round(self.read_bsmp_variable(44,'float'),3)))
-                    
+                    print("IIB Driver Voltage: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " V")
+                    print("IIB Driver Current 1: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " A")
+                    print("IIB Driver Current 2: " + str(round(self.read_bsmp_variable(45,'float'),3)) + " A")
+                    print("IIB Ground Leakage Current: " + str(round(self.read_bsmp_variable(46,'float'),3)) + " A")
+                    print("IIB Board Temp: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " °C")
+                    print("IIB Board RH: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " %")
+                    print("IIB Interlocks: " + str(round(self.read_bsmp_variable(49,'uint32_t'),3)))
+                    print("IIB Alarms: " + str(round(self.read_bsmp_variable(50,'uint32_t'),3)))
+
                 time.sleep(dt)
                 
         except:
