@@ -13,6 +13,13 @@ Versão 1.0 rev.A - rounded printing values to 3 decimal places and displays '°
 Python 3.8.6
 """
 
+"""
+Reviewed on 06/05/2021
+Versão 1.0 rev.B - Added FAC_DCDC_EMA variables.
+@author: Marcelo (ELT)
+Python 3.9.5
+"""
+
 import struct
 import glob
 import serial
