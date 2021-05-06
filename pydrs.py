@@ -2684,8 +2684,8 @@ class SerialDRS(object):
                 
                 print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
                 print("Load Voltage: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " V")
-                print("Load Resistance: " + str( self.read_bsmp_variable(34,'float') / self.read_bsmp_variable(33,'float')) + " Ohm")
-                print("Load Power: " + str( self.read_bsmp_variable(34,'float') * self.read_bsmp_variable(33,'float')) + " W")
+                print("Load Resistance: " + str(abs(round(self.read_bsmp_variable(34,'float') / self.read_bsmp_variable(33,'float'),3))) + " Ohm")
+                print("Load Power: " + str(abs(round(self.read_bsmp_variable(34,'float') * self.read_bsmp_variable(33,'float'),3))) + " W")
                 print("DC-Link Voltage: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " V")
                 print("Heat-Sink Temp: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " °C")
                 print("Duty-Cycle: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " %")
@@ -3257,15 +3257,15 @@ class SerialDRS(object):
 
                 iload = self.read_bsmp_variable(33,'float')
                 
-                print("\nLoad Current: " + str(iload) + " A")
+                print("\nLoad Current: " + str(round(iload,3)) + " A")
                 print("Load Current DCCT 1: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
                 print("Load Current DCCT 2: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
                 
                 if not iload == 0:
-                    print("\nLoad Resistance: " + str( abs(round(self.read_bsmp_variable(43,'float'),3)) / iload ) + " Ohm")
+                    print("\nLoad Resistance: " + str(abs(round(self.read_bsmp_variable(43,'float') / iload ,3))) + " Ohm")
                 else:
                     print("\nLoad Resistance: 0 Ohm")
-                print("Load Power: " + str( self.read_bsmp_variable(43,'float') * self.read_bsmp_variable(33,'float')) + " W")
+                print("Load Power: " + str(abs(round(self.read_bsmp_variable(43,'float') * self.read_bsmp_variable(33,'float'),3))) + " W")
                 
                 print("\nDC-Link Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
                 print("\nIGBT 1 Current: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " A")
