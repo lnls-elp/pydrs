@@ -39,7 +39,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41 2020-09-11"
+UDC_FIRMWARE_VERSION = "0.42 2021-05-06"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
