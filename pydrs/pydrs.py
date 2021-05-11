@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 import struct
 import glob
 import serial
@@ -18,7 +18,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.41 2020-09-11"
+UDC_FIRMWARE_VERSION = "0.42 2021-05-06"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -471,13 +471,48 @@ list_fac_dcdc_ema_soft_interlocks = ['DCCT Fault',
                                      'Load Feedback Fault']
                             
 list_fac_dcdc_ema_hard_interlocks = ['Load Overcurrent',
-                                     'CapBank Overvoltage',
-                                     'CapBank Undervoltage',
+                                     'DCLink Overvoltage',
+                                     'DCLink Undervoltage',
                                      'Emergency Button',
                                      'Load Waterflow',
                                      'Load Overtemperature',
                                      'IIB Itlk']
- 
+
+list_fac_dcdc_ema_iib_interlocks = ['Input Overvoltage',
+                                    'Input Overcurrent',
+                                    'Output Overcurrent',
+                                    'IGBT 1 Overtemperature',
+                                    'IGBT 1 Overtemperature HW',
+                                    'IGBT 2 Overtemperature',
+                                    'IGBT 2 Overtemperature HW',
+                                    'Driver Overvoltage',
+                                    'Driver 1 Overcurrent',
+                                    'Driver 2 Overcurrent',
+                                    'Top Driver 1 Error',
+                                    'Bottom Driver 1 Error',
+                                    'Top Driver 2 Error',
+                                    'Bottom Driver 2 Error',
+                                    'Inductors Overtemperature',
+                                    'Heat-Sink Overtemperature',
+                                    'Ground Leakage Overcurrent',
+                                    'Board IIB Overtemperature',
+                                    'Module Overhumidity']
+                                
+list_fac_dcdc_ema_iib_alarms = ['Input Overvoltage',
+                                'Input Overcurrent',
+                                'Output Overcurrent',
+                                'IGBT 1 Overtemperature',
+                                'IGBT 2 Overtemperature',
+                                'Driver Overvoltage',
+                                'Driver 1 Overcurrent',
+                                'Driver 2 Overcurrent',
+                                'Inductors Overtemperature',
+                                'Heat-Sink Overtemperature',
+                                'Ground Leakage Overcurrent',
+                                'Board IIB Overtemperature',
+                                'Module Overhumidity']
+
+
 # FAP-2P2S                                 
 list_fap_2p2s_soft_interlocks = ['DCCT 1 Fault',
                                'DCCT 2 Fault',
@@ -1790,9 +1825,9 @@ class SerialDRS(object):
 
     def get_scope_vars(self):
         print('\n### Scope Variables ###\n')
-        print('Frequency: ' + str((self.read_bsmp_variable(25,'float'))))
-        print('Duration: ' + str((self.read_bsmp_variable(26,'float'))))
-        print('Source Data: ' + str((self.read_bsmp_variable(27,'uint32_t'))))
+        print('Frequency: ' + str((round(self.read_bsmp_variable(25,'float'),3))))
+        print('Duration: ' + str((round(self.read_bsmp_variable(26,'float'),3))))
+        print('Source Data: ' + str((round(self.read_bsmp_variable(27,'uint32_t'),3))))
 
         
     def sync_pulse(self):
@@ -1918,13 +1953,13 @@ class SerialDRS(object):
     
     def get_wfmref_vars(self,curve_id):
         print('\n### WfmRef ' + str(curve_id) + ' Variables ###\n')
-        print('Length: ' + str((self.read_bsmp_variable(20+curve_id*3,'uint32_t')-self.read_bsmp_variable(19+curve_id*3,'uint32_t'))/2+1))
-        print('Index: ' + str((self.read_bsmp_variable(21+curve_id*3,'uint32_t')-self.read_bsmp_variable(19+curve_id*3,'uint32_t'))/2+1))
-        print('WfmRef Selected: ' + str(self.read_bsmp_variable(14,'uint16_t')))
-        print('Sync Mode: ' + str(self.read_bsmp_variable(15,'uint16_t')))
-        print('Frequency: ' + str(self.read_bsmp_variable(16,'float')) + " Hz")
-        print('Gain: ' + str(self.read_bsmp_variable(17,'float')))
-        print('Offset: ' + str(self.read_bsmp_variable(18,'float')))
+        print('Length: ' + str((round(self.read_bsmp_variable(20+curve_id*3,'uint32_t'),3)-round(self.read_bsmp_variable(19+curve_id*3,'uint32_t'),3))/2+1))
+        print('Index: ' + str((round(self.read_bsmp_variable(21+curve_id*3,'uint32_t'),3)-round(self.read_bsmp_variable(19+curve_id*3,'uint32_t'),3))/2+1))
+        print('WfmRef Selected: ' + str(round(self.read_bsmp_variable(14,'uint16_t'),3)))
+        print('Sync Mode: ' + str(round(self.read_bsmp_variable(15,'uint16_t'),3)))
+        print('Frequency: ' + str(round(self.read_bsmp_variable(16,'float'),3)) + " Hz")
+        print('Gain: ' + str(round(self.read_bsmp_variable(17,'float'),3)))
+        print('Offset: ' + str(round(self.read_bsmp_variable(18,'float'),3)))
         
     def read_csv_file(self,filename, type = 'float'):
         csv_list = []
@@ -2626,14 +2661,14 @@ class SerialDRS(object):
         print("State: " + ps_status['state'])
         print("Loop State: " + loop_state[ps_status['open_loop']])
         
-        print("\nSetpoint: " + str(self.read_bsmp_variable(1,'float')) + setpoint_unit)
-        print("Reference: " + str(self.read_bsmp_variable(2,'float')) + setpoint_unit)
+        print("\nSetpoint: " + str(round(self.read_bsmp_variable(1,'float'),3)) + setpoint_unit)
+        print("Reference: " + str(round(self.read_bsmp_variable(2,'float'),3)) + setpoint_unit)
         
         if print_all:
             print(self.read_ps_status())
             
-            print("\nCounter set_slowref: " + str(self.read_bsmp_variable(4,'uint32_t')))
-            print("Counter sync pulse: " + str(self.read_bsmp_variable(5,'uint32_t')))
+            print("\nCounter set_slowref: " + str(round(self.read_bsmp_variable(4,'uint32_t'),3)))
+            print("Counter sync pulse: " + str(round(self.read_bsmp_variable(5,'uint32_t'),3)))
             
             self.get_siggen_vars()
             self.get_wfmref_vars(0)
@@ -2668,13 +2703,13 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fbp_hard_interlocks)
                 
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Voltage: " + str(self.read_bsmp_variable(34,'float')) + " V")
-                print("Load Resistance: " + str( self.read_bsmp_variable(34,'float') / self.read_bsmp_variable(33,'float')) + " Ohm")
-                print("Load Power: " + str( self.read_bsmp_variable(34,'float') * self.read_bsmp_variable(33,'float')) + " W")
-                print("DC-Link Voltage: " + str(self.read_bsmp_variable(35,'float')) + " V")
-                print("Heat-Sink Temp: " + str(self.read_bsmp_variable(36,'float')) + " ºC")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(37,'float')) + " %")
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
+                print("Load Voltage: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " V")
+                print("Load Resistance: " + str(abs(round(self.read_bsmp_variable(34,'float') / self.read_bsmp_variable(33,'float'),3))) + " Ohm")
+                print("Load Power: " + str(abs(round(self.read_bsmp_variable(34,'float') * self.read_bsmp_variable(33,'float'),3))) + " W")
+                print("DC-Link Voltage: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " V")
+                print("Heat-Sink Temp: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " °C")
+                print("Duty-Cycle: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " %")
                 
                 time.sleep(dt)
                 
@@ -2694,12 +2729,12 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fbp_dclink_hard_interlocks)
                 
-                print("\nModules status: " + str(self.read_bsmp_variable(33,'uint32_t')))
-                print("DC-Link Voltage: " + str(self.read_bsmp_variable(34,'float')) + " V")
-                print("PS1 Voltage: " + str(self.read_bsmp_variable(35,'float')) + " V")
-                print("PS2 Voltage: " + str(self.read_bsmp_variable(36,'float')) + " V")
-                print("PS3 Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
-                print("Dig Pot Tap: " + str(self.read_bsmp_variable(38,'uint8_t')))
+                print("\nModules status: " + str(round(self.read_bsmp_variable(33,'uint32_t'),3)))
+                print("DC-Link Voltage: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " V")
+                print("PS1 Voltage: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " V")
+                print("PS2 Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
+                print("PS3 Voltage: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " V")
+                print("Dig Pot Tap: " + str(round(self.read_bsmp_variable(38,'uint8_t'),3)))
                 
                 time.sleep(dt)
                 
@@ -2745,36 +2780,36 @@ class SerialDRS(object):
             if(iib_cmd_alarms):
                 self.decode_interlocks(iib_cmd_alarms, list_fac_acdc_iib_cmd_alarms)
                 
-            print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-            print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
+            print("\nCapBank Voltage: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " V")
+            print("Rectifier Current: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
             
-            print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
+            print("Duty-Cycle: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " %")
             
             if(iib):
-                print("\nIIB IS Input Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
-                print("IIB IS Input Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
-                print("IIB IS IGBT Temp: " + str(self.read_bsmp_variable(38,'float')) + " ºC")
-                print("IIB IS Driver Voltage: " + str(self.read_bsmp_variable(39,'float')) + " V")
-                print("IIB IS Driver Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
-                print("IIB IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                print("IIB IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
-                print("IIB IS Board Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
-                print("IIB IS Board RH: " + str(self.read_bsmp_variable(44,'float')) + " %")
-                print("IIB IS Interlocks: " + str(self.read_bsmp_variable(45,'uint32_t')))
-                print("IIB IS Alarms: " + str(self.read_bsmp_variable(46,'uint32_t')))
+                print("\nIIB IS Input Current: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " A")
+                print("IIB IS Input Voltage: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " V")
+                print("IIB IS IGBT Temp: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " °C")
+                print("IIB IS Driver Voltage: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " V")
+                print("IIB IS Driver Current: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " A")
+                print("IIB IS Inductor Temp: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " °C")
+                print("IIB IS Heat-Sink Temp: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " °C")
+                print("IIB IS Board Temp: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " °C")
+                print("IIB IS Board RH: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " %")
+                print("IIB IS Interlocks: " + str(round(self.read_bsmp_variable(45,'uint32_t'),3)))
+                print("IIB IS Alarms: " + str(round(self.read_bsmp_variable(46,'uint32_t'),3)))
                 
-                print("\nIIB Cmd Load Voltage: " + str(self.read_bsmp_variable(47,'float')) + " V")
-                print("IIB Cmd CapBank Voltage: " + str(self.read_bsmp_variable(48,'float')) + " V")
-                print("IIB Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
-                print("IIB Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(50,'float')) + " ºC")
-                print("IIB Cmd External Boards Voltage: " + str(self.read_bsmp_variable(51,'float')) + " V")
-                print("IIB Cmd Auxiliary Board Current: " + str(self.read_bsmp_variable(52,'float')) + " A")
-                print("IIB Cmd IDB Board Current: " + str(self.read_bsmp_variable(53,'float')) + " A")
-                print("IIB Cmd Ground Leakage Current: " + str(self.read_bsmp_variable(54,'float')) + " A")
-                print("IIB Cmd Board Temp: " + str(self.read_bsmp_variable(55,'float')) + " ºC")
-                print("IIB Cmd Board RH: " + str(self.read_bsmp_variable(56,'float')) + " %")
-                print("IIB Cmd Interlocks: " + str(self.read_bsmp_variable(57,'uint32_t')))
-                print("IIB Cmd Alarms: " + str(self.read_bsmp_variable(58,'uint32_t')))
+                print("\nIIB Cmd Load Voltage: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " V")
+                print("IIB Cmd CapBank Voltage: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " V")
+                print("IIB Cmd Rectifier Inductor Temp: " + str(round(self.read_bsmp_variable(49,'float'),3)) + " °C")
+                print("IIB Cmd Rectifier Heat-Sink Temp: " + str(round(self.read_bsmp_variable(50,'float'),3)) + " °C")
+                print("IIB Cmd External Boards Voltage: " + str(round(self.read_bsmp_variable(51,'float'),3)) + " V")
+                print("IIB Cmd Auxiliary Board Current: " + str(round(self.read_bsmp_variable(52,'float'),3)) + " A")
+                print("IIB Cmd IDB Board Current: " + str(round(self.read_bsmp_variable(53,'float'),3)) + " A")
+                print("IIB Cmd Ground Leakage Current: " + str(round(self.read_bsmp_variable(54,'float'),3)) + " A")
+                print("IIB Cmd Board Temp: " + str(round(self.read_bsmp_variable(55,'float'),3)) + " °C")
+                print("IIB Cmd Board RH: " + str(round(self.read_bsmp_variable(56,'float'),3)) + " %")
+                print("IIB Cmd Interlocks: " + str(round(self.read_bsmp_variable(57,'uint32_t'),3)))
+                print("IIB Cmd Alarms: " + str(round(self.read_bsmp_variable(58,'uint32_t'),3)))
             
             time.sleep(dt)
                 
@@ -2789,8 +2824,8 @@ class SerialDRS(object):
                 print('\n--- Measurement #' + str(i+1) + ' ------------------------------------------\n')
                 self.read_vars_common()
         
-                print("\nSync Pulse Counter: " + str(self.read_bsmp_variable(5,'uint32_t')))
-                print("WfmRef Index: " + str( (self.read_bsmp_variable(20,'uint32_t') - self.read_bsmp_variable(18,'uint32_t'))/2 + 1))
+                print("\nSync Pulse Counter: " + str(round(self.read_bsmp_variable(5,'uint32_t'),3)))
+                print("WfmRef Index: " + str( (round(self.read_bsmp_variable(20,'uint32_t'),3) - round(self.read_bsmp_variable(18,'uint32_t'),3))/2 + 1))
                 
                 soft_itlks = self.read_bsmp_variable(31,'uint32_t')
                 print("\nSoft Interlocks: " + str(soft_itlks))
@@ -2813,30 +2848,30 @@ class SerialDRS(object):
                 if(iib_alarms):
                     self.decode_interlocks(iib_alarms, list_fac_dcdc_iib_alarms)
         
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
+                print("Load Current DCCT 1: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Load Current DCCT 2: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
                 
-                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(36,'float')) + " V")
+                print("\nCapBank Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
                 
-                print("\nDuty-Cycle: " + str(self.read_bsmp_variable(37,'float')) + " %")
+                print("\nDuty-Cycle: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " %")
                 
                 if(iib):
-                    print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(38,'float')) + " V")
-                    print("IIB Input Current: " + str(self.read_bsmp_variable(39,'float')) + " A")
-                    print("IIB Output Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
-                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
-                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
-                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(44,'float')) + " ºC")
-                    print("IIB Driver Voltage: " + str(self.read_bsmp_variable(45,'float')) + " V")
-                    print("IIB Driver Current 1: " + str(self.read_bsmp_variable(46,'float')) + " A")
-                    print("IIB Driver Current 2: " + str(self.read_bsmp_variable(47,'float')) + " A")
-                    print("IIB Ground Leakage Current: " + str(self.read_bsmp_variable(48,'float')) + " A")
-                    print("IIB Board Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
-                    print("IIB Board RH: " + str(self.read_bsmp_variable(50,'float')) + " %")
-                    print("IIB Interlocks: " + str(self.read_bsmp_variable(51,'uint32_t')))
-                    print("IIB Alarms: " + str(self.read_bsmp_variable(52,'uint32_t')))
+                    print("\nIIB CapBank Voltage: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " V")
+                    print("IIB Input Current: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " A")
+                    print("IIB Output Current: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " A")
+                    print("IIB IGBT Leg 1 Temp: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " °C")
+                    print("IIB IGBT Leg 2 Temp: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " °C")
+                    print("IIB Inductor Temp: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " °C")
+                    print("IIB Heat-Sink Temp: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " °C")
+                    print("IIB Driver Voltage: " + str(round(self.read_bsmp_variable(45,'float'),3)) + " V")
+                    print("IIB Driver Current 1: " + str(round(self.read_bsmp_variable(46,'float'),3)) + " A")
+                    print("IIB Driver Current 2: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " A")
+                    print("IIB Ground Leakage Current: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " A")
+                    print("IIB Board Temp: " + str(round(self.read_bsmp_variable(49,'float'),3)) + " °C")
+                    print("IIB Board RH: " + str(round(self.read_bsmp_variable(50,'float'),3)) + " %")
+                    print("IIB Interlocks: " + str(round(self.read_bsmp_variable(51,'uint32_t'),3)))
+                    print("IIB Alarms: " + str(round(self.read_bsmp_variable(52,'uint32_t'),3)))
                     
                 time.sleep(dt)
                 
@@ -2862,26 +2897,37 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_dcdc_ema_hard_interlocks)
                     
-                iib_itlks = self.read_bsmp_variable(39,'uint32_t')
+                iib_itlks = self.read_bsmp_variable(49,'uint32_t')
                 print("IIB Interlocks: " + str(iib_itlks))
                 if(iib_itlks):
-                    self.decode_interlocks(iib_itlks, list_fac_dcdc_iib_interlocks)
+                    self.decode_interlocks(iib_itlks, list_fac_dcdc_ema_iib_interlocks)
+
+                iib_alarms = self.read_bsmp_variable(50,'uint32_t')
+                print("IIB Alarms: " + str(iib_alarms))
+                if(iib_alarms):
+                    self.decode_interlocks(iib_alarms, list_fac_dcdc_ema_iib_alarms)
         
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')))
-                print("CapBank Voltage: " + str(self.read_bsmp_variable(34,'float')))
-                print("\nDuty-Cycle: " + str(self.read_bsmp_variable(35,'float')))
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)))
+                print("DC-Link Voltage: " + str(round(self.read_bsmp_variable(34,'float'),3)))
+                print("\nDuty-Cycle: " + str(round(self.read_bsmp_variable(35,'float'),3)))
                 
                 if(iib):
-                    print("\nIIB Input Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
-                    print("IIB Output Current: " + str(self.read_bsmp_variable(37,'float')) + " A")
-                    print("IIB CapBank Voltage: " + str(self.read_bsmp_variable(38,'float')) + " V")
-                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(39,'float')) + " ºC")
-                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(40,'float')) + " ºC")
-                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
-                    print("IIB Driver 1 Error: " + str(self.read_bsmp_variable(43,'float')))
-                    print("IIB Driver 2 Error: " + str(self.read_bsmp_variable(44,'float')))
-                    
+                    print("\nIIB Input Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
+                    print("IIB Input Current: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " A")
+                    print("IIB Output Current: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " A")
+                    print("IIB IGBT 1 Temp: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " °C")
+                    print("IIB IGBT 2 Temp: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " °C")
+                    print("IIB Inductor Temp: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " °C")
+                    print("IIB Heat-Sink Temp: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " °C")
+                    print("IIB Driver Voltage: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " V")
+                    print("IIB Driver Current 1: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " A")
+                    print("IIB Driver Current 2: " + str(round(self.read_bsmp_variable(45,'float'),3)) + " A")
+                    print("IIB Ground Leakage Current: " + str(round(self.read_bsmp_variable(46,'float'),3)) + " A")
+                    print("IIB Board Temp: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " °C")
+                    print("IIB Board RH: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " %")
+                    print("IIB Interlocks: " + str(round(self.read_bsmp_variable(49,'uint32_t'),3)))
+                    print("IIB Alarms: " + str(round(self.read_bsmp_variable(50,'uint32_t'),3)))
+
                 time.sleep(dt)
                 
         except:
@@ -2932,35 +2978,35 @@ class SerialDRS(object):
                 if(iib_cmd_alarms):
                     self.decode_interlocks(iib_cmd_alarms, list_fac_2s_acdc_iib_cmd_alarms)
                 
-                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
+                print("\nCapBank Voltage: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " V")
+                print("Rectifier Current: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Duty-Cycle: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " %")
                 
                 if(iib):
-                    print("\nIIB IS Input Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
-                    print("IIB IS Input Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
-                    print("IIB IS IGBT Temp: " + str(self.read_bsmp_variable(38,'float')) + " ºC")
-                    print("IIB IS Driver Voltage: " + str(self.read_bsmp_variable(39,'float')) + " V")
-                    print("IIB IS Driver Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
-                    print("IIB IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                    print("IIB IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
-                    print("IIB IS Board Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
-                    print("IIB IS Board RH: " + str(self.read_bsmp_variable(44,'float')) + " %")
-                    print("IIB IS Interlocks: " + str(self.read_bsmp_variable(45,'uint32_t')))
-                    print("IIB IS Alarms: " + str(self.read_bsmp_variable(46,'uint32_t')))
+                    print("\nIIB IS Input Current: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " A")
+                    print("IIB IS Input Voltage: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " V")
+                    print("IIB IS IGBT Temp: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " °C")
+                    print("IIB IS Driver Voltage: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " V")
+                    print("IIB IS Driver Current: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " A")
+                    print("IIB IS Inductor Temp: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " °C")
+                    print("IIB IS Heat-Sink Temp: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " °C")
+                    print("IIB IS Board Temp: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " °C")
+                    print("IIB IS Board RH: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " %")
+                    print("IIB IS Interlocks: " + str(round(self.read_bsmp_variable(45,'uint32_t'),3)))
+                    print("IIB IS Alarms: " + str(round(self.read_bsmp_variable(46,'uint32_t'),3)))
                     
-                    print("\nIIB Cmd Load Voltage: " + str(self.read_bsmp_variable(47,'float')) + " V")
-                    print("IIB Cmd CapBank Voltage: " + str(self.read_bsmp_variable(48,'float')) + " V")
-                    print("IIB Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
-                    print("IIB Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(50,'float')) + " ºC")
-                    print("IIB Cmd External Boards Voltage: " + str(self.read_bsmp_variable(51,'float')) + " V")
-                    print("IIB Cmd Auxiliary Board Current: " + str(self.read_bsmp_variable(52,'float')) + " A")
-                    print("IIB Cmd IDB Board Current: " + str(self.read_bsmp_variable(53,'float')) + " A")
-                    print("IIB Cmd Ground Leakage Current: " + str(self.read_bsmp_variable(54,'float')) + " A")
-                    print("IIB Cmd Board Temp: " + str(self.read_bsmp_variable(55,'float')) + " ºC")
-                    print("IIB Cmd Board RH: " + str(self.read_bsmp_variable(56,'float')) + " %")
-                    print("IIB Cmd Interlocks: " + str(self.read_bsmp_variable(57,'uint32_t')))
-                    print("IIB Cmd Alarms: " + str(self.read_bsmp_variable(58,'uint32_t')))
+                    print("\nIIB Cmd Load Voltage: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " V")
+                    print("IIB Cmd CapBank Voltage: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " V")
+                    print("IIB Cmd Rectifier Inductor Temp: " + str(round(self.read_bsmp_variable(49,'float'),3)) + " °C")
+                    print("IIB Cmd Rectifier Heat-Sink Temp: " + str(round(self.read_bsmp_variable(50,'float'),3)) + " °C")
+                    print("IIB Cmd External Boards Voltage: " + str(round(self.read_bsmp_variable(51,'float'),3)) + " V")
+                    print("IIB Cmd Auxiliary Board Current: " + str(round(self.read_bsmp_variable(52,'float'),3)) + " A")
+                    print("IIB Cmd IDB Board Current: " + str(round(self.read_bsmp_variable(53,'float'),3)) + " A")
+                    print("IIB Cmd Ground Leakage Current: " + str(round(self.read_bsmp_variable(54,'float'),3)) + " A")
+                    print("IIB Cmd Board Temp: " + str(round(self.read_bsmp_variable(55,'float'),3)) + " °C")
+                    print("IIB Cmd Board RH: " + str(round(self.read_bsmp_variable(56,'float'),3)) + " %")
+                    print("IIB Cmd Interlocks: " + str(round(self.read_bsmp_variable(57,'uint32_t'),3)))
+                    print("IIB Cmd Alarms: " + str(round(self.read_bsmp_variable(58,'uint32_t'),3)))
                         
                 self.SetSlaveAdd(add_mod_a+1)
                 
@@ -2997,35 +3043,35 @@ class SerialDRS(object):
                 if(iib_cmd_alarms):
                     self.decode_interlocks(iib_cmd_alarms, list_fac_2s_acdc_iib_cmd_alarms)
                 
-                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
+                print("\nCapBank Voltage: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " V")
+                print("Rectifier Current: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Duty-Cycle: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " %")
                 
                 if(iib):
-                    print("\nIIB IS Input Current: " + str(self.read_bsmp_variable(36,'float')) + " A")
-                    print("IIB IS Input Voltage: " + str(self.read_bsmp_variable(37,'float')) + " V")
-                    print("IIB IS IGBT Temp: " + str(self.read_bsmp_variable(38,'float')) + " ºC")
-                    print("IIB IS Driver Voltage: " + str(self.read_bsmp_variable(39,'float')) + " V")
-                    print("IIB IS Driver Current: " + str(self.read_bsmp_variable(40,'float')) + " A")
-                    print("IIB IS Inductor Temp: " + str(self.read_bsmp_variable(41,'float')) + " ºC")
-                    print("IIB IS Heat-Sink Temp: " + str(self.read_bsmp_variable(42,'float')) + " ºC")
-                    print("IIB IS Board Temp: " + str(self.read_bsmp_variable(43,'float')) + " ºC")
-                    print("IIB IS Board RH: " + str(self.read_bsmp_variable(44,'float')) + " %")
-                    print("IIB IS Interlocks: " + str(self.read_bsmp_variable(45,'uint32_t')))
-                    print("IIB IS Alarms: " + str(self.read_bsmp_variable(46,'uint32_t')))
+                    print("\nIIB IS Input Current: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " A")
+                    print("IIB IS Input Voltage: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " V")
+                    print("IIB IS IGBT Temp: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " °C")
+                    print("IIB IS Driver Voltage: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " V")
+                    print("IIB IS Driver Current: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " A")
+                    print("IIB IS Inductor Temp: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " °C")
+                    print("IIB IS Heat-Sink Temp: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " °C")
+                    print("IIB IS Board Temp: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " °C")
+                    print("IIB IS Board RH: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " %")
+                    print("IIB IS Interlocks: " + str(round(self.read_bsmp_variable(45,'uint32_t'),3)))
+                    print("IIB IS Alarms: " + str(round(self.read_bsmp_variable(46,'uint32_t'),3)))
                     
-                    print("\nIIB Cmd Load Voltage: " + str(self.read_bsmp_variable(47,'float')) + " V")
-                    print("IIB Cmd CapBank Voltage: " + str(self.read_bsmp_variable(48,'float')) + " V")
-                    print("IIB Cmd Rectifier Inductor Temp: " + str(self.read_bsmp_variable(49,'float')) + " ºC")
-                    print("IIB Cmd Rectifier Heat-Sink Temp: " + str(self.read_bsmp_variable(50,'float')) + " ºC")
-                    print("IIB Cmd External Boards Voltage: " + str(self.read_bsmp_variable(51,'float')) + " V")
-                    print("IIB Cmd Auxiliary Board Current: " + str(self.read_bsmp_variable(52,'float')) + " A")
-                    print("IIB Cmd IDB Board Current: " + str(self.read_bsmp_variable(53,'float')) + " A")
-                    print("IIB Cmd Ground Leakage Current: " + str(self.read_bsmp_variable(54,'float')) + " A")
-                    print("IIB Cmd Board Temp: " + str(self.read_bsmp_variable(55,'float')) + " ºC")
-                    print("IIB Cmd Board RH: " + str(self.read_bsmp_variable(56,'float')) + " %")
-                    print("IIB Cmd Interlocks: " + str(self.read_bsmp_variable(57,'uint32_t')))
-                    print("IIB Cmd Alarms: " + str(self.read_bsmp_variable(58,'uint32_t')))
+                    print("\nIIB Cmd Load Voltage: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " V")
+                    print("IIB Cmd CapBank Voltage: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " V")
+                    print("IIB Cmd Rectifier Inductor Temp: " + str(round(self.read_bsmp_variable(49,'float'),3)) + " °C")
+                    print("IIB Cmd Rectifier Heat-Sink Temp: " + str(round(self.read_bsmp_variable(50,'float'),3)) + " °C")
+                    print("IIB Cmd External Boards Voltage: " + str(round(self.read_bsmp_variable(51,'float'),3)) + " V")
+                    print("IIB Cmd Auxiliary Board Current: " + str(round(self.read_bsmp_variable(52,'float'),3)) + " A")
+                    print("IIB Cmd IDB Board Current: " + str(round(self.read_bsmp_variable(53,'float'),3)) + " A")
+                    print("IIB Cmd Ground Leakage Current: " + str(round(self.read_bsmp_variable(54,'float'),3)) + " A")
+                    print("IIB Cmd Board Temp: " + str(round(self.read_bsmp_variable(55,'float'),3)) + " °C")
+                    print("IIB Cmd Board RH: " + str(round(self.read_bsmp_variable(56,'float'),3)) + " %")
+                    print("IIB Cmd Interlocks: " + str(round(self.read_bsmp_variable(57,'uint32_t'),3)))
+                    print("IIB Cmd Alarms: " + str(round(self.read_bsmp_variable(58,'uint32_t'),3)))
                         
                 time.sleep(dt)
                 
@@ -3047,7 +3093,7 @@ class SerialDRS(object):
                 
                 self.read_vars_common()
                 
-                print("\nSync Pulse Counter: " + str(self.read_bsmp_variable(5,'uint32_t')))
+                print("\nSync Pulse Counter: " + str(round(self.read_bsmp_variable(5,'uint32_t'),3)))
                                 
                 soft_itlks = self.read_bsmp_variable(31,'uint32_t')
                 print("\nSoft Interlocks: " + str(soft_itlks))
@@ -3060,29 +3106,29 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2s_dcdc_hard_interlocks)
                 
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
+                print("Load Current DCCT 1: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Load Current DCCT 2: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
                 
-                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(36,'float')) + " V")
-                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(37,'float')) + " V")
+                print("\nCapBank Voltage 1: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
+                print("CapBank Voltage 2: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " V")
                 
-                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(38,'float')) + " %")
-                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(39,'float')) + " %")
-                
+                print("\nDuty-Cycle 1: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " %")
+                print("Duty-Cycle 2: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " %")
+        
                 if(iib):
-                    print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(40 + iib_offset,'float')) + " V")
-                    print("IIB Input Current: " + str(self.read_bsmp_variable(41 + iib_offset,'float')) + " A")
-                    print("IIB Output Current: " + str(self.read_bsmp_variable(42 + iib_offset,'float')) + " A")
-                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(43 + iib_offset,'float')) + " ºC")
-                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(44 + iib_offset,'float')) + " ºC")
-                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(45 + iib_offset,'float')) + " ºC")
-                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(46 + iib_offset,'float')) + " ºC")
-                    print("IIB Driver Voltage: " + str(self.read_bsmp_variable(47 + iib_offset,'float')) + " V")
-                    print("IIB Driver Current 1: " + str(self.read_bsmp_variable(48 + iib_offset,'float')) + " A")
-                    print("IIB Driver Current 2: " + str(self.read_bsmp_variable(49 + iib_offset,'float')) + " A")
-                    print("IIB Board Temp: " + str(self.read_bsmp_variable(50 + iib_offset,'float')) + " ºC")
-                    print("IIB Board RH: " + str(self.read_bsmp_variable(51 + iib_offset,'float')) + " %")
+                    print("\nIIB CapBank Voltage: " + str(round(self.read_bsmp_variable(40 + iib_offset,'float'),3)) + " V")
+                    print("IIB Input Current: " + str(round(self.read_bsmp_variable(41 + iib_offset,'float'),3)) + " A")
+                    print("IIB Output Current: " + str(round(self.read_bsmp_variable(42 + iib_offset,'float'),3)) + " A")
+                    print("IIB IGBT Leg 1 Temp: " + str(round(self.read_bsmp_variable(43 + iib_offset,'float'),3)) + " °C")
+                    print("IIB IGBT Leg 2 Temp: " + str(round(self.read_bsmp_variable(44 + iib_offset,'float'),3)) + " °C")
+                    print("IIB Inductor Temp: " + str(round(self.read_bsmp_variable(45 + iib_offset,'float'),3)) + " °C")
+                    print("IIB Heat-Sink Temp: " + str(round(self.read_bsmp_variable(46 + iib_offset,'float'),3)) + " °C")
+                    print("IIB Driver Voltage: " + str(round(self.read_bsmp_variable(47 + iib_offset,'float'),3)) + " V")
+                    print("IIB Driver Current 1: " + str(round(self.read_bsmp_variable(48 + iib_offset,'float'),3)) + " A")
+                    print("IIB Driver Current 2: " + str(round(self.read_bsmp_variable(49 + iib_offset,'float'),3)) + " A")
+                    print("IIB Board Temp: " + str(round(self.read_bsmp_variable(50 + iib_offset,'float'),3)) + " °C")
+                    print("IIB Board RH: " + str(round(self.read_bsmp_variable(51 + iib_offset,'float'),3)) + " %")
                     
                     iib_itlks = self.read_bsmp_variable(52 + iib_offset,'uint32_t')
                     print("\nIIB Interlocks: " + str(iib_itlks))
@@ -3116,7 +3162,7 @@ class SerialDRS(object):
                 
                 self.read_vars_common()
                 
-                print("\nSync Pulse Counter: " + str(self.read_bsmp_variable(5,'uint32_t')))
+                print("\nSync Pulse Counter: " + str(round(self.read_bsmp_variable(5,'uint32_t'),3)))
                                 
                 soft_itlks = self.read_bsmp_variable(31,'uint32_t')
                 print("\nSoft Interlocks: " + str(soft_itlks))
@@ -3129,45 +3175,45 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2p4s_dcdc_hard_interlocks)
                 
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')))
-                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(34,'float')))
-                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(35,'float')))
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)))
+                print("Load Current DCCT 1: " + str(round(self.read_bsmp_variable(34,'float'),3)))
+                print("Load Current DCCT 2: " + str(round(self.read_bsmp_variable(35,'float'),3)))
                 
-                print("\nArm Current 1: " + str(self.read_bsmp_variable(36,'float')))
-                print("Arm Current 2: " + str(self.read_bsmp_variable(37,'float')))
+                print("\nArm Current 1: " + str(round(self.read_bsmp_variable(36,'float'),3)))
+                print("Arm Current 2: " + str(round(self.read_bsmp_variable(37,'float'),3)))
                 
-                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(38,'float')))
-                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(39,'float')))
-                print("CapBank Voltage 3: " + str(self.read_bsmp_variable(40,'float')))
-                print("CapBank Voltage 4: " + str(self.read_bsmp_variable(41,'float')))
-                print("CapBank Voltage 5: " + str(self.read_bsmp_variable(42,'float')))
-                print("CapBank Voltage 6: " + str(self.read_bsmp_variable(43,'float')))
-                print("CapBank Voltage 7: " + str(self.read_bsmp_variable(44,'float')))
-                print("CapBank Voltage 8: " + str(self.read_bsmp_variable(45,'float')))
+                print("\nCapBank Voltage 1: " + str(round(self.read_bsmp_variable(38,'float'),3)))
+                print("CapBank Voltage 2: " + str(round(self.read_bsmp_variable(39,'float'),3)))
+                print("CapBank Voltage 3: " + str(round(self.read_bsmp_variable(40,'float'),3)))
+                print("CapBank Voltage 4: " + str(round(self.read_bsmp_variable(41,'float'),3)))
+                print("CapBank Voltage 5: " + str(round(self.read_bsmp_variable(42,'float'),3)))
+                print("CapBank Voltage 6: " + str(round(self.read_bsmp_variable(43,'float'),3)))
+                print("CapBank Voltage 7: " + str(round(self.read_bsmp_variable(44,'float'),3)))
+                print("CapBank Voltage 8: " + str(round(self.read_bsmp_variable(45,'float'),3)))
                 
-                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(46,'float')))
-                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(47,'float')))
-                print("Duty-Cycle 3: " + str(self.read_bsmp_variable(48,'float')))
-                print("Duty-Cycle 4: " + str(self.read_bsmp_variable(49,'float')))
-                print("Duty-Cycle 5: " + str(self.read_bsmp_variable(50,'float')))
-                print("Duty-Cycle 6: " + str(self.read_bsmp_variable(51,'float')))
-                print("Duty-Cycle 7: " + str(self.read_bsmp_variable(52,'float')))
-                print("Duty-Cycle 8: " + str(self.read_bsmp_variable(53,'float')))   
+                print("\nDuty-Cycle 1: " + str(round(self.read_bsmp_variable(46,'float'),3)))
+                print("Duty-Cycle 2: " + str(round(self.read_bsmp_variable(47,'float'),3)))
+                print("Duty-Cycle 3: " + str(round(self.read_bsmp_variable(48,'float'),3)))
+                print("Duty-Cycle 4: " + str(round(self.read_bsmp_variable(49,'float'),3)))
+                print("Duty-Cycle 5: " + str(round(self.read_bsmp_variable(50,'float'),3)))
+                print("Duty-Cycle 6: " + str(round(self.read_bsmp_variable(51,'float'),3)))
+                print("Duty-Cycle 7: " + str(round(self.read_bsmp_variable(52,'float'),3)))
+                print("Duty-Cycle 8: " + str(round(self.read_bsmp_variable(53,'float'),3)))   
 
                 if(iib):
 
-                    print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(54,'float')) + " V")
-                    print("IIB Input Current: " + str(self.read_bsmp_variable(55, 'float')) + " A")
-                    print("IIB Output Current: " + str(self.read_bsmp_variable(56,'float')) + " A")
-                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(57,'float')) + " ºC")
-                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(58,'float')) + " ºC")
-                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(59,'float')) + " ºC")
-                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(60,'float')) + " ºC")
-                    print("IIB Driver Voltage: " + str(self.read_bsmp_variable(61,'float')) + " V")
-                    print("IIB Driver Current 1: " + str(self.read_bsmp_variable(62,'float')) + " A")
-                    print("IIB Driver Current 2: " + str(self.read_bsmp_variable(63,'float')) + " A")
-                    print("IIB Board Temp: " + str(self.read_bsmp_variable(64,'float')) + " ºC")
-                    print("IIB Board RH: " + str(self.read_bsmp_variable(65,'float')) + " %")
+                    print("\nIIB CapBank Voltage: " + str(round(self.read_bsmp_variable(54,'float'),3)) + " V")
+                    print("IIB Input Current: " + str(round(self.read_bsmp_variable(55, 'float'),3)) + " A")
+                    print("IIB Output Current: " + str(round(self.read_bsmp_variable(56,'float'),3)) + " A")
+                    print("IIB IGBT Leg 1 Temp: " + str(round(self.read_bsmp_variable(57,'float'),3)) + " °C")
+                    print("IIB IGBT Leg 2 Temp: " + str(round(self.read_bsmp_variable(58,'float'),3)) + " °C")
+                    print("IIB Inductor Temp: " + str(round(self.read_bsmp_variable(59,'float'),3)) + " °C")
+                    print("IIB Heat-Sink Temp: " + str(round(self.read_bsmp_variable(60,'float'),3)) + " °C")
+                    print("IIB Driver Voltage: " + str(round(self.read_bsmp_variable(61,'float'),3)) + " V")
+                    print("IIB Driver Current 1: " + str(round(self.read_bsmp_variable(62,'float'),3)) + " A")
+                    print("IIB Driver Current 2: " + str(round(self.read_bsmp_variable(63,'float'),3)) + " A")
+                    print("IIB Board Temp: " + str(round(self.read_bsmp_variable(64,'float'),3)) + " °C")
+                    print("IIB Board RH: " + str(round(self.read_bsmp_variable(65,'float'),3)) + " %")
                     
                     iib_itlks = self.read_bsmp_variable(66,'uint32_t')
                     print("\nIIB Interlocks: " + str(iib_itlks))
@@ -3179,18 +3225,18 @@ class SerialDRS(object):
                     if(iib_alarms):
                         self.decode_interlocks(iib_alarms, list_fac_2p4s_dcdc_iib_alarms)    
 
-                    print("\nIIB CapBank Voltage: " + str(self.read_bsmp_variable(68,'float')) + " V")
-                    print("IIB Input Current: " + str(self.read_bsmp_variable(69,'float')) + " A")
-                    print("IIB Output Current: " + str(self.read_bsmp_variable(70,'float')) + " A")
-                    print("IIB IGBT Leg 1 Temp: " + str(self.read_bsmp_variable(71,'float')) + " ºC")
-                    print("IIB IGBT Leg 2 Temp: " + str(self.read_bsmp_variable(72,'float')) + " ºC")
-                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(73,'float')) + " ºC")
-                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(74,'float')) + " ºC")
-                    print("IIB Driver Voltage: " + str(self.read_bsmp_variable(75,'float')) + " V")
-                    print("IIB Driver Current 1: " + str(self.read_bsmp_variable(76,'float')) + " A")
-                    print("IIB Driver Current 2: " + str(self.read_bsmp_variable(77,'float')) + " A")
-                    print("IIB Board Temp: " + str(self.read_bsmp_variable(78,'float')) + " ºC")
-                    print("IIB Board RH: " + str(self.read_bsmp_variable(79,'float')) + " %")
+                    print("\nIIB CapBank Voltage: " + str(round(self.read_bsmp_variable(68,'float'),3)) + " V")
+                    print("IIB Input Current: " + str(round(self.read_bsmp_variable(69,'float'),3)) + " A")
+                    print("IIB Output Current: " + str(round(self.read_bsmp_variable(70,'float'),3)) + " A")
+                    print("IIB IGBT Leg 1 Temp: " + str(round(self.read_bsmp_variable(71,'float'),3)) + " °C")
+                    print("IIB IGBT Leg 2 Temp: " + str(round(self.read_bsmp_variable(72,'float'),3)) + " °C")
+                    print("IIB Inductor Temp: " + str(round(self.read_bsmp_variable(73,'float'),3)) + " °C")
+                    print("IIB Heat-Sink Temp: " + str(round(self.read_bsmp_variable(74,'float'),3)) + " °C")
+                    print("IIB Driver Voltage: " + str(round(self.read_bsmp_variable(75,'float'),3)) + " V")
+                    print("IIB Driver Current 1: " + str(round(self.read_bsmp_variable(76,'float'),3)) + " A")
+                    print("IIB Driver Current 2: " + str(round(self.read_bsmp_variable(77,'float'),3)) + " A")
+                    print("IIB Board Temp: " + str(round(self.read_bsmp_variable(78,'float'),3)) + " °C")
+                    print("IIB Board RH: " + str(round(self.read_bsmp_variable(79,'float'),3)) + " %")
                     
                     iib_itlks = self.read_bsmp_variable(80,'uint32_t')
                     print("\nIIB Interlocks: " + str(iib_itlks))
@@ -3243,40 +3289,40 @@ class SerialDRS(object):
 
                 iload = self.read_bsmp_variable(33,'float')
                 
-                print("\nLoad Current: " + str(iload) + " A")
-                print("Load Current DCCT 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Load Current DCCT 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                print("\nLoad Current: " + str(round(iload,3)) + " A")
+                print("Load Current DCCT 1: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Load Current DCCT 2: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
                 
                 if not iload == 0:
-                    print("\nLoad Resistance: " + str( abs(self.read_bsmp_variable(43,'float')) / iload ) + " Ohm")
+                    print("\nLoad Resistance: " + str(abs(round(self.read_bsmp_variable(43,'float') / iload ,3))) + " Ohm")
                 else:
                     print("\nLoad Resistance: 0 Ohm")
-                print("Load Power: " + str( self.read_bsmp_variable(43,'float') * self.read_bsmp_variable(33,'float')) + " W")
+                print("Load Power: " + str(abs(round(self.read_bsmp_variable(43,'float') * self.read_bsmp_variable(33,'float'),3))) + " W")
                 
-                print("\nDC-Link Voltage: " + str(self.read_bsmp_variable(36,'float')) + " V")
-                print("\nIGBT 1 Current: " + str(self.read_bsmp_variable(37,'float')) + " A")
-                print("IGBT 2 Current: " + str(self.read_bsmp_variable(38,'float')) + " A")
-                print("\nIGBT 1 Duty-Cycle: " + str(self.read_bsmp_variable(39,'float')) + " %")
-                print("IGBT 2 Duty-Cycle: " + str(self.read_bsmp_variable(40,'float')) + " %")
-                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(41,'float')) + " %")
+                print("\nDC-Link Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
+                print("\nIGBT 1 Current: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " A")
+                print("IGBT 2 Current: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " A")
+                print("\nIGBT 1 Duty-Cycle: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " %")
+                print("Differential Duty-Cycle: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " %")
                 
                 if(iib):
-                    print("\nIIB Input Voltage: " + str(self.read_bsmp_variable(42,'float')) + " V")
-                    print("IIB Output Voltage: " + str(self.read_bsmp_variable(43,'float')) + " V")
-                    print("IIB IGBT 1 Current: " + str(self.read_bsmp_variable(44,'float')) + " A")
-                    print("IIB IGBT 2 Current: " + str(self.read_bsmp_variable(45,'float')) + " A")
-                    print("IIB IGBT 1 Temp: " + str(self.read_bsmp_variable(46,'float')) + " ºC")
-                    print("IIB IGBT 2 Temp: " + str(self.read_bsmp_variable(47,'float')) + " ºC")
-                    print("IIB Driver Voltage: " + str(self.read_bsmp_variable(48,'float')) + " V")
-                    print("IIB Driver Current 1: " + str(self.read_bsmp_variable(49,'float')) + " A")
-                    print("IIB Driver Current 2: " + str(self.read_bsmp_variable(50,'float')) + " A")
-                    print("IIB Inductor Temp: " + str(self.read_bsmp_variable(51,'float')) + " ºC")
-                    print("IIB Heat-Sink Temp: " + str(self.read_bsmp_variable(52,'float')) + " ºC")
-                    print("IIB Ground Leakage Current: " + str(self.read_bsmp_variable(53,'float')) + " A")
-                    print("IIB Board Temp: " + str(self.read_bsmp_variable(54,'float')) + " ºC")
-                    print("IIB Board RH: " + str(self.read_bsmp_variable(55,'float')) + " %")
-                    print("IIB Interlocks: " + str(self.read_bsmp_variable(56,'uint32_t')))
-                    print("IIB Alarms: " + str(self.read_bsmp_variable(57,'uint32_t')))
+                    print("\nIIB Input Voltage: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " V")
+                    print("IIB Output Voltage: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " V")
+                    print("IIB IGBT 1 Current: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " A")
+                    print("IIB IGBT 2 Current: " + str(round(self.read_bsmp_variable(45,'float'),3)) + " A")
+                    print("IIB IGBT 1 Temp: " + str(round(self.read_bsmp_variable(46,'float'),3)) + " °C")
+                    print("IIB IGBT 2 Temp: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " °C")
+                    print("IIB Driver Voltage: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " V")
+                    print("IIB Driver Current 1: " + str(round(self.read_bsmp_variable(49,'float'),3)) + " A")
+                    print("IIB Driver Current 2: " + str(round(self.read_bsmp_variable(50,'float'),3)) + " A")
+                    print("IIB Inductor Temp: " + str(round(self.read_bsmp_variable(51,'float'),3)) + " °C")
+                    print("IIB Heat-Sink Temp: " + str(round(self.read_bsmp_variable(52,'float'),3)) + " °C")
+                    print("IIB Ground Leakage Current: " + str(round(self.read_bsmp_variable(53,'float'),3)) + " A")
+                    print("IIB Board Temp: " + str(round(self.read_bsmp_variable(54,'float'),3)) + " °C")
+                    print("IIB Board RH: " + str(round(self.read_bsmp_variable(55,'float'),3)) + " %")
+                    print("IIB Interlocks: " + str(round(self.read_bsmp_variable(56,'uint32_t'),3)))
+                    print("IIB Alarms: " + str(round(self.read_bsmp_variable(57,'uint32_t'),3)))
                 time.sleep(dt)
                 
             self.SetSlaveAdd(old_add)
@@ -3318,53 +3364,53 @@ class SerialDRS(object):
                     if(iib_alarms):
                         self.decode_interlocks(iib_alarms, list_fap_4p_iib_alarms)
         
-                print("\n Mean Load Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Current 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Load Current 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                print("\n Mean Load Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
+                print("Load Current 1: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Load Current 2: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
                 
-                print("Load Voltage: " + str(self.read_bsmp_variable(36,'float')) + " V")
+                print("Load Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
                 
-                print("\nIGBT 1 Current Mod 1: " + str(self.read_bsmp_variable(37,'float')) + " A")
-                print("IGBT 2 Current Mod 1: " + str(self.read_bsmp_variable(38,'float')) + " A")
-                print("IGBT 1 Current Mod 2: " + str(self.read_bsmp_variable(39,'float')) + " A")
-                print("IGBT 2 Current Mod 2: " + str(self.read_bsmp_variable(40,'float')) + " A")
-                print("IGBT 1 Current Mod 3: " + str(self.read_bsmp_variable(41,'float')) + " A")
-                print("IGBT 2 Current Mod 3: " + str(self.read_bsmp_variable(42,'float')) + " A")
-                print("IGBT 1 Current Mod 4: " + str(self.read_bsmp_variable(43,'float')) + " A")
-                print("IGBT 2 Current Mod 4: " + str(self.read_bsmp_variable(44,'float')) + " A")
+                print("\nIGBT 1 Current Mod 1: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 1: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " A")
+                print("IGBT 1 Current Mod 2: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 2: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " A")
+                print("IGBT 1 Current Mod 3: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 3: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " A")
+                print("IGBT 1 Current Mod 4: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 4: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " A")
                 
-                print("\nDC-Link Voltage Mod 1: " + str(self.read_bsmp_variable(45,'float')) + " V")
-                print("DC-Link Voltage Mod 2: " + str(self.read_bsmp_variable(46,'float')) + " V")
-                print("DC-Link Voltage Mod 3: " + str(self.read_bsmp_variable(47,'float')) + " V")
-                print("DC-Link Voltage Mod 4: " + str(self.read_bsmp_variable(48,'float')) + " V")
+                print("\nDC-Link Voltage Mod 1: " + str(round(self.read_bsmp_variable(45,'float'),3)) + " V")
+                print("DC-Link Voltage Mod 2: " + str(round(self.read_bsmp_variable(46,'float'),3)) + " V")
+                print("DC-Link Voltage Mod 3: " + str(round(self.read_bsmp_variable(47,'float'),3)) + " V")
+                print("DC-Link Voltage Mod 4: " + str(round(self.read_bsmp_variable(48,'float'),3)) + " V")
 
-                print("\nMean Duty-Cycle: " + str(self.read_bsmp_variable(49,'float')) + " %")
-                print("IGBT 1 Duty-Cycle Mod 1: " + str(self.read_bsmp_variable(50,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 1: " + str(self.read_bsmp_variable(51,'float')) + " %")
-                print("IGBT 1 Duty-Cycle Mod 2: " + str(self.read_bsmp_variable(52,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 2: " + str(self.read_bsmp_variable(53,'float')) + " %")
-                print("IGBT 1 Duty-Cycle Mod 3: " + str(self.read_bsmp_variable(54,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 3: " + str(self.read_bsmp_variable(55,'float')) + " %")
-                print("IGBT 1 Duty-Cycle Mod 4: " + str(self.read_bsmp_variable(56,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 4: " + str(self.read_bsmp_variable(57,'float')) + " %")
+                print("\nMean Duty-Cycle: " + str(round(self.read_bsmp_variable(49,'float'),3)) + " %")
+                print("IGBT 1 Duty-Cycle Mod 1: " + str(round(self.read_bsmp_variable(50,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 1: " + str(round(self.read_bsmp_variable(51,'float'),3)) + " %")
+                print("IGBT 1 Duty-Cycle Mod 2: " + str(round(self.read_bsmp_variable(52,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 2: " + str(round(self.read_bsmp_variable(53,'float'),3)) + " %")
+                print("IGBT 1 Duty-Cycle Mod 3: " + str(round(self.read_bsmp_variable(54,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 3: " + str(round(self.read_bsmp_variable(55,'float'),3)) + " %")
+                print("IGBT 1 Duty-Cycle Mod 4: " + str(round(self.read_bsmp_variable(56,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 4: " + str(round(self.read_bsmp_variable(57,'float'),3)) + " %")
                 
                 if not iib == 0:
-                    print("\nIIB " + str(iib) + " Input Voltage: " + str(self.read_bsmp_variable(58 + iib_offset,'float')) + " V")
-                    print("IIB " + str(iib) + " Output Voltage: " + str(self.read_bsmp_variable(59 + iib_offset,'float')) + " V")
-                    print("IIB " + str(iib) + " IGBT 1 Current: " + str(self.read_bsmp_variable(60 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " IGBT 2 Current: " + str(self.read_bsmp_variable(61 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " IGBT 1 Temp: " + str(self.read_bsmp_variable(62 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " IGBT 2 Temp: " + str(self.read_bsmp_variable(63 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Driver Voltage: " + str(self.read_bsmp_variable(64 + iib_offset,'float')) + " V")
-                    print("IIB " + str(iib) + " Driver Current 1: " + str(self.read_bsmp_variable(65 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " Driver Current 2: " + str(self.read_bsmp_variable(66 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " Inductor Temp: " + str(self.read_bsmp_variable(67 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Heat-Sink Temp: " + str(self.read_bsmp_variable(68 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Ground Leakage Current: " + str(self.read_bsmp_variable(69 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " Board Temp: " + str(self.read_bsmp_variable(70 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Board RH: " + str(self.read_bsmp_variable(71 + iib_offset,'float')) + " %")
-                    print("IIB " + str(iib) + " Interlocks: " + str(self.read_bsmp_variable(72 + iib_offset,'uint32_t')))
-                    print("IIB " + str(iib) + " Alarms: " + str(self.read_bsmp_variable(73 + iib_offset,'uint32_t')))
+                    print("\nIIB " + str(iib) + " Input Voltage: " + str(round(self.read_bsmp_variable(58 + iib_offset,'float'),3)) + " V")
+                    print("IIB " + str(iib) + " Output Voltage: " + str(round(self.read_bsmp_variable(59 + iib_offset,'float'),3)) + " V")
+                    print("IIB " + str(iib) + " IGBT 1 Current: " + str(round(self.read_bsmp_variable(60 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " IGBT 2 Current: " + str(round(self.read_bsmp_variable(61 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " IGBT 1 Temp: " + str(round(self.read_bsmp_variable(62 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " IGBT 2 Temp: " + str(round(self.read_bsmp_variable(63 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Driver Voltage: " + str(round(self.read_bsmp_variable(64 + iib_offset,'float'),3)) + " V")
+                    print("IIB " + str(iib) + " Driver Current 1: " + str(round(self.read_bsmp_variable(65 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " Driver Current 2: " + str(round(self.read_bsmp_variable(66 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " Inductor Temp: " + str(round(self.read_bsmp_variable(67 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Heat-Sink Temp: " + str(round(self.read_bsmp_variable(68 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Ground Leakage Current: " + str(round(self.read_bsmp_variable(69 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " Board Temp: " + str(round(self.read_bsmp_variable(70 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Board RH: " + str(round(self.read_bsmp_variable(71 + iib_offset,'float'),3)) + " %")
+                    print("IIB " + str(iib) + " Interlocks: " + str(round(self.read_bsmp_variable(72 + iib_offset,'uint32_t'),3)))
+                    print("IIB " + str(iib) + " Alarms: " + str(round(self.read_bsmp_variable(73 + iib_offset,'uint32_t'),3)))
 
                 time.sleep(dt)
                 
@@ -3409,55 +3455,55 @@ class SerialDRS(object):
                     if(iib_alarms):
                         self.decode_interlocks(iib_alarms, list_fap_4p_iib_alarms)
         
-                print("\nMean Load Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Current 1: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Load Current 2: " + str(self.read_bsmp_variable(35,'float')) + " A")
+                print("\nMean Load Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
+                print("Load Current 1: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Load Current 2: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
                 
-                print("\nArm Current 1: " + str(self.read_bsmp_variable(36,'float')) + " A")
-                print("Arm Current 2: " + str(self.read_bsmp_variable(37,'float')) + " A")
+                print("\nArm Current 1: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " A")
+                print("Arm Current 2: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " A")
                 
-                print("\nIGBT 1 Current Mod 1: " + str(self.read_bsmp_variable(38,'float')) + " A")
-                print("IGBT 2 Current Mod 1: " + str(self.read_bsmp_variable(39,'float')) + " A")
-                print("IGBT 1 Current Mod 2: " + str(self.read_bsmp_variable(40,'float')) + " A")
-                print("IGBT 2 Current Mod 2: " + str(self.read_bsmp_variable(41,'float')) + " A")
-                print("IGBT 1 Current Mod 3: " + str(self.read_bsmp_variable(42,'float')) + " A")
-                print("IGBT 2 Current Mod 3: " + str(self.read_bsmp_variable(43,'float')) + " A")
-                print("IGBT 1 Current Mod 4: " + str(self.read_bsmp_variable(44,'float')) + " A")
-                print("IGBT 2 Current Mod 4: " + str(self.read_bsmp_variable(45,'float')) + " A")
+                print("\nIGBT 1 Current Mod 1: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 1: " + str(round(self.read_bsmp_variable(39,'float'),3)) + " A")
+                print("IGBT 1 Current Mod 2: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 2: " + str(round(self.read_bsmp_variable(41,'float'),3)) + " A")
+                print("IGBT 1 Current Mod 3: " + str(round(self.read_bsmp_variable(42,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 3: " + str(round(self.read_bsmp_variable(43,'float'),3)) + " A")
+                print("IGBT 1 Current Mod 4: " + str(round(self.read_bsmp_variable(44,'float'),3)) + " A")
+                print("IGBT 2 Current Mod 4: " + str(round(self.read_bsmp_variable(45,'float'),3)) + " A")
                 
-                print("\nDC-Link Voltage Mod 1: " + str(self.read_bsmp_variable(50,'float')) + " V")
-                print("DC-Link Voltage Mod 2: " + str(self.read_bsmp_variable(51,'float')) + " V")
-                print("DC-Link Voltage Mod 3: " + str(self.read_bsmp_variable(52,'float')) + " V")
-                print("DC-Link Voltage Mod 4: " + str(self.read_bsmp_variable(53,'float')) + " V")
+                print("\nDC-Link Voltage Mod 1: " + str(round(self.read_bsmp_variable(50,'float'),3)) + " V")
+                print("DC-Link Voltage Mod 2: " + str(round(self.read_bsmp_variable(51,'float'),3)) + " V")
+                print("DC-Link Voltage Mod 3: " + str(round(self.read_bsmp_variable(52,'float'),3)) + " V")
+                print("DC-Link Voltage Mod 4: " + str(round(self.read_bsmp_variable(53,'float'),3)) + " V")
 
-                print("\nMean Duty-Cycle: " + str(self.read_bsmp_variable(54,'float')) + " %")
-                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(55,'float')) + " %")
-                print("\nIGBT 1 Duty-Cycle Mod 1: " + str(self.read_bsmp_variable(56,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 1: " + str(self.read_bsmp_variable(57,'float')) + " %")
-                print("IGBT 1 Duty-Cycle Mod 2: " + str(self.read_bsmp_variable(58,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 2: " + str(self.read_bsmp_variable(59,'float')) + " %")
-                print("IGBT 1 Duty-Cycle Mod 3: " + str(self.read_bsmp_variable(60,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 3: " + str(self.read_bsmp_variable(61,'float')) + " %")
-                print("IGBT 1 Duty-Cycle Mod 4: " + str(self.read_bsmp_variable(62,'float')) + " %")
-                print("IGBT 2 Duty-Cycle Mod 4: " + str(self.read_bsmp_variable(63,'float')) + " %")
+                print("\nMean Duty-Cycle: " + str(round(self.read_bsmp_variable(54,'float'),3)) + " %")
+                print("Differential Duty-Cycle: " + str(round(self.read_bsmp_variable(55,'float'),3)) + " %")
+                print("\nIGBT 1 Duty-Cycle Mod 1: " + str(round(self.read_bsmp_variable(56,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 1: " + str(round(self.read_bsmp_variable(57,'float'),3)) + " %")
+                print("IGBT 1 Duty-Cycle Mod 2: " + str(round(self.read_bsmp_variable(58,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 2: " + str(round(self.read_bsmp_variable(59,'float'),3)) + " %")
+                print("IGBT 1 Duty-Cycle Mod 3: " + str(round(self.read_bsmp_variable(60,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 3: " + str(round(self.read_bsmp_variable(61,'float'),3)) + " %")
+                print("IGBT 1 Duty-Cycle Mod 4: " + str(round(self.read_bsmp_variable(62,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle Mod 4: " + str(round(self.read_bsmp_variable(63,'float'),3)) + " %")
                 
                 if not iib == 0:
-                    print("\nIIB " + str(iib) + " Input Voltage: " + str(self.read_bsmp_variable(64 + iib_offset,'float')) + " V")
-                    print("IIB " + str(iib) + " Output Voltage: " + str(self.read_bsmp_variable(65 + iib_offset,'float')) + " V")
-                    print("IIB " + str(iib) + " IGBT 1 Current: " + str(self.read_bsmp_variable(66 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " IGBT 2 Current: " + str(self.read_bsmp_variable(67 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " IGBT 1 Temp: " + str(self.read_bsmp_variable(68 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " IGBT 2 Temp: " + str(self.read_bsmp_variable(69 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Driver Voltage: " + str(self.read_bsmp_variable(70 + iib_offset,'float')) + " V")
-                    print("IIB " + str(iib) + " Driver Current 1: " + str(self.read_bsmp_variable(71 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " Driver Current 2: " + str(self.read_bsmp_variable(72 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " Inductor Temp: " + str(self.read_bsmp_variable(73 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Heat-Sink Temp: " + str(self.read_bsmp_variable(74 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Ground Leakage Current: " + str(self.read_bsmp_variable(75 + iib_offset,'float')) + " A")
-                    print("IIB " + str(iib) + " Board Temp: " + str(self.read_bsmp_variable(76 + iib_offset,'float')) + " ºC")
-                    print("IIB " + str(iib) + " Board RH: " + str(self.read_bsmp_variable(77 + iib_offset,'float')) + " %")
-                    print("IIB " + str(iib) + " Interlocks: " + str(self.read_bsmp_variable(78 + iib_offset,'uint32_t')))
-                    print("IIB " + str(iib) + " Alarms: " + str(self.read_bsmp_variable(79 + iib_offset,'uint32_t')))
+                    print("\nIIB " + str(iib) + " Input Voltage: " + str(round(self.read_bsmp_variable(64 + iib_offset,'float'),3)) + " V")
+                    print("IIB " + str(iib) + " Output Voltage: " + str(round(self.read_bsmp_variable(65 + iib_offset,'float'),3)) + " V")
+                    print("IIB " + str(iib) + " IGBT 1 Current: " + str(round(self.read_bsmp_variable(66 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " IGBT 2 Current: " + str(round(self.read_bsmp_variable(67 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " IGBT 1 Temp: " + str(round(self.read_bsmp_variable(68 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " IGBT 2 Temp: " + str(round(self.read_bsmp_variable(69 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Driver Voltage: " + str(round(self.read_bsmp_variable(70 + iib_offset,'float'),3)) + " V")
+                    print("IIB " + str(iib) + " Driver Current 1: " + str(round(self.read_bsmp_variable(71 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " Driver Current 2: " + str(round(self.read_bsmp_variable(72 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " Inductor Temp: " + str(round(self.read_bsmp_variable(73 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Heat-Sink Temp: " + str(round(self.read_bsmp_variable(74 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Ground Leakage Current: " + str(round(self.read_bsmp_variable(75 + iib_offset,'float'),3)) + " A")
+                    print("IIB " + str(iib) + " Board Temp: " + str(round(self.read_bsmp_variable(76 + iib_offset,'float'),3)) + " °C")
+                    print("IIB " + str(iib) + " Board RH: " + str(round(self.read_bsmp_variable(77 + iib_offset,'float'),3)) + " %")
+                    print("IIB " + str(iib) + " Interlocks: " + str(round(self.read_bsmp_variable(78 + iib_offset,'uint32_t'),3)))
+                    print("IIB " + str(iib) + " Alarms: " + str(round(self.read_bsmp_variable(79 + iib_offset,'uint32_t'),3)))
                     
                 time.sleep(dt)
                 
@@ -3490,12 +3536,12 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fap_225A_hard_interlocks)
         
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("\nIGBT 1 Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("IGBT 2 Current: " + str(self.read_bsmp_variable(35,'float')) + " A")
-                print("\nIGBT 1 Duty-Cycle: " + str(self.read_bsmp_variable(36,'float')) + " %")
-                print("IGBT 2 Duty-Cycle: " + str(self.read_bsmp_variable(37,'float')) + " %")
-                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(38,'float')) + " %")
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
+                print("\nIGBT 1 Current: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("IGBT 2 Current: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
+                print("\nIGBT 1 Duty-Cycle: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " %")
+                print("IGBT 2 Duty-Cycle: " + str(round(self.read_bsmp_variable(37,'float'),3)) + " %")
+                print("Differential Duty-Cycle: " + str(round(self.read_bsmp_variable(38,'float'),3)) + " %")
                 
                 time.sleep(dt)
                 
@@ -3526,20 +3572,20 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fbp_hard_interlocks)
         
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + " A")
-                print("Load Error: " + str(self.read_bsmp_variable(34,'float')) + " A")
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")
+                print("Load Error: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
                 
-                print("\nMod 1 Load Voltage: " + str(self.read_bsmp_variable(36,'float')) + " V")
-                print("Mod 3 Load Voltage: " + str(self.read_bsmp_variable(40,'float')) + " V")
+                print("\nMod 1 Load Voltage: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " V")
+                print("Mod 3 Load Voltage: " + str(round(self.read_bsmp_variable(40,'float'),3)) + " V")
                 
-                #print("\nMod 1 DC-Link Voltage: " + str(self.read_bsmp_variable(29,'float')) + " V")
-                #print("Mod 1 Temperature: " + str(self.read_bsmp_variable(31,'float')) + " ºC")
+                #print("\nMod 1 DC-Link Voltage: " + str(round(self.read_bsmp_variable(29,'float'),3)) + " V")
+                #print("Mod 1 Temperature: " + str(round(self.read_bsmp_variable(31,'float'),3)) + " °C")
                 
-                #print("\nMod 3 DC-Link Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                #print("Mod 3 Temperature: " + str(self.read_bsmp_variable(35,'float')) + " ºC")
+                #print("\nMod 3 DC-Link Voltage: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " V")
+                #print("Mod 3 Temperature: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " °C")
                 
-                print("\nMod 1 Duty-Cycle: " + str(self.read_bsmp_variable(32,'float')) + " %")
-                print("Mod 3 Duty-Cycle: " + str(self.read_bsmp_variable(36,'float')) + " %")
+                print("\nMod 1 Duty-Cycle: " + str(round(self.read_bsmp_variable(32,'float'),3)) + " %")
+                print("Mod 3 Duty-Cycle: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " %")
                               
                 time.sleep(dt)
                 
@@ -3572,9 +3618,9 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2p_acdc_imas_hard_interlocks)
                 
-                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
+                print("\nCapBank Voltage: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " V")
+                print("Rectifier Current: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Duty-Cycle: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " %")
                         
                 self.SetSlaveAdd(add_mod_a+1)
                 
@@ -3591,9 +3637,9 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2p_acdc_imas_hard_interlocks)
         
-                print("\nCapBank Voltage: " + str(self.read_bsmp_variable(33,'float')) + " V")
-                print("Rectifier Current: " + str(self.read_bsmp_variable(34,'float')) + " A")
-                print("Duty-Cycle: " + str(self.read_bsmp_variable(35,'float')) + " %")
+                print("\nCapBank Voltage: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " V")
+                print("Rectifier Current: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " A")
+                print("Duty-Cycle: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " %")
                         
                 time.sleep(dt)
                 
@@ -3615,7 +3661,7 @@ class SerialDRS(object):
                 
                 self.read_vars_common()
                 
-                print("\nSync Pulse Counter: " + str(self.read_bsmp_variable(5,'uint32_t')))
+                print("\nSync Pulse Counter: " + str(round(self.read_bsmp_variable(5,'uint32_t'),3)))
                                 
                 soft_itlks = self.read_bsmp_variable(31,'uint32_t')
                 print("\nSoft Interlocks: " + str(soft_itlks))
@@ -3628,19 +3674,19 @@ class SerialDRS(object):
                 if(hard_itlks):
                     self.decode_interlocks(hard_itlks, list_fac_2p_dcdc_imas_hard_interlocks)
                 
-                print("\nLoad Current: " + str(self.read_bsmp_variable(33,'float')) + ' A')
-                print("Load Current Error: " + str(self.read_bsmp_variable(34,'float')) + ' A')
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + ' A')
+                print("Load Current Error: " + str(round(self.read_bsmp_variable(34,'float'),3)) + ' A')
                 
-                print("\nArm 1 Current: " + str(self.read_bsmp_variable(35,'float')) + ' A')
-                print("Arm 2 Current: " + str(self.read_bsmp_variable(36,'float')) + ' A')
-                print("Arms Current Diff: " + str(self.read_bsmp_variable(37,'float')) + ' A')
+                print("\nArm 1 Current: " + str(round(self.read_bsmp_variable(35,'float'),3)) + ' A')
+                print("Arm 2 Current: " + str(round(self.read_bsmp_variable(36,'float'),3)) + ' A')
+                print("Arms Current Diff: " + str(round(self.read_bsmp_variable(37,'float'),3)) + ' A')
                 
-                print("\nCapBank Voltage 1: " + str(self.read_bsmp_variable(38,'float')) + ' V')
-                print("CapBank Voltage 2: " + str(self.read_bsmp_variable(39,'float')) + ' V')
+                print("\nCapBank Voltage 1: " + str(round(self.read_bsmp_variable(38,'float'),3)) + ' V')
+                print("CapBank Voltage 2: " + str(round(self.read_bsmp_variable(39,'float'),3)) + ' V')
                 
-                print("\nDuty-Cycle 1: " + str(self.read_bsmp_variable(40,'float')) + ' %')
-                print("Duty-Cycle 2: " + str(self.read_bsmp_variable(41,'float')) + ' %')
-                print("Differential Duty-Cycle: " + str(self.read_bsmp_variable(42,'float')) + ' %')
+                print("\nDuty-Cycle 1: " + str(round(self.read_bsmp_variable(40,'float'),3)) + ' %')
+                print("Duty-Cycle 2: " + str(round(self.read_bsmp_variable(41,'float'),3)) + ' %')
+                print("Differential Duty-Cycle: " + str(round(self.read_bsmp_variable(42,'float'),3)) + ' %')
 
                 time.sleep(dt)
                 
@@ -4036,13 +4082,13 @@ class SerialDRS(object):
 
     def get_siggen_vars(self):
         print('\n### SigGen Variables ###\n')
-        print('Enable: ' + str((self.read_bsmp_variable(6,'uint16_t'))))
-        print('Type: ' + ListSigGenTypes_v2_1[int(self.read_bsmp_variable(7,'uint16_t'))])
-        print('Num Cycles: ' + str(self.read_bsmp_variable(8,'uint16_t')))
-        print('Index: ' + str(self.read_bsmp_variable(9,'float')))
-        print('Frequency: ' + str(self.read_bsmp_variable(10,'float')))
-        print('Amplitude: ' + str(self.read_bsmp_variable(11,'float')))
-        print('Offset: ' + str(self.read_bsmp_variable(12,'float')))
+        print('Enable: ' + str((round(self.read_bsmp_variable(6,'uint16_t'),3))))
+        print('Type: ' + ListSigGenTypes_v2_1[int(round(self.read_bsmp_variable(7,'uint16_t'),3))])
+        print('Num Cycles: ' + str(round(self.read_bsmp_variable(8,'uint16_t'),3)))
+        print('Index: ' + str(round(self.read_bsmp_variable(9,'float'),3)))
+        print('Frequency: ' + str(round(self.read_bsmp_variable(10,'float'),3)))
+        print('Amplitude: ' + str(round(self.read_bsmp_variable(11,'float'),3)))
+        print('Offset: ' + str(round(self.read_bsmp_variable(12,'float'),3)))
         
         self.read_var(self.index_to_hex(13))
         reply_msg = self.ser.read(21)
