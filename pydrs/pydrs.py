@@ -77,6 +77,8 @@ list_fac_dcdc_ema_iib_interlocks,
 list_fac_dcdc_ema_iib_alarms,
 list_fac_2p_acdc_imas_soft_interlocks,
 list_fac_2p_acdc_imas_hard_interlocks,
+list_fac_2p_dcdc_imas_soft_interlocks,
+list_fac_2p_dcdc_imas_hard_interlocks,
 )
 
 # fap_const_list
