@@ -10,21 +10,92 @@ import matplotlib.pyplot as plt
 import os
 from datetime import datetime
 
-from constants import commom_list
-from constants import fbp_const_list
-from constants import fac_const_list
-from constants import fap_const_list
-
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ======================================================================
                     Listas de Entidades BSMP
         A posição da entidade na lista corresponde ao seu ID BSMP
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# commom_list
+# common_list
+from pydrs.constants.common_list import (
+ListVar,
+ListCurv,
+ListFunc,
+ListTestFunc,
+ListHRADCInputType,
+ListPSModels,
+ListPSModels_v2_1,
+ListVar_v2_1,
+ListCurv_v2_1,
+ListFunc_v2_1,
+ListOpMode_v2_1,
+ListSigGenTypes_v2_1,
+ListParameters,
+ListBCBFunc,
+)
+
 # fbp_const_list
+from pydrs.constants.fbp_const_list import (
+list_fbp_soft_interlocks,
+list_fbp_hard_interlocks,
+list_fbp_dclink_hard_interlocks,
+)
+
 # fac_const_list
+from pydrs.constants.fac_const_list import (
+list_fac_acdc_soft_interlocks,
+list_fac_acdc_hard_interlocks,
+list_fac_acdc_iib_is_interlocks,
+list_fac_acdc_iib_is_alarms,
+list_fac_acdc_iib_cmd_interlocks,
+list_fac_acdc_iib_cmd_alarms,
+list_fac_dcdc_soft_interlocks,
+list_fac_dcdc_hard_interlocks,
+list_fac_dcdc_iib_interlocks,
+list_fac_dcdc_iib_alarms,
+list_fac_2s_acdc_hard_interlocks,
+list_fac_2s_acdc_iib_is_interlocks,
+list_fac_2s_acdc_iib_cmd_interlocks,
+list_fac_2s_acdc_iib_is_alarms,
+list_fac_2s_acdc_iib_cmd_alarms,
+list_fac_2s_dcdc_soft_interlocks,
+list_fac_2s_dcdc_hard_interlocks,
+list_fac_2s_dcdc_iib_interlocks,
+list_fac_2s_dcdc_iib_alarms,
+list_fac_2p4s_acdc_hard_interlocks,
+list_fac_2p4s_acdc_iib_is_interlocks,
+list_fac_2p4s_acdc_iib_cmd_interlocks,
+list_fac_2p4s_acdc_iib_is_alarms,
+list_fac_2p4s_acdc_iib_cmd_alarms,
+list_fac_2p4s_dcdc_soft_interlocks,
+list_fac_2p4s_dcdc_hard_interlocks,
+list_fac_2p4s_dcdc_iib_interlocks,
+list_fac_2p4s_dcdc_iib_alarms,
+list_fac_dcdc_ema_soft_interlocks,
+list_fac_dcdc_ema_hard_interlocks,
+list_fac_dcdc_ema_iib_interlocks,
+list_fac_dcdc_ema_iib_alarms,
+list_fac_2p_acdc_imas_soft_interlocks,
+list_fac_2p_acdc_imas_hard_interlocks,
+)
+
 # fap_const_list
+from fap_const_list import (
+list_fap_soft_interlocks,
+list_fap_hard_interlocks,
+list_fap_iib_interlocks,
+list_fap_iib_alarms,
+list_fap_4p_soft_interlocks,
+list_fap_4p_hard_interlocks,
+list_fap_4p_iib_interlocks,
+list_fap_4p_iib_alarms,
+list_fap_2p2s_soft_interlocks,
+list_fap_2p2s_hard_interlocks,
+list_fap_2p2s_iib_interlocks,
+list_fap_2p2s_iib_alarms,
+list_fap_225A_soft_interlocks,
+list_fap_225A_hard_interlocks,
+)
 
 UDC_FIRMWARE_VERSION = "0.42 2021-05-06"
 
