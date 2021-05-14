@@ -80,7 +80,7 @@ list_fac_2p_acdc_imas_hard_interlocks,
 )
 
 # fap_const_list
-from fap_const_list import (
+from pydrs.constants.fap_const_list import (
 list_fap_soft_interlocks,
 list_fap_hard_interlocks,
 list_fap_iib_interlocks,
