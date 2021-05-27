@@ -162,7 +162,6 @@ list_fap_2p2s_hard_interlocks = [
 list_fap_2p2s_iib_interlocks = list_fap_iib_interlocks
 list_fap_2p2s_iib_alarms = list_fap_iib_alarms
 
-
 # FAP 225A
 list_fap_225A_soft_interlocks = ["IGBTs Current High Difference"]
 
