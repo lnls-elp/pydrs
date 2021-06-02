@@ -8,7 +8,7 @@ import pydrs
 drs = pydrs.SerialDRS()
 
 # Abre porta serial. Verificar a porta no Gerenciador de Dispositivos
-drs.Connect('COM6',3000000)
+drs.connect('COM6',3000000)
 
 # Lê modelo da fonte (ps_module). Retorna uma lista de 5 valores, sendo o quarto
 # número o modelo da fonte (FBP_FAC_UFJF = 15)

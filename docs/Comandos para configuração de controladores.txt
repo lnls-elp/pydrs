@@ -107,70 +107,70 @@ drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-
 drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
 
 def ress_off():
-    adrs = drs.GetSlaveAdd()
+    adrs = drs.get_slave_add()
     
-    drs.SetSlaveAdd(2)
+    drs.set_slave_add(2)
     drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
     
-    drs.SetSlaveAdd(4)
+    drs.set_slave_add(4)
     drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
     
-    drs.SetSlaveAdd(6)
+    drs.set_slave_add(6)
     drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
     
-    drs.SetSlaveAdd(8)
+    drs.set_slave_add(8)
     drs.set_dsp_coeffs(4,2,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1,0,0,0,0,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
     
-    drs.SetSlaveAdd(adrs)
+    drs.set_slave_add(adrs)
 
 def ress_on():
-    adrs = drs.GetSlaveAdd()
+    adrs = drs.get_slave_add()
     
-    drs.SetSlaveAdd(2)
+    drs.set_slave_add(2)
     drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
     
-    drs.SetSlaveAdd(4)
+    drs.set_slave_add(4)
     drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
 
-    drs.SetSlaveAdd(6)
+    drs.set_slave_add(6)
     drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
 
-    drs.SetSlaveAdd(8)
+    drs.set_slave_add(8)
     drs.set_dsp_coeffs(4,2,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,3,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,6,[1.006282542538552,-1.999716451633349,0.993591806610677,-1.999716451633349,0.999874349149229,3.4e38,-3.4e38])
     drs.set_dsp_coeffs(4,7,[1.006281798628253,-1.999242848749936,0.993592565399182,-1.999242848749935,0.999874364027435,3.4e38,-3.4e38])
     drs.save_dsp_modules_eeprom()
     
-    drs.SetSlaveAdd(adrs)
+    drs.set_slave_add(adrs)
     
 # Teste:
 def config_pis(pi_config):
@@ -290,21 +290,21 @@ def config_pis(pi_config):
         umax_load = 0.9
         umin_load = -0.9
         
-    adrs = drs.GetSlaveAdd()
+    adrs = drs.get_slave_add()
     
-    drs.SetSlaveAdd(1)
+    drs.set_slave_add(1)
     drs.set_dsp_coeffs(3,0,[kp_load,ki_load,umax_load,umin_load])
     drs.save_dsp_modules_eeprom()
     
     for add in [2,4,6,8]:
-        drs.SetSlaveAdd(add)
+        drs.set_slave_add(add)
         drs.set_dsp_coeffs(3,0,[kp_v,ki_v,umax_v,umin_v])
         drs.set_dsp_coeffs(3,1,[kp_i,ki_i,umax_i,umin_i])
         drs.set_dsp_coeffs(3,2,[kp_v,ki_v,umax_v,umin_v])
         drs.set_dsp_coeffs(3,3,[kp_i,ki_i,umax_i,umin_i])
         drs.save_dsp_modules_eeprom()
 
-    drs.SetSlaveAdd(adrs)
+    drs.set_slave_add(adrs)
     
     
     

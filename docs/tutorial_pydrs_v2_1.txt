@@ -71,11 +71,11 @@ esta porta ja esta sendo usada, ou nao esta corretamente configurada.
 
     > import pydrs
     > drs = pydrs.SerialDRS()
-    > drs.Connect('COM42')
+    > drs.connect('COM42')
 
 - Configura endereco serial (no caso, 2).
 
-    > drs.SetSlaveAdd(2)
+    > drs.set_slave_add(2)
     
 - Lê status da fonte. Este comando retorna um dicionario com algumas informacoes
 gerais, como modelo da fonte, malha de controle aberta/fechada, estado da fonte

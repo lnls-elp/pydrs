@@ -13,8 +13,8 @@ def check_hradc_boarddata(drs,hradc_id):
     print('\nExtraindo dados da placa...')
     payload_size   = drs.size_to_hex(1+2) #Payload: ID + hradcID
     hex_hradcID    = drs.double_to_hex(hradc_id)
-    send_packet    = drs.ComFunction+payload_size+drs.index_to_hex(31)+hex_hradcID
-    send_msg       = drs.checksum(drs.SlaveAdd+send_packet)
+    send_packet    = drs.com_function+payload_size+drs.index_to_hex(31)+hex_hradcID
+    send_msg       = drs.checksum(drs.slave_add+send_packet)
     drs.ser.write(send_msg.encode('ISO-8859-1'))
     print(drs.ser.read(6))
 
@@ -69,7 +69,7 @@ drs = pydrs.SerialDRS()
 
 comport = input('\nDigite a porta serial utilizada: ')
 
-drs.Connect(comport,115200)
+drs.connect(comport,115200)
 
 n_hradc = int(input('\nDigite o numero de placas HRADC deste bastidor: '))
 

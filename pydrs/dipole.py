@@ -12,30 +12,30 @@ class Dipole:
     def __init__(self):
         try:
             self._drs = SerialDRS()
-            self._drs.SetSlaveAdd(1)
+            self._drs.set_slave_add(1)
         except RuntimeError:
             print("Erro ao instanciar SerialDRS")
     
     def turn_on_dclink(self):
         for i in range(2, 9, 2):
-            self._drs.SetSlaveAdd(i)
+            self._drs.set_slave_add(i)
             # TODO: Handle return from turn_on and possible exceptions
             self._drs.turn_on()
-        self._drs.SetSlaveAdd(1)
+        self._drs.set_slave_add(1)
     
     def close_loop_dclink(self):
         for i in range(2, 9, 2):
-            self._drs.SetSlaveAdd(i)
+            self._drs.set_slave_add(i)
             # TODO: Handle return from closed_loop and possible exceptions
             self._drs.closed_loop()
-        self._drs.SetSlaveAdd(1)
+        self._drs.set_slave_add(1)
 
     def set_dclink_voltage(self, val=0):
         #TODO: Check if loop is closed and raise an exception if in open loop.
         for i in range(2, 9, 2):
-            self._drs.SetSlaveAdd(i)
+            self._drs.set_slave_add(i)
             self._drs.set_slowref(val)
-        self._drs.SetSlaveAdd(1)
+        self._drs.set_slave_add(1)
 
     def turn_on_output(self):
         # TODO: Check if DCLINK is Ok and raise ex
