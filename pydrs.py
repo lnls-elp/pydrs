@@ -39,7 +39,7 @@ from datetime import datetime
 ======================================================================
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-UDC_FIRMWARE_VERSION = "0.42 2021-05-06"
+UDC_FIRMWARE_VERSION = "0.42a2021-06-07"
 
 ListVar = ['iLoad1','iLoad2','iMod1','iMod2','iMod3','iMod4','vLoad',
            'vDCMod1','vDCMod2','vDCMod3','vDCMod4','vOutMod1','vOutMod2',
@@ -76,7 +76,7 @@ ListPSModels = ['FBP_100kHz', 'FBP_Parallel_100kHz', 'FAC_ACDC_10kHz', 'FAC_DCDC
 ListPSModels_v2_1 = ['Empty','FBP','FBP_DCLink','FAC_ACDC','FAC_DCDC',
                      'FAC_2S_ACDC','FAC_2S_DCDC','FAC_2P4S_ACDC','FAC_2P4S_DCDC',
                      'FAP','FAP_4P','FAC_DCDC_EMA','FAP_2P2S','FAP_IMAS',
-                     'FAC_2P_ACDC_IMAS','FAC_2P_DCDC_IMAS','Invalid','Invalid',
+                     'FAC_2P_ACDC_IMAS','FAC_2P_DCDC_IMAS','PS_AYRTON','Invalid',
                      'Invalid','Invalid','Invalid','Invalid','Invalid','Invalid',
                      'Invalid','Invalid','Invalid','Invalid','Invalid','Invalid',
                      'Invalid','Uninitialized']
@@ -610,6 +610,16 @@ list_fac_2p_dcdc_imas_hard_interlocks = ['Load Overcurrent',
                                          'Arm 2 Overcurrent',
                                          'Arms High_Difference',
                                          'ACDC Interlock']
+
+# PS Ayrton
+list_ps_ayrton_soft_interlocks = []
+
+list_ps_ayrton_hard_interlocks = ['Load_Overcurrent',
+                                  'DCLink_Overvoltage',
+                                  'DCLink_Undervoltage',
+                                  'Welded_Contactor_Fault',
+                                  'Opened_Contactor_Fault',
+                                  'Emergency_Button']
 
 class SerialDRS(object):
 
@@ -4291,3 +4301,35 @@ class SerialDRS(object):
         
         print("\n Salvando coeficientes de controle na memoria offboard ...")
         print(self.save_dsp_modules_eeprom(type_memory = 1))
+
+    def read_vars_ps_ayrton(self, n = 1, com_add = 1, dt = 0.5):
+    
+        old_add = self.GetSlaveAdd()
+        
+        try:
+            for i in range(n):
+            
+                self.SetSlaveAdd(com_add)
+            
+                print('\n--- Measurement #' + str(i+1) + ' ------------------------------------------\n')
+                self.read_vars_common()
+    
+                soft_itlks = self.read_bsmp_variable(31,'uint32_t')
+                print("\nSoft Interlocks: " + str(soft_itlks))
+                if(soft_itlks):
+                    self.decode_interlocks(soft_itlks, list_ps_ayrton_soft_interlocks)
+                    print('')
+                
+                hard_itlks = self.read_bsmp_variable(32,'uint32_t')
+                print("Hard Interlocks: " + str(hard_itlks))
+                if(hard_itlks):
+                    self.decode_interlocks(hard_itlks, list_ps_ayrton_hard_interlocks)
+                    
+                print("\nLoad Current: " + str(round(self.read_bsmp_variable(33,'float'),3)) + " A")                
+                print("\nDC-Link Voltage: " + str(round(self.read_bsmp_variable(34,'float'),3)) + " V")
+                print("\nLoad Current Error: " + str(round(self.read_bsmp_variable(35,'float'),3)) + " A")
+                print("\nDuty-Cycle: " + str(round(self.read_bsmp_variable(36,'float'),3)) + " %")
+                
+            self.SetSlaveAdd(old_add)
+        except:
+            self.SetSlaveAdd(old_add)
