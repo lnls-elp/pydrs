@@ -5,6 +5,7 @@ from unittest import TestCase
 from unittest.mock import Mock
 
 from pydrs.bsmp import SerialInterface, PyDrsBasePS, Parameters, EntitiesPS
+from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP
 
 
 class TestSerialCommandsx0(TestCase):
@@ -25,4 +26,14 @@ class TestSerialCommandsx0(TestCase):
 
     def test_query_variable(self):
         """Test"""
-        self._pwrsupply.pread_variable(var_id=0, timeout=500)
+        self._pwrsupply.pread_variable(var_id=ConstPSBSMP.V_PS_STATUS, timeout=500)
+
+    def test_query_parameter(self):
+        """Test"""
+        self._pwrsupply.parameter_read(var_id=ConstPSBSMP.P_PS_NAME, timeout=500)
+
+    def test_write_parameter(self):
+        """Test"""
+        self._pwrsupply.parameter_write(
+            var_id=ConstPSBSMP.P_PS_NAME, value="pv_test_name", timeout=500
+        )
