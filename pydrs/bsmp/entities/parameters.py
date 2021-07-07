@@ -3,6 +3,7 @@ from siriuspy.bsmp import (
     Entity as _Entity,
 )
 from siriuspy.bsmp import Types as _Types, BSMPType as _BSMPType
+from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP as _c
 
 
 import typing as _typing
@@ -23,21 +24,21 @@ class Parameters(_Entity):
 
     _parameters: _typing.Dict[int, Parameter] = {
         # ----- class PS -----
-        0: Parameter(
+        _c.P_PS_NAME: Parameter(
             count=64,
             var_type=_Types.T_FLOAT,
             unit="",
             init=False,
             Op=True,
         ),
-        1: Parameter(
+        _c.P_PS_MODEL: Parameter(
             count=1,
             var_type=_Types.T_FLOAT,
             unit="",
             init=True,
             Op=False,
         ),
-        2: Parameter(
+        _c.P_PS_NR_PSMODELS: Parameter(
             count=1,
             var_type=_Types.T_FLOAT,
             unit="",
@@ -45,7 +46,7 @@ class Parameters(_Entity):
             Op=False,
         ),
         # ----- class Communication -----
-        3: Parameter(
+        _c.P_COMM_CMD_INTERFACE: Parameter(
             count=1,
             var_type=_Types.T_FLOAT,
             unit="",
