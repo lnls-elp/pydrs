@@ -4,7 +4,7 @@ import struct
 from unittest import TestCase
 from unittest.mock import Mock
 
-from pydrs.bsmp import SerialInterface, PyDrsBasePS, Parameters, EntitiesPS
+from pydrs.bsmp import SerialInterface, CommonPSBSMP, Parameters, EntitiesPS
 from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP
 
 
@@ -17,7 +17,7 @@ class TestSerialCommandsx0(TestCase):
         self._serial = SerialInterface(path="/serial", baudrate=9600)
         self._entities = EntitiesPS()
 
-        self._pwrsupply = PyDrsBasePS(
+        self._pwrsupply = CommonPSBSMP(
             iointerface=self._serial, entities=self._entities, slave_address=1
         )
 

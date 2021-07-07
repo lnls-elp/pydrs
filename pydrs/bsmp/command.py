@@ -4,7 +4,7 @@ from siriuspy.pwrsupply.bsmp.commands import PSBSMP as _PSBSMP
 from .entities import EntitiesPS as _EntitiesPS
 
 
-class PyDrsBasePS(_PSBSMP):
+class CommonPSBSMP(_PSBSMP):
     """Essa classe espera receber como parâmetro um objeto do tipo siriuspy.bsmp.Entities,
     que possui a relação entre endereço e tipo de entidade bsmp que o dispositivo
     que desejamos controlar possui.

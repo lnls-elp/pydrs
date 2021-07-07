@@ -1,5 +1,5 @@
-from .command import PyDrsBasePS
+from .command import CommonPSBSMP
 from .interface import SerialInterface
 from .entities import EntitiesPS, Parameter, Parameters
 
-__all__ = ["PyDrsBasePS", "SerialInterface", "EntitiesPS", "Parameter", "Parameters"]
+__all__ = ["CommonPSBSMP", "SerialInterface", "EntitiesPS", "Parameter", "Parameters"]
