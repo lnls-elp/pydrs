@@ -15,7 +15,7 @@ from .parameters import Parameters as _Parameters
 class EntitiesPS(_E):
     """PS Entities."""
 
-    _ps_variables: _typing.Tuple[_V] = (
+    _ps_variables: _typing.Tuple = (
         # --- common variables
         # fmt: off
         _V(eid=_c.V_PS_STATUS, waccess=False, count=1, var_type=_Types.T_UINT16),
@@ -53,7 +53,7 @@ class EntitiesPS(_E):
     )
     # fmt: on
 
-    _ps_functions: _typing.Tuple[_F] = (
+    _ps_functions: _typing.Tuple = (
         _F(eid=_c.F_TURN_ON, i_type=(), o_type=(_Types.T_UINT8,)),
         _F(eid=_c.F_TURN_OFF, i_type=(), o_type=(_Types.T_UINT8,)),
         _F(eid=_c.F_OPEN_LOOP, i_type=(), o_type=(_Types.T_UINT8,)),
@@ -332,7 +332,7 @@ class EntitiesPS(_E):
         _F(eid=_c.F_RESET_UDC, i_type=(), o_type=()),
     )
 
-    _ps_curves: _typing.Tuple[_C] = (
+    _ps_curves: _typing.Tuple = (
         _C(
             eid=0,
             waccess=True,

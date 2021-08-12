@@ -9,14 +9,20 @@ from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP as _c
 import typing as _typing
 
 
-class Parameter(_typing.NamedTuple):
-    eid: int
-    waccess: bool
-    count: int
-    var_type: _BSMPType
-    unit: str
-    init: bool
-    Op: bool
+class Parameter:
+    def __init__(
+        self,
+        var_type: _BSMPType,
+        unit: str,
+        init: bool,
+        Op: bool,
+        count: int,
+    ):
+        self.var_type: _BSMPType = var_type
+        self.unit: str = unit
+        self.init: bool = init
+        self.Op: bool = Op
+        self.count: int = count
 
 
 class Parameters(_Entity):
