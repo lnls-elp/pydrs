@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 import struct
-import glob
 import serial
 import time
 import csv
 import math
-import numpy as np
 import matplotlib.pyplot as plt
 import os
-from datetime import datetime
 
 """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
 ======================================================================
@@ -46,6 +43,7 @@ from .constants.fac_const_list import (
     list_fac_dcdc_hard_interlocks,
     list_fac_dcdc_iib_interlocks,
     list_fac_dcdc_iib_alarms,
+    list_fac_2s_acdc_soft_interlocks,
     list_fac_2s_acdc_hard_interlocks,
     list_fac_2s_acdc_iib_is_interlocks,
     list_fac_2s_acdc_iib_cmd_interlocks,
@@ -769,7 +767,7 @@ class SerialDRS(object):
         old_add = self.get_slave_add()
         for add in add_list:
             self.set_slave_add(add)
-            if arg == None:
+            if arg is None:
                 r = p_func()
             else:
                 r = p_func(arg)
