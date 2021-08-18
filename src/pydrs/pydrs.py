@@ -17,7 +17,7 @@ from datetime import datetime
 ======================================================================
 """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 # common_list
-from constants.common_list import (
+from .constants.common_list import (
     list_ps_models,
     list_common_vars,
     list_curv,
@@ -28,14 +28,14 @@ from constants.common_list import (
 )
 
 # fbp_const_list
-from constants.fbp_const_list import (
+from .constants.fbp_const_list import (
     list_fbp_soft_interlocks,
     list_fbp_hard_interlocks,
     list_fbp_dclink_hard_interlocks,
 )
 
 # fac_const_list
-from constants.fac_const_list import (
+from .constants.fac_const_list import (
     list_fac_acdc_soft_interlocks,
     list_fac_acdc_hard_interlocks,
     list_fac_acdc_iib_is_interlocks,
@@ -55,11 +55,6 @@ from constants.fac_const_list import (
     list_fac_2s_dcdc_hard_interlocks,
     list_fac_2s_dcdc_iib_interlocks,
     list_fac_2s_dcdc_iib_alarms,
-    list_fac_2p4s_acdc_hard_interlocks,
-    list_fac_2p4s_acdc_iib_is_interlocks,
-    list_fac_2p4s_acdc_iib_cmd_interlocks,
-    list_fac_2p4s_acdc_iib_is_alarms,
-    list_fac_2p4s_acdc_iib_cmd_alarms,
     list_fac_2p4s_dcdc_soft_interlocks,
     list_fac_2p4s_dcdc_hard_interlocks,
     list_fac_2p4s_dcdc_iib_interlocks,
@@ -75,7 +70,7 @@ from constants.fac_const_list import (
 )
 
 # fap_const_list
-from constants.fap_const_list import (
+from .constants.fap_const_list import (
     list_fap_soft_interlocks,
     list_fap_hard_interlocks,
     list_fap_iib_interlocks,
@@ -86,8 +81,6 @@ from constants.fap_const_list import (
     list_fap_4p_iib_alarms,
     list_fap_2p2s_soft_interlocks,
     list_fap_2p2s_hard_interlocks,
-    list_fap_2p2s_iib_interlocks,
-    list_fap_2p2s_iib_alarms,
     list_fap_225A_soft_interlocks,
     list_fap_225A_hard_interlocks,
 )
