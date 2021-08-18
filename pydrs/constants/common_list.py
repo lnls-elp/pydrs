@@ -5,153 +5,7 @@
 ======================================================================
 """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 
-ListVar = [
-    "iLoad1",
-    "iLoad2",
-    "iMod1",
-    "iMod2",
-    "iMod3",
-    "iMod4",
-    "vLoad",
-    "vDCMod1",
-    "vDCMod2",
-    "vDCMod3",
-    "vDCMod4",
-    "vOutMod1",
-    "vOutMod2",
-    "vOutMod3",
-    "vOutMod4",
-    "temp1",
-    "temp2",
-    "temp3",
-    "temp4",
-    "ps_OnOff",
-    "ps_OpMode",
-    "ps_Remote",
-    "ps_OpenLoop",
-    "ps_SoftInterlocks",
-    "ps_HardInterlocks",
-    "iRef",
-    "wfmRef_Gain",
-    "wfmRef_Offset",
-    "sigGen_Enable",
-    "sigGen_Type",
-    "sigGen_Ncycles",
-    "sigGenPhaseStart",
-    "sigGen_PhaseEnd",
-    "sigGen_Freq",
-    "sigGen_Amplitude",
-    "sigGen_Offset",
-    "sigGen_Aux",
-    "dp_ID",
-    "dp_Class",
-    "dp_Coeffs",
-    "ps_Model",
-    "wfmRef_PtrBufferStart",
-    "wfmRef_PtrBufferEnd",
-    "wfmRef_PtrBufferK",
-    "wfmRef_SyncMode",
-]
-
-ListCurv = [
-    "wfmRef_Curve",
-    "sigGen_SweepAmp",
-    "samplesBuffer",
-    "fullwfmRef_Curve",
-    "wfmRef_Blocks",
-    "samplesBuffer_blocks",
-]
-
-ListFunc = [
-    "TurnOn",
-    "TurnOff",
-    "OpenLoop",
-    "ClosedLoop",
-    "OpMode",
-    "RemoteInterface",
-    "SetISlowRef",
-    "ConfigWfmRef",
-    "ConfigSigGen",
-    "EnableSigGen",
-    "DisableSigGen",
-    "ConfigDPModule",
-    "WfmRefUpdate",
-    "ResetInterlocks",
-    "ConfigPSModel",
-    "ConfigHRADC",
-    "ConfigHRADCOpMode",
-    "EnableHRADCSampling",
-    "DisableHRADCSampling",
-    "ResetWfmRef",
-    "SetRSAddress",
-    "EnableSamplesBuffer",
-    "DisableSamplesBuffer",
-    "SetISlowRefx4",
-    "SelectHRADCBoard",
-    "SelectTestSource",
-    "ResetHRADCBoards",
-    "Config_nHRADC",
-    "ReadHRADC_UFM",
-    "WriteHRADC_UFM",
-    "EraseHRADC_UFM",
-    "ReadHRADC_BoardData",
-]
-
-ListTestFunc = [
-    "UdcIoExpanderTest",
-    "UdcLedTest",
-    "UdcBuzzerTest",
-    "UdcEepromTest",
-    "UdcFlashTest",
-    "UdcRamTest",
-    "UdcRtcTest",
-    "UdcSensorTempTest",
-    "UdcIsoPlaneTest",
-    "UdcAdcTest",
-    "UdcUartTest",
-    "UdcLoopBackTest",
-    "UdcComTest",
-    "UdcI2cIsoTest",
-]
-
-ListHRADCInputType = [
-    "Vin_bipolar",
-    "Vin_unipolar_p",
-    "Vin_unipolar_n",
-    "Iin_bipolar",
-    "Iin_unipolar_p",
-    "Iin_unipolar_n",
-    "Vref_bipolar_p",
-    "Vref_bipolar_n",
-    "GND",
-    "Vref_unipolar_p",
-    "Vref_unipolar_n",
-    "GND_unipolar",
-    "Temp",
-    "Reserved0",
-    "Reserved1",
-    "Reserved2",
-]
-
-ListPSModels = [
-    "FBP_100kHz",
-    "FBP_Parallel_100kHz",
-    "FAC_ACDC_10kHz",
-    "FAC_DCDC_20kHz",
-    "FAC_Full_ACDC_10kHz",
-    "FAC_Full_DCDC_20kHz",
-    "FAP_ACDC",
-    "FAP_DCDC_20kHz",
-    "TEST_HRPWM",
-    "TEST_HRADC",
-    "JIGA_HRADC",
-    "FAP_DCDC_15kHz_225A",
-    "FBPx4_100kHz",
-    "FAP_6U_DCDC_20kHz",
-    "JIGA_BASTIDOR",
-]
-
-ListPSModels_v2_1 = [
+list_ps_models = [
     "Empty",
     "FBP",
     "FBP_DCLink",
@@ -186,7 +40,7 @@ ListPSModels_v2_1 = [
     "Uninitialized",
 ]
 
-ListVar_v2_1 = [
+list_common_vars = [
     "ps_status",
     "ps_setpoint",
     "ps_reference",
@@ -210,10 +64,10 @@ ListVar_v2_1 = [
     "p_wfmref_idx",
 ]
 
-# ListCurv_v2_1 = ['wfmref','buf_samples_ctom','buf_samples_mtoc']
-ListCurv_v2_1 = ["wfmref_data_0", "wfmref_data_1", "buf_samples_ctom"]
+# list_curv = ['wfmref','buf_samples_ctom','buf_samples_mtoc']
+list_curv = ["wfmref_data_0", "wfmref_data_1", "buf_samples_ctom"]
 
-ListFunc_v2_1 = [
+list_func = [
     "turn_on",
     "turn_off",
     "open_loop",
@@ -260,7 +114,7 @@ ListFunc_v2_1 = [
     "reset_udc",
 ]
 
-ListOpMode_v2_1 = [
+list_op_mode = [
     "Off",
     "Interlock",
     "Initializing",
@@ -272,7 +126,7 @@ ListOpMode_v2_1 = [
     "FastRef",
 ]
 
-ListSigGenTypes_v2_1 = [
+list_sig_gen_types = [
     "Sine",
     "DampedSine",
     "Trapezoidal",
@@ -280,7 +134,7 @@ ListSigGenTypes_v2_1 = [
     "Square",
 ]
 
-ListParameters = [
+list_parameters = [
     "PS_Name",
     "PS_Model",
     "Num_PS_Modules",
@@ -345,17 +199,4 @@ ListParameters = [
     "",
     "Password",
     "Enable_Onboard_EEPROM",
-]
-
-ListBCBFunc = [
-    "ClearPof",
-    "SetPof",
-    "ReadPof",
-    "EnableBuzzer",
-    "DisableBuzzer",
-    "SendUartData",
-    "GetUartData",
-    "SendCanData",
-    "GetCanData",
-    "GetI2cData",
 ]
