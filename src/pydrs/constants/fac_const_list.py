@@ -133,6 +133,7 @@ list_fac_dcdc_iib_alarms = [
 ]
 
 # FAC-2S AC/DC
+list_fac_2s_acdc_soft_interlocks = []
 list_fac_2s_acdc_hard_interlocks = [
     "CapBank Overvoltage",
     "Rectifier Overvoltage",
