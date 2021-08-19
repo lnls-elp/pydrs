@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-import struct
-import serial
-import time
 import csv
 import math
 import matplotlib.pyplot as plt
 import os
+import serial
+import struct
+import time
+import typing
 
 """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
 ======================================================================
@@ -13,6 +14,8 @@ import os
         A posição da entidade na lista corresponde ao seu ID BSMP
 ======================================================================
 """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+from . import get_logger
+
 # common_list
 from .constants.common_list import (
     list_ps_models,
@@ -144,10 +147,10 @@ dsp_classes_names = [
     "DSP_Vect_Product",
 ]
 
+logger = get_logger(name=__file__)
+
 
 class SerialDRS(object):
-
-    ser = serial.Serial()
 
     def __init__(self):
         # self.ser=serial.Serial()
@@ -162,6 +165,8 @@ class SerialDRS(object):
         self.com_send_wfm_ref = "\x41"
         self.com_function = "\x50"
         self.dp_module_max_coeff = 16
+
+        self.ser: typing.Optional[serial.Serial] = None
 
         print(
             "\n pyDRS - compatible UDC firmware version: " + UDC_FIRMWARE_VERSION + "\n"
@@ -1479,21 +1484,41 @@ class SerialDRS(object):
     """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 
     def connect(self, port="COM2", baud=115200):
+        if self.ser and self.ser.is_open:
+            logger.warning(
+                "PyDRS obj {} serial port {} is already open settings. Disconnect before opening a new connection.".format(
+                    self, self.ser
+                )
+            )
+            return False
         try:
-            SerialDRS.ser = serial.Serial(
+            self.ser = serial.Serial(
                 port, baud, timeout=1
             )  # port format should be 'COM'+number
             return True
-        except:
+        except Exception:
+            # Do not use bare `except:`, it also catches unexpected events like memory errors, interrupts, system exit, and so on.  Prefer `except Exception:`.
+            # If you're sure what you're doing, be explicit and write `except BaseException:`
+
+            # logger.exception will display the stacktrace, useful debugging tool
+            logger.exception("Failed to open serial port ({}, {})".format(port, baud))
             return False
 
     def disconnect(self):
-        if self.ser.isOpen():
-            try:
-                self.ser.close()
-                return True
-            except:
-                return False
+        if not self.ser or not self.ser.is_open:
+            # Early return if already closed
+            return True
+
+        try:
+            self.ser.close()
+            return True
+        except Exception:
+            # Do not use bare `except:`, it also catches unexpected events like memory errors, interrupts, system exit, and so on.  Prefer `except Exception:`.
+            # If you're sure what you're doing, be explicit and write `except BaseException:`
+
+            # logger.exception will display the stacktrace, useful debugging tool
+            logger.exception("Failed to disconnect serial port ({})".format(self.ser))
+            return False
 
     def set_slave_add(self, address):
         self.slave_add = struct.pack("B", address).decode("ISO-8859-1")
