@@ -1581,22 +1581,25 @@ class SerialDRS(object):
             self.get_wfmref_vars(1)
             self.get_scope_vars()
 
+    def _interlock_unknown_assignment(self, active_interlocks, index):
+        active_interlocks.append("bit {}: Reserved".format(index))
+
+    def _interlock_name_assigned(self, active_interlocks, index, list_interlocks):
+        active_interlocks.append(
+            "bit {}: {}".format(index, list_interlocks[index])
+        )
+
     def decode_interlocks(self, reg_interlocks, list_interlocks):
         active_interlocks = []
-
-        def _interlock_unknown_assignment(active_interlocks, index):
-            active_interlocks.append("bit {}: Reserved".format(index))
-
-        def _interlock_name_assigned(active_interlocks, index, list_interlocks):
-            active_interlocks.append(
-                "bit {}: {}".format(index, list_interlocks[index]))
-
         for index in range(32):
             if reg_interlocks & (1 << index):
                 if index < len(list_interlocks):
-                    _interlock_name_assigned(active_interlocks, index, list_interlocks)
+                    self._interlock_name_assigned(
+                        active_interlocks, index, list_interlocks
+                    )
                 else:
-                    _interlock_unknown_assignment(active_interlocks, index)
+                    self._interlock_unknown_assignment(
+                        active_interlocks, index)
 
         for interlock in active_interlocks:
             print(interlock)
