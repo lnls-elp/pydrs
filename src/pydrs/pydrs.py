@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 import struct
-import glob
 import serial
 import time
 import csv
 import math
-import numpy as np
 import matplotlib.pyplot as plt
 import os
-from datetime import datetime
 
 """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
 ======================================================================
@@ -17,7 +14,7 @@ from datetime import datetime
 ======================================================================
 """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 # common_list
-from constants.common_list import (
+from .constants.common_list import (
     list_ps_models,
     list_common_vars,
     list_curv,
@@ -28,14 +25,14 @@ from constants.common_list import (
 )
 
 # fbp_const_list
-from constants.fbp_const_list import (
+from .constants.fbp_const_list import (
     list_fbp_soft_interlocks,
     list_fbp_hard_interlocks,
     list_fbp_dclink_hard_interlocks,
 )
 
 # fac_const_list
-from constants.fac_const_list import (
+from .constants.fac_const_list import (
     list_fac_acdc_soft_interlocks,
     list_fac_acdc_hard_interlocks,
     list_fac_acdc_iib_is_interlocks,
@@ -46,6 +43,7 @@ from constants.fac_const_list import (
     list_fac_dcdc_hard_interlocks,
     list_fac_dcdc_iib_interlocks,
     list_fac_dcdc_iib_alarms,
+    list_fac_2s_acdc_soft_interlocks,
     list_fac_2s_acdc_hard_interlocks,
     list_fac_2s_acdc_iib_is_interlocks,
     list_fac_2s_acdc_iib_cmd_interlocks,
@@ -55,11 +53,6 @@ from constants.fac_const_list import (
     list_fac_2s_dcdc_hard_interlocks,
     list_fac_2s_dcdc_iib_interlocks,
     list_fac_2s_dcdc_iib_alarms,
-    list_fac_2p4s_acdc_hard_interlocks,
-    list_fac_2p4s_acdc_iib_is_interlocks,
-    list_fac_2p4s_acdc_iib_cmd_interlocks,
-    list_fac_2p4s_acdc_iib_is_alarms,
-    list_fac_2p4s_acdc_iib_cmd_alarms,
     list_fac_2p4s_dcdc_soft_interlocks,
     list_fac_2p4s_dcdc_hard_interlocks,
     list_fac_2p4s_dcdc_iib_interlocks,
@@ -75,7 +68,7 @@ from constants.fac_const_list import (
 )
 
 # fap_const_list
-from constants.fap_const_list import (
+from .constants.fap_const_list import (
     list_fap_soft_interlocks,
     list_fap_hard_interlocks,
     list_fap_iib_interlocks,
@@ -86,30 +79,28 @@ from constants.fap_const_list import (
     list_fap_4p_iib_alarms,
     list_fap_2p2s_soft_interlocks,
     list_fap_2p2s_hard_interlocks,
-    list_fap_2p2s_iib_interlocks,
-    list_fap_2p2s_iib_alarms,
     list_fap_225A_soft_interlocks,
     list_fap_225A_hard_interlocks,
 )
 
 UDC_FIRMWARE_VERSION = "0.42 2021-05-06"
 
-typeFormat = {
+type_format = {
     "uint8_t": "BBHBB",
     "uint16_t": "BBHHB",
     "uint32_t": "BBHIB",
     "float": "BBHfB",
 }
 
-bytesFormat = {"Uint16": "H", "Uint32": "L", "Uint64": "Q", "float": "f"}
+bytes_format = {"Uint16": "H", "Uint32": "L", "Uint64": "Q", "float": "f"}
 
-typeSize = {"uint8_t": 6, "uint16_t": 7, "uint32_t": 9, "float": 9}
+type_size = {"uint8_t": 6, "uint16_t": 7, "uint32_t": 9, "float": 9}
 
 num_blocks_curves_fbp = [4, 4, 4]
 num_blocks_curves_fax = [16, 16, 16]
 size_curve_block = [1024, 1024, 1024]
 
-ufmOffset = {
+ufm_offset = {
     "serial": 0,
     "calibdate": 4,
     "variant": 9,
@@ -124,9 +115,10 @@ ufmOffset = {
     "gnd": 26,
 }
 
-hradcVariant = ["HRADC-FBP", "HRADC-FAX-A", "HRADC-FAX-B", "HRADC-FAX-C", "HRADC-FAX-D"]
+hradc_variant = ["HRADC-FBP", "HRADC-FAX-A",
+                 "HRADC-FAX-B", "HRADC-FAX-C", "HRADC-FAX-D"]
 
-hradcInputTypes = [
+hradc_input_types = [
     "GND",
     "Vref_bipolar_p",
     "Vref_bipolar_n",
@@ -181,6 +173,7 @@ class SerialDRS(object):
     ======================================================================
     """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
     # Converte float para hexadecimal
+
     def float_to_hex(self, value):
         hex_value = struct.pack("f", value)
         return hex_value.decode("ISO-8859-1")
@@ -236,7 +229,6 @@ class SerialDRS(object):
     def is_open(self):
         return self.ser.isOpen()
 
- 
     """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
     ======================================================================
                 Métodos de Chamada de Entidades Funções BSMP
@@ -465,7 +457,8 @@ class SerialDRS(object):
         return reply_msg
 
     def get_param(self, param_id, n=0):
-        payload_size = self.size_to_hex(1 + 2 + 2)  # Payload: ID + param id + [n]
+        # Payload: ID + param id + [n]
+        payload_size = self.size_to_hex(1 + 2 + 2)
         if type(param_id) == str:
             hex_id = self.double_to_hex(list_parameters.index(param_id))
         if type(param_id) == int:
@@ -579,8 +572,10 @@ class SerialDRS(object):
             else:
                 for n in range(64):
                     try:
-                        print(str(param[0]) + "[" + str(n) + "]: " + str(param[n + 1]))
-                        print(self.set_param(str(param[0]), n, float(param[n + 1])))
+                        print(str(param[0]) + "[" + str(n) +
+                              "]: " + str(param[n + 1]))
+                        print(self.set_param(
+                            str(param[0]), n, float(param[n + 1])))
                     except:
                         break
         # self.save_param_bank()
@@ -639,9 +634,11 @@ class SerialDRS(object):
         self.save_param_eeprom("Enable_Onboard_EEPROM", 0, 2)
 
     def set_dsp_coeffs(
-        self, dsp_class, dsp_id, coeffs_list=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self, dsp_class, dsp_id, coeffs_list=[
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ):
-        coeffs_list_full = self.format_list_size(coeffs_list, NUM_MAX_COEFFS_DSP)
+        coeffs_list_full = self.format_list_size(
+            coeffs_list, NUM_MAX_COEFFS_DSP)
         payload_size = self.size_to_hex(1 + 2 + 2 + 4 * NUM_MAX_COEFFS_DSP)
         hex_dsp_class = self.double_to_hex(dsp_class)
         hex_dsp_id = self.double_to_hex(dsp_id)
@@ -755,7 +752,8 @@ class SerialDRS(object):
 
     def run_bsmp_func(self, id_func, print_msg=0):
         payload_size = self.size_to_hex(1)  # Payload: ID
-        send_packet = self.com_function + payload_size + self.index_to_hex(id_func)
+        send_packet = self.com_function + \
+            payload_size + self.index_to_hex(id_func)
         send_msg = self.checksum(self.slave_add + send_packet)
         self.ser.write(send_msg.encode("ISO-8859-1"))
         reply_msg = self.ser.read(6)
@@ -769,7 +767,7 @@ class SerialDRS(object):
         old_add = self.get_slave_add()
         for add in add_list:
             self.set_slave_add(add)
-            if arg == None:
+            if arg is None:
                 r = p_func()
             else:
                 r = p_func(arg)
@@ -845,7 +843,8 @@ class SerialDRS(object):
         print("Frequency: " + str((round(self.read_bsmp_variable(25, "float"), 3))))
         print("Duration: " + str((round(self.read_bsmp_variable(26, "float"), 3))))
         print(
-            "Source Data: " + str((round(self.read_bsmp_variable(27, "uint32_t"), 3)))
+            "Source Data: " +
+            str((round(self.read_bsmp_variable(27, "uint32_t"), 3)))
         )
 
     def sync_pulse(self):
@@ -1058,8 +1057,10 @@ class SerialDRS(object):
             "Length: "
             + str(
                 (
-                    round(self.read_bsmp_variable(20 + curve_id * 3, "uint32_t"), 3)
-                    - round(self.read_bsmp_variable(19 + curve_id * 3, "uint32_t"), 3)
+                    round(self.read_bsmp_variable(
+                        20 + curve_id * 3, "uint32_t"), 3)
+                    - round(self.read_bsmp_variable(19 +
+                                                    curve_id * 3, "uint32_t"), 3)
                 )
                 / 2
                 + 1
@@ -1069,19 +1070,23 @@ class SerialDRS(object):
             "Index: "
             + str(
                 (
-                    round(self.read_bsmp_variable(21 + curve_id * 3, "uint32_t"), 3)
-                    - round(self.read_bsmp_variable(19 + curve_id * 3, "uint32_t"), 3)
+                    round(self.read_bsmp_variable(
+                        21 + curve_id * 3, "uint32_t"), 3)
+                    - round(self.read_bsmp_variable(19 +
+                                                    curve_id * 3, "uint32_t"), 3)
                 )
                 / 2
                 + 1
             )
         )
         print(
-            "WfmRef Selected: " + str(round(self.read_bsmp_variable(14, "uint16_t"), 3))
+            "WfmRef Selected: " +
+            str(round(self.read_bsmp_variable(14, "uint16_t"), 3))
         )
         print("Sync Mode: " + str(round(self.read_bsmp_variable(15, "uint16_t"), 3)))
         print(
-            "Frequency: " + str(round(self.read_bsmp_variable(16, "float"), 3)) + " Hz"
+            "Frequency: " +
+            str(round(self.read_bsmp_variable(16, "float"), 3)) + " Hz"
         )
         print("Gain: " + str(round(self.read_bsmp_variable(17, "float"), 3)))
         print("Offset: " + str(round(self.read_bsmp_variable(18, "float"), 3)))
@@ -1108,10 +1113,10 @@ class SerialDRS(object):
 
     def read_bsmp_variable(self, id_var, type_var, print_msg=0):
         self.read_var(self.index_to_hex(id_var))
-        reply_msg = self.ser.read(typeSize[type_var])
+        reply_msg = self.ser.read(type_size[type_var])
         if print_msg:
             print(reply_msg)
-        val = struct.unpack(typeFormat[type_var], reply_msg)
+        val = struct.unpack(type_format[type_var], reply_msg)
         return val[3]
 
     def read_bsmp_variable_gen(self, id_var, size_bytes, print_msg=0):
@@ -1255,12 +1260,13 @@ class SerialDRS(object):
     ======================================================================
     """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 
-    def Send_wfmRef_Curve(self, block_idx, data):
+    def send_wfmref_curve(self, block_idx, data):
         block_hex = struct.pack(">H", block_idx).decode("ISO-8859-1")
         val = []
         for k in range(0, len(data)):
             val.append(self.float_to_hex(float(data[k])))
-        payload_size = struct.pack(">H", (len(val) * 4) + 3).decode("ISO-8859-1")
+        payload_size = struct.pack(
+            ">H", (len(val) * 4) + 3).decode("ISO-8859-1")
         curva_hex = "".join(val)
         send_packet = (
             self.com_send_wfm_ref
@@ -1273,7 +1279,7 @@ class SerialDRS(object):
         self.ser.write(send_msg.encode("ISO-8859-1"))
         return self.ser.read(5)
 
-    def Recv_wfmRef_Curve(self, block_idx):
+    def recv_wfmref_curve(self, block_idx):
         block_hex = struct.pack(">H", block_idx).decode("ISO-8859-1")
         payload_size = self.size_to_hex(1 + 2)  # Payload: ID+Block_index
         send_packet = (
@@ -1289,10 +1295,10 @@ class SerialDRS(object):
         )  # Address+Command+Size+ID+Block_idx+data+checksum
         val = []
         for k in range(7, len(recv_msg) - 1, 4):
-            val.append(struct.unpack("f", recv_msg[k : k + 4]))
+            val.append(struct.unpack("f", recv_msg[k: k + 4]))
         return val
 
-    def Recv_samplesBuffer(self):
+    def recv_samples_buffer(self):
         block_hex = struct.pack(">H", 0).decode("ISO-8859-1")
         payload_size = self.size_to_hex(1 + 2)  # Payload: ID+Block_index
         send_packet = (
@@ -1309,17 +1315,18 @@ class SerialDRS(object):
         val = []
         try:
             for k in range(7, len(recv_msg) - 1, 4):
-                val.extend(struct.unpack("f", recv_msg[k : k + 4]))
+                val.extend(struct.unpack("f", recv_msg[k: k + 4]))
         except:
             pass
         return val
 
-    def Send_fullwfmRef_Curve(self, block_idx, data):
+    def send_full_wfmref_curve(self, block_idx, data):
         block_hex = struct.pack(">H", block_idx).decode("ISO-8859-1")
         val = []
         for k in range(0, len(data)):
             val.append(self.float_to_hex(float(data[k])))
-        payload_size = struct.pack(">H", (len(val) * 4) + 3).decode("ISO-8859-1")
+        payload_size = struct.pack(
+            ">H", (len(val) * 4) + 3).decode("ISO-8859-1")
         curva_hex = "".join(val)
         send_packet = (
             self.com_send_wfm_ref
@@ -1332,7 +1339,7 @@ class SerialDRS(object):
         self.ser.write(send_msg.encode("ISO-8859-1"))
         return self.ser.read(5)
 
-    def Recv_fullwfmRef_Curve(self, block_idx):
+    def recv_full_wfmref_curve(self, block_idx):
         block_hex = struct.pack(">H", block_idx).decode("ISO-8859-1")
         payload_size = self.size_to_hex(1 + 2)  # Payload: ID+Block_index
         send_packet = (
@@ -1348,10 +1355,10 @@ class SerialDRS(object):
         )  # Address+Command+Size+ID+Block_idx+data+checksum
         val = []
         for k in range(7, len(recv_msg) - 1, 4):
-            val.append(struct.unpack("f", recv_msg[k : k + 4]))
+            val.append(struct.unpack("f", recv_msg[k: k + 4]))
         return val
 
-    def Recv_samplesBuffer_blocks(self, block_idx):
+    def recv_samples_buffer_blocks(self, block_idx):
         block_hex = struct.pack(">H", block_idx).decode("ISO-8859-1")
         payload_size = self.size_to_hex(1 + 2)  # Payload: ID+Block_index
         send_packet = (
@@ -1370,15 +1377,15 @@ class SerialDRS(object):
         # print(recv_msg)
         val = []
         for k in range(7, len(recv_msg) - 1, 4):
-            val.extend(struct.unpack("f", recv_msg[k : k + 4]))
+            val.extend(struct.unpack("f", recv_msg[k: k + 4]))
         return val
 
-    def Recv_samplesBuffer_allblocks(self):
+    def recv_samples_buffer_allblocks(self):
         buff = []
         # self.DisableSamplesBuffer()
         for i in range(0, 16):
             # t0 = time.time()
-            buff.extend(self.Recv_samplesBuffer_blocks(i))
+            buff.extend(self.recv_samples_buffer_blocks(i))
             # print(time.time()-t0)
         # self.EnableSamplesBuffer()
         return buff
@@ -1403,7 +1410,7 @@ class SerialDRS(object):
         # print(recv_msg)
         val = []
         for k in range(7, len(recv_msg) - 1, 4):
-            val.extend(struct.unpack("f", recv_msg[k : k + 4]))
+            val.extend(struct.unpack("f", recv_msg[k: k + 4]))
         return val
 
     def write_curve_block(self, curve_id, block_id, data):
@@ -1411,7 +1418,8 @@ class SerialDRS(object):
         val = []
         for k in range(0, len(data)):
             val.append(self.float_to_hex(float(data[k])))
-        payload_size = struct.pack(">H", (len(val) * 4) + 3).decode("ISO-8859-1")
+        payload_size = struct.pack(
+            ">H", (len(val) * 4) + 3).decode("ISO-8859-1")
         curva_hex = "".join(val)
         send_packet = (
             self.com_send_wfm_ref
@@ -1429,7 +1437,8 @@ class SerialDRS(object):
         block_size = int(size_curve_block[curve] / 4)
         print(block_size)
 
-        blocks = [data[x : x + block_size] for x in range(0, len(data), block_size)]
+        blocks = [data[x: x + block_size]
+                  for x in range(0, len(data), block_size)]
 
         ps_status = self.read_ps_status()
 
@@ -1469,7 +1478,7 @@ class SerialDRS(object):
     ======================================================================
     """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
 
-    def connect(self, port="COM2", baud=6000000):
+    def connect(self, port="COM2", baud=115200):
         try:
             SerialDRS.ser = serial.Serial(
                 port, baud, timeout=1
@@ -1571,13 +1580,15 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fbp_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fbp_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fbp_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fbp_hard_interlocks)
 
                 print(
                     "\nLoad Current: "
@@ -1651,7 +1662,8 @@ class SerialDRS(object):
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("\nHard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fbp_dclink_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fbp_dclink_hard_interlocks)
 
                 print(
                     "\nModules status: "
@@ -1702,33 +1714,39 @@ class SerialDRS(object):
             soft_itlks = self.read_bsmp_variable(31, "uint32_t")
             print("\nSoft Interlocks: " + str(soft_itlks))
             if soft_itlks:
-                self.decode_interlocks(soft_itlks, list_fac_acdc_soft_interlocks)
+                self.decode_interlocks(
+                    soft_itlks, list_fac_acdc_soft_interlocks)
                 print("")
 
             hard_itlks = self.read_bsmp_variable(32, "uint32_t")
             print("Hard Interlocks: " + str(hard_itlks))
             if hard_itlks:
-                self.decode_interlocks(hard_itlks, list_fac_acdc_hard_interlocks)
+                self.decode_interlocks(
+                    hard_itlks, list_fac_acdc_hard_interlocks)
 
             iib_is_itlks = self.read_bsmp_variable(45, "uint32_t")
             print("\nIIB IS Interlocks: " + str(iib_is_itlks))
             if iib_is_itlks:
-                self.decode_interlocks(iib_is_itlks, list_fac_acdc_iib_is_interlocks)
+                self.decode_interlocks(
+                    iib_is_itlks, list_fac_acdc_iib_is_interlocks)
 
             iib_is_alarms = self.read_bsmp_variable(46, "uint32_t")
             print("IIB IS Alarms: " + str(iib_is_alarms))
             if iib_is_alarms:
-                self.decode_interlocks(iib_is_alarms, list_fac_acdc_iib_is_alarms)
+                self.decode_interlocks(
+                    iib_is_alarms, list_fac_acdc_iib_is_alarms)
 
             iib_cmd_itlks = self.read_bsmp_variable(57, "uint32_t")
             print("\nIIB Cmd Interlocks: " + str(iib_cmd_itlks))
             if iib_cmd_itlks:
-                self.decode_interlocks(iib_cmd_itlks, list_fac_acdc_iib_cmd_interlocks)
+                self.decode_interlocks(
+                    iib_cmd_itlks, list_fac_acdc_iib_cmd_interlocks)
 
             iib_cmd_alarms = self.read_bsmp_variable(58, "uint32_t")
             print("IIB Cmd Alarms: " + str(iib_cmd_alarms))
             if iib_cmd_alarms:
-                self.decode_interlocks(iib_cmd_alarms, list_fac_acdc_iib_cmd_alarms)
+                self.decode_interlocks(
+                    iib_cmd_alarms, list_fac_acdc_iib_cmd_alarms)
 
             print(
                 "\nCapBank Voltage: "
@@ -1897,23 +1915,27 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fac_dcdc_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fac_dcdc_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fac_dcdc_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fac_dcdc_hard_interlocks)
 
                 iib_itlks = self.read_bsmp_variable(51, "uint32_t")
                 print("\nIIB Interlocks: " + str(iib_itlks))
                 if iib_itlks:
-                    self.decode_interlocks(iib_itlks, list_fac_dcdc_iib_interlocks)
+                    self.decode_interlocks(
+                        iib_itlks, list_fac_dcdc_iib_interlocks)
 
                 iib_alarms = self.read_bsmp_variable(52, "uint32_t")
                 print("IIB Alarms: " + str(iib_alarms))
                 if iib_alarms:
-                    self.decode_interlocks(iib_alarms, list_fac_dcdc_iib_alarms)
+                    self.decode_interlocks(
+                        iib_alarms, list_fac_dcdc_iib_alarms)
 
                 print(
                     "\nLoad Current: "
@@ -2053,12 +2075,14 @@ class SerialDRS(object):
                 iib_itlks = self.read_bsmp_variable(49, "uint32_t")
                 print("IIB Interlocks: " + str(iib_itlks))
                 if iib_itlks:
-                    self.decode_interlocks(iib_itlks, list_fac_dcdc_ema_iib_interlocks)
+                    self.decode_interlocks(
+                        iib_itlks, list_fac_dcdc_ema_iib_interlocks)
 
                 iib_alarms = self.read_bsmp_variable(50, "uint32_t")
                 print("IIB Alarms: " + str(iib_alarms))
                 if iib_alarms:
-                    self.decode_interlocks(iib_alarms, list_fac_dcdc_ema_iib_alarms)
+                    self.decode_interlocks(
+                        iib_alarms, list_fac_dcdc_ema_iib_alarms)
 
                 print(
                     "\nLoad Current: "
@@ -2174,13 +2198,15 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fac_2s_acdc_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fac_2s_acdc_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fac_2s_acdc_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fac_2s_acdc_hard_interlocks)
 
                 iib_is_itlks = self.read_bsmp_variable(45, "uint32_t")
                 print("\nIIB IS Interlocks: " + str(iib_is_itlks))
@@ -2347,13 +2373,15 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fac_2s_acdc_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fac_2s_acdc_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fac_2s_acdc_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fac_2s_acdc_hard_interlocks)
 
                 iib_is_itlks = self.read_bsmp_variable(45, "uint32_t")
                 print("\nIIB IS Interlocks: " + str(iib_is_itlks))
@@ -2545,13 +2573,15 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fac_2s_dcdc_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fac_2s_dcdc_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fac_2s_dcdc_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fac_2s_dcdc_hard_interlocks)
 
                 print(
                     "\nLoad Current: "
@@ -2595,99 +2625,114 @@ class SerialDRS(object):
                     print(
                         "\nIIB CapBank Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(40 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                40 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
                     print(
                         "IIB Input Current: "
                         + str(
-                            round(self.read_bsmp_variable(41 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                41 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
                     print(
                         "IIB Output Current: "
                         + str(
-                            round(self.read_bsmp_variable(42 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                42 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
                     print(
                         "IIB IGBT Leg 1 Temp: "
                         + str(
-                            round(self.read_bsmp_variable(43 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                43 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
                     print(
                         "IIB IGBT Leg 2 Temp: "
                         + str(
-                            round(self.read_bsmp_variable(44 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                44 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
                     print(
                         "IIB Inductor Temp: "
                         + str(
-                            round(self.read_bsmp_variable(45 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                45 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
                     print(
                         "IIB Heat-Sink Temp: "
                         + str(
-                            round(self.read_bsmp_variable(46 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                46 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
                     print(
                         "IIB Driver Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(47 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                47 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
                     print(
                         "IIB Driver Current 1: "
                         + str(
-                            round(self.read_bsmp_variable(48 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                48 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
                     print(
                         "IIB Driver Current 2: "
                         + str(
-                            round(self.read_bsmp_variable(49 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                49 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
                     print(
                         "IIB Board Temp: "
                         + str(
-                            round(self.read_bsmp_variable(50 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                50 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
                     print(
                         "IIB Board RH: "
                         + str(
-                            round(self.read_bsmp_variable(51 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                51 + iib_offset, "float"), 3)
                         )
                         + " %"
                     )
 
-                    iib_itlks = self.read_bsmp_variable(52 + iib_offset, "uint32_t")
+                    iib_itlks = self.read_bsmp_variable(
+                        52 + iib_offset, "uint32_t")
                     print("\nIIB Interlocks: " + str(iib_itlks))
                     if iib_itlks:
                         self.decode_interlocks(
                             iib_itlks, list_fac_2s_dcdc_iib_interlocks
                         )
 
-                    iib_alarms = self.read_bsmp_variable(53 + iib_offset, "uint32_t")
+                    iib_alarms = self.read_bsmp_variable(
+                        53 + iib_offset, "uint32_t")
                     print("IIB Alarms: " + str(iib_alarms))
                     if iib_alarms:
-                        self.decode_interlocks(iib_alarms, list_fac_2s_dcdc_iib_alarms)
+                        self.decode_interlocks(
+                            iib_alarms, list_fac_2s_dcdc_iib_alarms)
 
                 time.sleep(dt)
 
@@ -3000,13 +3045,15 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fap_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fap_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fap_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fap_hard_interlocks)
 
                 iib_itlks = self.read_bsmp_variable(56, "uint32_t")
                 print("\nIIB Interlocks: " + str(iib_itlks))
@@ -3036,7 +3083,8 @@ class SerialDRS(object):
                     print(
                         "\nLoad Resistance: "
                         + str(
-                            abs(round(self.read_bsmp_variable(43, "float") / iload, 3))
+                            abs(round(self.read_bsmp_variable(
+                                43, "float") / iload, 3))
                         )
                         + " Ohm"
                     )
@@ -3192,24 +3240,31 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fap_4p_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fap_4p_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fap_4p_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fap_4p_hard_interlocks)
 
                 for j in range(4):
-                    iib_itlks = self.read_bsmp_variable(72 + j * 16, "uint32_t")
-                    print("\nIIB " + str(j + 1) + " Interlocks: " + str(iib_itlks))
+                    iib_itlks = self.read_bsmp_variable(
+                        72 + j * 16, "uint32_t")
+                    print("\nIIB " + str(j + 1) +
+                          " Interlocks: " + str(iib_itlks))
                     if iib_itlks:
-                        self.decode_interlocks(iib_itlks, list_fap_4p_iib_interlocks)
+                        self.decode_interlocks(
+                            iib_itlks, list_fap_4p_iib_interlocks)
 
-                    iib_alarms = self.read_bsmp_variable(73 + j * 16, "uint32_t")
+                    iib_alarms = self.read_bsmp_variable(
+                        73 + j * 16, "uint32_t")
                     print("IIB " + str(j + 1) + " Alarms: " + str(iib_alarms))
                     if iib_alarms:
-                        self.decode_interlocks(iib_alarms, list_fap_4p_iib_alarms)
+                        self.decode_interlocks(
+                            iib_alarms, list_fap_4p_iib_alarms)
 
                 print(
                     "\n Mean Load Current: "
@@ -3347,7 +3402,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Input Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(58 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                58 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
@@ -3356,7 +3412,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Output Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(59 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                59 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
@@ -3365,7 +3422,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 1 Current: "
                         + str(
-                            round(self.read_bsmp_variable(60 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                60 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3374,7 +3432,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 2 Current: "
                         + str(
-                            round(self.read_bsmp_variable(61 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                61 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3383,7 +3442,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 1 Temp: "
                         + str(
-                            round(self.read_bsmp_variable(62 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                62 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3392,7 +3452,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 2 Temp: "
                         + str(
-                            round(self.read_bsmp_variable(63 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                63 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3401,7 +3462,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Driver Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(64 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                64 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
@@ -3410,7 +3472,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Driver Current 1: "
                         + str(
-                            round(self.read_bsmp_variable(65 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                65 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3419,7 +3482,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Driver Current 2: "
                         + str(
-                            round(self.read_bsmp_variable(66 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                66 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3428,7 +3492,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Inductor Temp: "
                         + str(
-                            round(self.read_bsmp_variable(67 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                67 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3437,7 +3502,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Heat-Sink Temp: "
                         + str(
-                            round(self.read_bsmp_variable(68 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                68 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3446,7 +3512,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Ground Leakage Current: "
                         + str(
-                            round(self.read_bsmp_variable(69 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                69 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3455,7 +3522,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Board Temp: "
                         + str(
-                            round(self.read_bsmp_variable(70 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                70 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3464,7 +3532,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Board RH: "
                         + str(
-                            round(self.read_bsmp_variable(71 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                71 + iib_offset, "float"), 3)
                         )
                         + " %"
                     )
@@ -3474,7 +3543,8 @@ class SerialDRS(object):
                         + " Interlocks: "
                         + str(
                             round(
-                                self.read_bsmp_variable(72 + iib_offset, "uint32_t"), 3
+                                self.read_bsmp_variable(
+                                    72 + iib_offset, "uint32_t"), 3
                             )
                         )
                     )
@@ -3484,7 +3554,8 @@ class SerialDRS(object):
                         + " Alarms: "
                         + str(
                             round(
-                                self.read_bsmp_variable(73 + iib_offset, "uint32_t"), 3
+                                self.read_bsmp_variable(
+                                    73 + iib_offset, "uint32_t"), 3
                             )
                         )
                     )
@@ -3517,24 +3588,31 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fap_2p2s_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fap_2p2s_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fap_2p2s_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fap_2p2s_hard_interlocks)
 
                 for j in range(4):
-                    iib_itlks = self.read_bsmp_variable(78 + j * 16, "uint32_t")
-                    print("\nIIB " + str(j + 1) + " Interlocks: " + str(iib_itlks))
+                    iib_itlks = self.read_bsmp_variable(
+                        78 + j * 16, "uint32_t")
+                    print("\nIIB " + str(j + 1) +
+                          " Interlocks: " + str(iib_itlks))
                     if iib_itlks:
-                        self.decode_interlocks(iib_itlks, list_fap_4p_iib_interlocks)
+                        self.decode_interlocks(
+                            iib_itlks, list_fap_4p_iib_interlocks)
 
-                    iib_alarms = self.read_bsmp_variable(79 + j * 16, "uint32_t")
+                    iib_alarms = self.read_bsmp_variable(
+                        79 + j * 16, "uint32_t")
                     print("IIB " + str(j + 1) + " Alarms: " + str(iib_alarms))
                     if iib_alarms:
-                        self.decode_interlocks(iib_alarms, list_fap_4p_iib_alarms)
+                        self.decode_interlocks(
+                            iib_alarms, list_fap_4p_iib_alarms)
 
                 print(
                     "\nMean Load Current: "
@@ -3682,7 +3760,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Input Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(64 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                64 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
@@ -3691,7 +3770,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Output Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(65 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                65 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
@@ -3700,7 +3780,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 1 Current: "
                         + str(
-                            round(self.read_bsmp_variable(66 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                66 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3709,7 +3790,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 2 Current: "
                         + str(
-                            round(self.read_bsmp_variable(67 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                67 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3718,7 +3800,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 1 Temp: "
                         + str(
-                            round(self.read_bsmp_variable(68 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                68 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3727,7 +3810,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " IGBT 2 Temp: "
                         + str(
-                            round(self.read_bsmp_variable(69 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                69 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3736,7 +3820,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Driver Voltage: "
                         + str(
-                            round(self.read_bsmp_variable(70 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                70 + iib_offset, "float"), 3)
                         )
                         + " V"
                     )
@@ -3745,7 +3830,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Driver Current 1: "
                         + str(
-                            round(self.read_bsmp_variable(71 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                71 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3754,7 +3840,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Driver Current 2: "
                         + str(
-                            round(self.read_bsmp_variable(72 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                72 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3763,7 +3850,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Inductor Temp: "
                         + str(
-                            round(self.read_bsmp_variable(73 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                73 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3772,7 +3860,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Heat-Sink Temp: "
                         + str(
-                            round(self.read_bsmp_variable(74 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                74 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3781,7 +3870,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Ground Leakage Current: "
                         + str(
-                            round(self.read_bsmp_variable(75 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                75 + iib_offset, "float"), 3)
                         )
                         + " A"
                     )
@@ -3790,7 +3880,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Board Temp: "
                         + str(
-                            round(self.read_bsmp_variable(76 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                76 + iib_offset, "float"), 3)
                         )
                         + " °C"
                     )
@@ -3799,7 +3890,8 @@ class SerialDRS(object):
                         + str(iib)
                         + " Board RH: "
                         + str(
-                            round(self.read_bsmp_variable(77 + iib_offset, "float"), 3)
+                            round(self.read_bsmp_variable(
+                                77 + iib_offset, "float"), 3)
                         )
                         + " %"
                     )
@@ -3809,7 +3901,8 @@ class SerialDRS(object):
                         + " Interlocks: "
                         + str(
                             round(
-                                self.read_bsmp_variable(78 + iib_offset, "uint32_t"), 3
+                                self.read_bsmp_variable(
+                                    78 + iib_offset, "uint32_t"), 3
                             )
                         )
                     )
@@ -3819,7 +3912,8 @@ class SerialDRS(object):
                         + " Alarms: "
                         + str(
                             round(
-                                self.read_bsmp_variable(79 + iib_offset, "uint32_t"), 3
+                                self.read_bsmp_variable(
+                                    79 + iib_offset, "uint32_t"), 3
                             )
                         )
                     )
@@ -3851,13 +3945,15 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fap_225A_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fap_225A_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fap_225A_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fap_225A_hard_interlocks)
 
                 print(
                     "\nLoad Current: "
@@ -3915,13 +4011,15 @@ class SerialDRS(object):
                 soft_itlks = self.read_bsmp_variable(31, "uint32_t")
                 print("\nSoft Interlocks: " + str(soft_itlks))
                 if soft_itlks:
-                    self.decode_interlocks(soft_itlks, list_fbp_soft_interlocks)
+                    self.decode_interlocks(
+                        soft_itlks, list_fbp_soft_interlocks)
                     print("")
 
                 hard_itlks = self.read_bsmp_variable(32, "uint32_t")
                 print("Hard Interlocks: " + str(hard_itlks))
                 if hard_itlks:
-                    self.decode_interlocks(hard_itlks, list_fbp_hard_interlocks)
+                    self.decode_interlocks(
+                        hard_itlks, list_fbp_hard_interlocks)
 
                 print(
                     "\nLoad Current: "
@@ -4171,19 +4269,23 @@ class SerialDRS(object):
         for param in fbp_param_list:
             if str(param[0]) == "Num_PS_Modules" and param[1] > 4:
                 print(
-                    "Invalid " + str(param[0]) + ": " + str(param[1]) + ". Maximum is 4"
+                    "Invalid " + str(param[0]) + ": " +
+                    str(param[1]) + ". Maximum is 4"
                 )
 
             elif str(param[0]) == "Freq_ISR_Controller" and param[1] > 6000000:
                 print(
-                    "Invalid " + str(param[0]) + ": " + str(param[1]) + ". Maximum is 4"
+                    "Invalid " + str(param[0]) + ": " +
+                    str(param[1]) + ". Maximum is 4"
                 )
 
             else:
                 for n in range(64):
                     try:
-                        print(str(param[0]) + "[" + str(n) + "]: " + str(param[n + 1]))
-                        print(self.set_param(str(param[0]), n, float(param[n + 1])))
+                        print(str(param[0]) + "[" + str(n) +
+                              "]: " + str(param[n + 1]))
+                        print(self.set_param(
+                            str(param[0]), n, float(param[n + 1])))
                     except:
                         break
 
@@ -4286,7 +4388,8 @@ class SerialDRS(object):
                 dsp_module = [dsp_classes_names[dsp_class], dsp_class, dsp_id]
                 for dsp_coeff in range(num_coeffs_dsp_modules[dsp_class]):
                     try:
-                        coeff = self.get_dsp_coeff(dsp_class, dsp_id, dsp_coeff)
+                        coeff = self.get_dsp_coeff(
+                            dsp_class, dsp_id, dsp_coeff)
                         if dsp_class == 3 and dsp_coeff == 1:
                             coeff *= self.get_param("Freq_ISR_Controller", 0)
                         dsp_module.append(coeff)
@@ -4316,7 +4419,7 @@ class SerialDRS(object):
                         list_coeffs = []
 
                         for coeff in dsp_module[
-                            3 : 3 + num_coeffs_dsp_modules[int(dsp_module[1])]
+                            3: 3 + num_coeffs_dsp_modules[int(dsp_module[1])]
                         ]:
                             list_coeffs.append(float(coeff))
 
@@ -4346,11 +4449,12 @@ class SerialDRS(object):
             )
         )
 
-        oldadd = self.get_slave_add()
+        old_add = self.get_slave_add()
         self.set_slave_add(add)
 
         areas = ["IA", "LA", "PA"]
-        ps_models = ["fbp", "fbp_dclink", "fap", "fap_4p", "fap_2p4s", "fac", "fac_2s"]
+        ps_models = ["fbp", "fbp_dclink", "fap",
+                     "fap_4p", "fap_2p4s", "fac", "fac_2s"]
         ps_folders = [
             "fbp",
             "fbp_dclink",
@@ -4381,7 +4485,8 @@ class SerialDRS(object):
             if int(sector) < 10:
                 sector = "0" + sector
 
-            rack = input("\n Escolha o rack em que a fonte se encontra [1/2/3]: ")
+            rack = input(
+                "\n Escolha o rack em que a fonte se encontra [1/2/3]: ")
 
             # if (rack != '1') and (rack != '2'):
             if not ((rack == "1") or (rack == "2") or (sector == "09" and rack == "3")):
@@ -4405,7 +4510,8 @@ class SerialDRS(object):
                 print(" \n *** TIPO DE FONTE INEXISTENTE ***\n")
                 return
 
-            file_dir = "../ps_parameters/IA-" + sector + "/" + ps_models[ps_model] + "/"
+            file_dir = "../ps_parameters/IA-" + \
+                sector + "/" + ps_models[ps_model] + "/"
 
             file_name = (
                 "parameters_"
@@ -4439,7 +4545,8 @@ class SerialDRS(object):
                 ps_name = "_LA-RaPS06_crate_" + crate
 
                 file_dir = "../ps_parameters/LA/" + ps_models[ps_model] + "/"
-                file_name = "parameters_" + ps_models[ps_model] + ps_name + ".csv"
+                file_name = "parameters_" + \
+                    ps_models[ps_model] + ps_name + ".csv"
                 file_path = file_dir + file_name
 
             elif ps_model == 2:
@@ -4456,7 +4563,8 @@ class SerialDRS(object):
                 for idx, ps in enumerate(ps_list):
                     print("   " + str(idx) + ": " + ps)
 
-                ps_idx = int(input("\n Escolha o índice da fonte correspondente: "))
+                ps_idx = int(
+                    input("\n Escolha o índice da fonte correspondente: "))
 
                 file_path = file_dir + ps_list[ps_idx]
 
@@ -4489,7 +4597,8 @@ class SerialDRS(object):
                 for idx, ps in enumerate(ps_list):
                     print(" ", idx, ": ", ps)
 
-                ps_idx = int(input("\n Escolha o índice da fonte correspondente: "))
+                ps_idx = int(
+                    input("\n Escolha o índice da fonte correspondente: "))
 
                 file_path = file_dir + ps_list[ps_idx]
 
@@ -4509,7 +4618,8 @@ class SerialDRS(object):
                 for idx, ps in enumerate(ps_list):
                     print(" ", idx, ": ", ps)
 
-                ps_idx = int(input("\n Escolha o índice da fonte correspondente: "))
+                ps_idx = int(
+                    input("\n Escolha o índice da fonte correspondente: "))
 
                 file_path = file_dir + ps_list[ps_idx]
 
@@ -4534,7 +4644,8 @@ class SerialDRS(object):
             print("\n Enviando parametros de controle para controlador ...")
 
             dsp_file_dir = (
-                "../dsp_parameters/IA-" + sector + "/" + ps_models[ps_model] + "/"
+                "../dsp_parameters/IA-" + sector +
+                "/" + ps_models[ps_model] + "/"
             )
 
             dsp_file_name = (
@@ -4571,7 +4682,7 @@ class SerialDRS(object):
             "\n Pronto! Não se esqueça de utilizar o novo endereço serial para se comunicar com esta fonte! :)\n"
         )
 
-        self.set_slave_add(oldadd)
+        self.set_slave_add(old_add)
 
     def get_siggen_vars(self):
         print("\n### SigGen Variables ###\n")
