@@ -22,3 +22,9 @@ conda activate pydrs
 ```sh
 sh ./scripts/clean.sh
 ```
+## Pypi
+
+PyDRS can be installed via pip
+```command
+pip install pydrs
+``` 
