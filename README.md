@@ -10,13 +10,12 @@ Development packages are listed at [requirements-dev.txt](requirements-dev.txt) 
 
 ## Conda
 
-As an option, the PyDRS library can be installed in a specific environment that can be created with Conda, otherwise use PIP package manager.
+As an option, Conda can be used to create a specific environment where PyDRS library can be installed.
 Conda can be installed with [**miniconda**](https://docs.conda.io/en/latest/miniconda.html#miniconda) or [**anaconda**](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 ```command
 conda create --name pydrs python=3.6
 conda activate pydrs
-conda install -c conda-forge pydrs
 ```
 
 ## Dev Utility scripts
@@ -26,8 +25,9 @@ sh ./scripts/clean.sh
 ```
 ## Pypi
 
-PyDRS can be installed via pip.
-If you do not have pip installed, you can download and install it from here: [**pip**](https://pypi.org/project/pip/)
+In the chosen environment, PyDRS installation can be proceeded through PIP package manager.
+Note: If you do not have pip installed, you can download and install it from here: [**pip**](https://pypi.org/project/pip/)
+
 ```command
 pip install pydrs
 ``` 
