@@ -84,7 +84,7 @@ Set the device address to communicate.
 ![image](https://user-images.githubusercontent.com/19196344/138935909-ef2cbdce-b967-4791-9181-1c5642361f90.png)
 
 
-Use BSMP commands to control de device.  
+Use BSMP commands to control the device.  
 
 ![image](https://user-images.githubusercontent.com/19196344/138935930-f6aee517-d734-4466-ae95-c7f5fb4761e3.png)
 
