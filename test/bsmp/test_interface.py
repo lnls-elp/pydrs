@@ -1,10 +1,11 @@
 """Test commands module."""
 
-import struct
+# import struct
 from unittest import TestCase
-from unittest.mock import Mock
 
-from pydrs.bsmp import SerialInterface, CommonPSBSMP, Parameters, EntitiesPS
+# from unittest.mock import Mock
+
+from pydrs.bsmp import SerialInterface, CommonPSBSMP, EntitiesPS
 from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP
 
 

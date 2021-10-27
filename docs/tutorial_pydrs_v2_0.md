@@ -1,3 +1,4 @@
+```python
 # Para importar o pydrs, o python/ipython deve ter sido iniciado na pasta onde
 # está o arquivo pydrs.py. Outra alternativa é adicionar o pydrs ao PYTHONPATH
 # (Stack Overflow na veia)
@@ -53,7 +54,8 @@ drs.OpenLoop()
 drs.ClosedLoop()
 
 # Define novo setpoint na fonte. Esta ação dispara o SamplesBuffer
-drs.SetISlowRef(setpoint)
+setpoint = 123.123
+drs.SetISlowRef()
 
 # Desabilita SamplesBuffer. Esta ação mantém o SamplesBuffer ativo até completar
 # de preenchê-lo. A partir desse ponto, pode-se ler suas amostras
@@ -74,3 +76,5 @@ drs.DisableSamplesBuffer()
 # 'WriteBuffer(&IPC_CtoM_Msg.SamplesBuffer, xxxxxx)' presente na rotina do
 # controlador no firmware
 buff = drs.Recv_samplesBuffer_allblocks()
+
+```

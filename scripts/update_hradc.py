@@ -28,7 +28,7 @@ def check_hradc_boarddata(drs, hradc_id):
     print(val)
 
     try:
-        boardData = drs.InitHRADC_BoardData(
+        drs.InitHRADC_BoardData(
             val[3] + val[4] * pow(2, 32),
             val[5],
             val[6],
@@ -56,7 +56,7 @@ def check_hradc_boarddata(drs, hradc_id):
         time.sleep(0.5)
 
         return True
-    except:
+    except Exception:
         print("\n#########################")
         print("### Placa " + str(hradc_id + 1) + " sem dados ###")
         print("#########################")

@@ -1,13 +1,8 @@
-# import sys
-# sys.path.insert(0, '../../')
-# from pyELP import *
-
 import pydrs
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import numpy as np
 import time
-import sys
 
 
 # Inicializa conexoes

@@ -1,6 +1,6 @@
 """BSMP PS."""
 
-from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP as _ConstPSBSMP
+# from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP as _ConstPSBSMP
 
 
 class BasePSAckError(Exception):

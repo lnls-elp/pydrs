@@ -47,12 +47,7 @@ setup(
     name="pydrs",
     url="https://github.com/lnls-sirius/pydrs",
     version=__version__,
-    packages=find_packages(
-        where="src",
-        include=[
-            "pydrs*",
-        ],
-    ),
+    packages=find_packages(where="src", include=["pydrs*"]),
     package_dir={"": "src"},
     python_requires=">=3.6",
     scripts=["scripts/hradc_scope.py", "scripts/update_hradc.py"],
