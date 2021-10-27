@@ -17,7 +17,6 @@ Development packages are listed at [requirements-dev.txt](requirements_dev.txt) 
 * pyserial==3.5  
 * numpy  
 
-May require Microsoft C++ build tools  [**visualcppbuildtools**](https://visualstudio.microsoft.com/pt-br/visual-cpp-build-tools).  
 
 **Disclaimer:** Although pydrs is tested up to [**Python 3.10.0**](https://www.python.org/downloads/release/python-3100/) version you may check whether other apps you want to use with it may run Python 3.10 version.
 Also should be the case that any of these applications may require Microsoft C++ build tools  [**visualcppbuildtools**](https://visualstudio.microsoft.com/pt-br/visual-cpp-build-tools). 
@@ -30,10 +29,10 @@ sh ./scripts/clean.sh
 ```
 ## Installation Guide
 
- **User level:**  
+### **User level:**  
 User-level version must be installed from the [**PyPI**](https://pypi.org/project/pydrs/) repository, using the 'pip install pydrs' command, which will install PyDRS onto the current Python path version.  
   
- **Optional: - Conda**  
+### **Optional: - Conda**  
  
 Conda is an open source package management system and environment management system that runs on Windows, macOS and Linux.
 
@@ -47,9 +46,10 @@ conda activate pydrs
 ```
 
 ```command
-pip install pydrs
+pip install -U pydrs
 ```
-**Developer level:**  
+
+### **Developer level:**  
 
 For a developer level firstly clone the project repository from [**GitHub**](https://github.com/lnls-sirius/pydrs) to **your_local_folder** via git command: 
 
@@ -67,6 +67,8 @@ Proceed to the **pydrs** folder and then you can use pip command by **two means*
 
 **1**. Just copying the repository locally. (Local changes on the project won't take effect on current pydrs installation).
 
+É possível instalar o módulo python a partir do código fonte clonado. Usando o comando `pip install .` na raiz do repositório, o módulo será instalado normalmente, ou seja, os arquivos clonados serão copiados para a pasta `site-packages` do python ativo.
+
 ```command
 pip install .
 ```
@@ -77,8 +79,10 @@ pip install .
 
 **2**. Copying the repository locally with the update feature. (Local changes will immediately take effect on pydrs current installation). 
 
+O uso da flag `-e` na instalação local é recomendada para situações em que o código está em desenvolvimento e é desejado utilizar as alterações imediatamente. A instalação com o comando `pip install -e .` cria uma espécie de link com a pasta do repositório, dessa forma, não será necessário reinstalar o pacote sempre que uma mudança ocorrer no repositório local.
+
 ```command
-pip install -e.
+pip install -e .
 ```
 ![image](https://user-images.githubusercontent.com/19196344/139126876-150791c2-9a94-4e75-b91c-28ace5002699.png)
 
