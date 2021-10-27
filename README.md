@@ -48,11 +48,11 @@ Once that environment is active, you may proceed the installation with pip comma
 pip install pydrs
 ```
 **Developer level:**  
-Developer-level version can be installed locally, by cloning the project repository from [**GitHub**](https://github.com/lnls-sirius/pydrs) to a folder on your device via git command: 
+Developer-level version can be installed locally, by cloning the project repository from [**GitHub**](https://github.com/lnls-sirius/pydrs) to a folder on your device via git command:
 
 ```command
  git clone https://github.com/lnls-sirius/pydrs.git
-``` 
+```
 You can run the pydrs app from **your_local_folder**\pydrs\src\pydrs\pydrs.py
 
 ![image](https://user-images.githubusercontent.com/19196344/138936564-32684536-d08d-4e21-ad99-84f8d9ca6e14.png)
