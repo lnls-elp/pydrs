@@ -67,7 +67,7 @@ Proceed to the **pydrs** folder and then you can use pip command by **two means*
 
 **1**. Just copying the repository locally. (Local changes on the project won't take effect on current pydrs installation).
 
-É possível instalar o módulo python a partir do código fonte clonado. Usando o comando `pip install .` na raiz do repositório, o módulo será instalado normalmente, ou seja, os arquivos clonados serão copiados para a pasta `site-packages` do python ativo.
+É possível instalar o módulo python a partir do código fonte clonado. Usando o comando `pip install .` na raiz do repositório o módulo será instalado normalmente, ou seja, os arquivos clonados serão copiados para a pasta `site-packages` do python ativo.
 
 ```command
 pip install .
