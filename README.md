@@ -10,13 +10,14 @@
 
 **PyDRS** is a Python package based on the Basic Small Messages Protocol (**BSMP**). It is used to communicate with and command Sirius Current Power Supplies and its peripherals ran by Digital Regulation System (**DRS**).
 
-Development packages are listed at [requirements-dev.txt](requirements-dev.txt) and runtime dependencies at [requirements.txt](requirements.txt).
+Development packages are listed at [requirements-dev.txt](requirements_dev.txt) and runtime dependencies at [requirements.txt](requirements.txt).
 ## Prerequisites
 
-[python==3.6](https://www.python.org/downloads/release/python-3612/)  
-pyserial==3.5  
-numpy  
-matplotlib*  
+* [python==3.6](https://www.python.org/downloads/release/python-3612/)  
+* pyserial==3.5  
+* numpy  
+* matplotlib*  
+
 May require Microsoft C++ build tools  [**visualcppbuildtools**](https://visualstudio.microsoft.com/pt-br/visual-cpp-build-tools).  
 
 **Disclaimer:** Although pydrs is tested up to [**Python 3.10.0**](https://www.python.org/downloads/release/python-3100/) version you may check whether other apps you want to use with it may run Python 3.10 version.
