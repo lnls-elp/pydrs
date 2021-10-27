@@ -14,7 +14,7 @@ import typing
         A posição da entidade na lista corresponde ao seu ID BSMP
 ======================================================================
 """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
-from . import get_logger
+from .utils import get_logger
 
 # common_list
 from .constants.common_list import (
