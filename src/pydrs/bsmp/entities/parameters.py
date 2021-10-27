@@ -1,7 +1,5 @@
 # import typing
-from siriuspy.bsmp import (
-    Entity as _Entity,
-)
+from siriuspy.bsmp import Entity as _Entity
 from siriuspy.bsmp import Types as _Types, BSMPType as _BSMPType
 from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP as _c
 

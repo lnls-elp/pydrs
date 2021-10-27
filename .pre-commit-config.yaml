@@ -1,19 +1,19 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v1.2.3
+    rev: v4.0.1
     hooks:
       - id: trailing-whitespace
       - id: check-json
 
   - repo: https://github.com/psf/black
-    rev: 19.10b0
+    rev: 21.9b0
     hooks:
       - id: black
         language_version: python3
         args: ["--config", ".black"]
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 4.0.1
     hooks:
       - id: flake8
 

@@ -13,10 +13,9 @@
 Development packages are listed at [requirements-dev.txt](requirements_dev.txt) and runtime dependencies at [requirements.txt](requirements.txt).
 ## Prerequisites
 
-* [python==3.6](https://www.python.org/downloads/release/python-3612/)  
+ * [python==3.6](https://www.python.org/downloads/release/python-3612/)  
 * pyserial==3.5  
 * numpy  
-
 
 **Disclaimer:** Although pydrs is tested up to [**Python 3.10.0**](https://www.python.org/downloads/release/python-3100/) version you may check whether other apps you want to use with it may run Python 3.10 version.
 Also should be the case that any of these applications may require Microsoft C++ build tools  [**visualcppbuildtools**](https://visualstudio.microsoft.com/pt-br/visual-cpp-build-tools). 
@@ -95,27 +94,27 @@ When all installation is done, python or ipython instance can be called.
 ![14](https://user-images.githubusercontent.com/19196344/138935751-d90dc9b9-1409-4dc4-98bd-66f480dcd489.png)
 
 
-Import pydrs  
+Import pydrs
 
 ![image](https://user-images.githubusercontent.com/19196344/139112617-2629340e-fac9-4002-8456-1e3b079cd837.png)
 
 
-Create *drs* object.  
+Create *drs* object.
 
 ![image](https://user-images.githubusercontent.com/19196344/139116187-fc58c909-9b4f-46fe-91ca-d80796f3256d.png)
 
 
-Establish the connection.  
+Establish the connection.
 
 ![image](https://user-images.githubusercontent.com/19196344/139116355-790b9f0e-8536-4203-9276-b3e592329661.png)
 
 
-Set the device address to communicate.  
+Set the device address to communicate.
 
 ![image](https://user-images.githubusercontent.com/19196344/139116450-1b083db1-b257-40ca-868c-350b9af193e4.png)
 
 
-Use BSMP commands to control the device.  
+Use BSMP commands to control the device.
 
 ![image](https://user-images.githubusercontent.com/19196344/139116593-7fcbd965-85e4-460e-a912-91782a21d412.png)
 

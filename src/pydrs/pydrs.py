@@ -4114,8 +4114,8 @@ class SerialDRS(object):
     def check_param_bank(self, param_file):
         fbp_param_list = []
 
-        max_sampling_freq = 600000
-        c28_sysclk = 150e6
+        # max_sampling_freq = 600000
+        # c28_sysclk = 150e6
 
         with open(param_file, newline="") as f:
             reader = csv.reader(f)
@@ -4238,7 +4238,7 @@ class SerialDRS(object):
                 writer.writerow(dsp_module)
 
     def set_dsp_modules_bank(self, dsp_modules_file, save_eeprom=0):
-        dsp_modules_row = []
+        # dsp_modules_row = []
         with open(dsp_modules_file, newline="") as f:
             reader = csv.reader(f)
 
@@ -4281,25 +4281,28 @@ class SerialDRS(object):
         old_add = self.get_slave_add()
         self.set_slave_add(add)
 
-        areas = ["IA", "LA", "PA"]
+        # areas = ["IA", "LA", "PA"]
+
         ps_models = ["fbp", "fbp_dclink", "fap", "fap_4p", "fap_2p4s", "fac", "fac_2s"]
-        ps_folders = [
-            "fbp",
-            "fbp_dclink",
-            "fap",
-            "fap",
-        ]
-        la_fap = [
-            "TB-Fam:PS-B",
-            "TS-01:PS-QF1A",
-            "TS-01:PS-QF1B",
-            "TS-02:PS-QD2",
-            "TS-02:PS-QF2",
-            "TS-03:PS-QF3",
-            "TS-04:PS-QD4A",
-            "TS-04:PS-QD4B",
-            "TS-04:PS-QF4",
-        ]
+
+        # ps_folders = [
+        #   "fbp",
+        #   "fbp_dclink",
+        #   "fap",
+        #   "fap",
+        # ]
+
+        # la_fap = [
+        #   "TB-Fam:PS-B",
+        #   "TS-01:PS-QF1A",
+        #   "TS-01:PS-QF1B",
+        #   "TS-02:PS-QD2",
+        #   "TS-02:PS-QF2",
+        #   "TS-03:PS-QF3",
+        #   "TS-04:PS-QD4A",
+        #   "TS-04:PS-QD4B",
+        #   "TS-04:PS-QF4",
+        # ]
 
         print("\n Selecione area: \n")
         print("   0: Sala de racks")
@@ -4610,7 +4613,7 @@ class SerialDRS(object):
 
     def test_bid_board(self, password):
 
-        r = input(
+        input(
             "\n Antes de iniciar, certifique-se que o bastidor foi energizado sem a placa BID.\n Para prosseguir, conecte a placa BID a ser testada e pressione qualquer tecla... "
         )
 
