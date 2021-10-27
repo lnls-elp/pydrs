@@ -1,14 +1,14 @@
-# Para importar o pydrs, o python/ipython deve ter sido iniciado na pasta onde 
+# Para importar o pydrs, o python/ipython deve ter sido iniciado na pasta onde
 # está o arquivo pydrs.py. Outra alternativa é adicionar o pydrs ao PYTHONPATH
 # (Stack Overflow na veia)
 import pydrs
 
-# Inicializa uma instância do objeto SerialDRS, que contém argumentos e métodos 
+# Inicializa uma instância do objeto SerialDRS, que contém argumentos e métodos
 # para comunicação serial com DRS via protocolo BSMP
 drs = pydrs.SerialDRS()
 
 # Abre porta serial. Verificar a porta no Gerenciador de Dispositivos
-drs.connect('COM6',3000000)
+drs.connect("COM6", 3000000)
 
 # Lê modelo da fonte (ps_module). Retorna uma lista de 5 valores, sendo o quarto
 # número o modelo da fonte (FBP_FAC_UFJF = 15)
@@ -22,18 +22,18 @@ drs.Read_iMod2()
 
 # Lê corrente na carga (correspondente à terceira placa HRADC)
 drs.Read_iLoad1()
- 
+
 # Lê tensão de saída de cada módulo de potência
 drs.Read_vOutMod1()
 drs.Read_vOutMod2()
 drs.Read_vOutMod3()
 drs.Read_vOutMod4()
 
-# Lê interlocks. Se estiver com algum interlock, ele deve ser resetado para 
+# Lê interlocks. Se estiver com algum interlock, ele deve ser resetado para
 # que a fonte ligue
 drs.read_HardInterlock(drs.Read_ps_HardInterlocks())
 
-# Reseta interlocks. Caso a condição que causou o interlock ainda esteja 
+# Reseta interlocks. Caso a condição que causou o interlock ainda esteja
 # presente, o interlock permanece ativo
 drs.ResetInterlocks()
 
@@ -45,7 +45,7 @@ drs.TurnOn()
 # Desliga a fonte. Desliga os PWMs e abre o relé do DC-Link
 drs.TurnOff()
 
-# Abre a malha. Referências passam a ser expressas em porcentagem do ciclo de 
+# Abre a malha. Referências passam a ser expressas em porcentagem do ciclo de
 # trabalho aplicado aos PWM
 drs.OpenLoop()
 
@@ -61,16 +61,16 @@ drs.DisableSamplesBuffer()
 
 # Caso você esteja no cmd/powershell/terminal executando manualmente os
 # comandos, para garantir que o SamplesBuffer seja desabilitado rapidamente após
-# ter sido habilitado no SetISlowRef(), digitar os comandos da seguinte forma 
+# ter sido habilitado no SetISlowRef(), digitar os comandos da seguinte forma
 # (método alternativo melhor do que aquele do for loop):
 #
 # 	Obs.: após digitar o "; \" e dar Enter na primera linha, o terminal pula de
 # 	      linha e aguarda um novo comando.
 #
-drs.SetISlowRef(setpoint); \
+drs.SetISlowRef(setpoint)
 drs.DisableSamplesBuffer()
 
-# Lê SamplesBuffer. São 4096 amostras, definidas pela função 
-# 'WriteBuffer(&IPC_CtoM_Msg.SamplesBuffer, xxxxxx)' presente na rotina do 
+# Lê SamplesBuffer. São 4096 amostras, definidas pela função
+# 'WriteBuffer(&IPC_CtoM_Msg.SamplesBuffer, xxxxxx)' presente na rotina do
 # controlador no firmware
 buff = drs.Recv_samplesBuffer_allblocks()

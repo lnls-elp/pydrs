@@ -37,7 +37,7 @@ fig = plt.figure()
 ax1 = fig.add_subplot(2, 1, 1)
 ax2 = fig.add_subplot(2, 1, 2)
 
-drs.set_param('Analog_Var_Max', id_analog_var_max, id_netsignal)
+drs.set_param("Analog_Var_Max", id_analog_var_max, id_netsignal)
 
 
 def animate(i):
@@ -63,12 +63,12 @@ def animate(i):
             Y = frq * 0
             freq_pk = 0
 
-        print('\nMean: ' + str(bufferMean))
-        print('Std: ' + str(std))
-        print('Max: ' + str(buffer_max))
-        print('Min: ' + str(buffer_min))
-        print('Pk-Pk: ' + str(buffer_pkpk))
-        print('Peak Freq: ' + str(freq_pk))
+        print("\nMean: " + str(bufferMean))
+        print("Std: " + str(std))
+        print("Max: " + str(buffer_max))
+        print("Min: " + str(buffer_min))
+        print("Pk-Pk: " + str(buffer_pkpk))
+        print("Peak Freq: " + str(freq_pk))
 
         ax1.clear()
         ax2.clear()
@@ -81,8 +81,8 @@ def animate(i):
         ax2.plot(frq, Y)  # plotting the spectrum
         # ax2.set_xlim([0, 600])
         # ax2.set_ylim([0, 0.003])
-        ax2.set_xlabel('Freq (Hz)')
-        ax2.set_ylabel('|Y(freq)|')
+        ax2.set_xlabel("Freq (Hz)")
+        ax2.set_ylabel("|Y(freq)|")
         ax2.grid()
 
     except Exception as e:
