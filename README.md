@@ -8,12 +8,41 @@
 
 ## What is PyDRS?
 
-**PyDRS** is a Python package based on the Basic Small Messages Protocol [**BSMP**](https://github.com/lnls-sirius/libbsmp). It is used to communicate with and command Sirius Current Power Supplies and its peripherals ran by Digital Regulation System (**DRS**).
+**PyDRS** is a Python package based on the Basic Small Messages Protocol [**BSMP**](https://github.com/lnls-sirius/libbsmp). It is used to communicate with and command Sirius Current Power Supplies and its peripherals of the Digital Regulation System (**DRS**).  
+The tailored protocol specification for the power supplies can be foun here [**DRS Communication Protocol**](https://cnpemcamp.sharepoint.com/:x:/s/ELP/EdITJFdE42hAgXubTjhZU3sBnd5BrOpUeI9EpaK4QO7mEQ?e=16i0pr).  
+
+Communication is established through RS-485, USB or Ethernet interfaces of the UDC (Universal Digital Controller) cards. For USB and Ethernet, there should be only used Application Layer of the BSMP protocol (defined as bsmp message), and for those cases the transport layer address bytes and checksum, shall be omitted.  
+
+In order to cover all DRS driven current power supplies whilst meeting models specificities, BSMP entities are standardized as follows:  
+
+1. **Common variables**: Variables used by all power supplies models, for example, general status and operating mode parameters. These variables occupy the first 25 BSMP variable Id's.  
+2. **Specific variables**: Each power supply model (chosen through the *PS Model* parameter) defines ID variables greater than 24 according to its application. Thus, when communicating with a power supply, its model should prior be known in order to correctly use the specifications of those BSMP variables. This includes measures of feedback and monitoring also interlocks records.    
+
 
 Development packages are listed at [requirements-dev.txt](requirements_dev.txt) and runtime dependencies at [requirements.txt](requirements.txt).
+
+## Basic Small Messages Protocol Library
+The BSMP - Basic Small Messages Protocol - is a stateless, synchronous and lightweight protocol. It was designed to be used in serial communication networks of small embedded devices which contain a device with the role of a master.
+
+This protocol manipulates 4 simple things, which are called Entities:
+
+1. Variables
+2. Groups
+3. Curves
+4. Functions  
+ 
+**Variables** can be either writable or read-only and have a value of up to 128 bytes.
+
+A **Group** contains a bunch of Variables that can be read from or written to with only one command.
+
+A **Curve** can be seen as a very large Variable, with up to 65536 blocks of 65520 bytes each.
+
+Finally, a **Function** is a very simple way to perform a Remote Procedure Call (RPC).
+
+
 ## Prerequisites
 
- * [python==3.6](https://www.python.org/downloads/release/python-3612/)  
+ * [python==3.6](https://www.python.org/downloads/release/python-3612/)  **at least**
 * pyserial==3.5  
 * numpy  
 
@@ -40,7 +69,7 @@ Use [**miniconda**](https://docs.conda.io/en/latest/miniconda.html#miniconda) fo
  [**anaconda**](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) for a full version for Conda.
 
 ```command
-conda create --name pydrs python=3.6
+conda create --name pydrs python=3.6 
 conda activate pydrs
 ```
 
@@ -66,7 +95,8 @@ Proceed to the **pydrs** folder and then you can use pip command by **two means*
 
 **1**. Just copying the repository locally. (Local changes on the project won't take effect on current pydrs installation).
 
-É possível instalar o módulo python a partir do código fonte clonado. Usando o comando `pip install .` na raiz do repositório o módulo será instalado normalmente, ou seja, os arquivos clonados serão copiados para a pasta `site-packages` do python ativo.
+Python module can be installed from the cloned source code. By using the 'pip install.' command at the root of the repository, the module will be installed normally, i.e. cloned files will be copied to the active python 'site-packages' folder.
+
 
 ```command
 pip install .
@@ -78,7 +108,7 @@ pip install .
 
 **2**. Copying the repository locally with the update feature. (Local changes will immediately take effect on pydrs current installation). 
 
-O uso da flag `-e` na instalação local é recomendada para situações em que o código está em desenvolvimento e é desejado utilizar as alterações imediatamente. A instalação com o comando `pip install -e .` cria uma espécie de link com a pasta do repositório, dessa forma, não será necessário reinstalar o pacote sempre que uma mudança ocorrer no repositório local.
+The use of the '-e' flag in the local installation is recommended for situations where the code is under development and the changes are wanted to be used immediately. Installing it with the 'pip install -e.' command will link it to the repository folder, so package reinstallation won't be needed whenever a change in the active local repository occurs.
 
 ```command
 pip install -e .
