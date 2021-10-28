@@ -51,7 +51,7 @@ Also should be the case that any of these applications may require Microsoft C++
 
 
 ## Dev Utility scripts
-Shell script for Linux clear cache  
+Linux shell script to clear cache  
 
 ```sh
 sh ./scripts/clean.sh
