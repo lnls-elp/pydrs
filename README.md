@@ -9,14 +9,14 @@
 ## What is PyDRS?
 
 **PyDRS** is a Python package based on the Basic Small Messages Protocol [**BSMP**](https://github.com/lnls-sirius/libbsmp). It is used to communicate with and command Sirius Current Power Supplies and its peripherals of the Digital Regulation System (**DRS**).  
-The tailored protocol specification for the power supplies can be foun here [**DRS Communication Protocol**](https://cnpemcamp.sharepoint.com/:x:/s/ELP/EdITJFdE42hAgXubTjhZU3sBnd5BrOpUeI9EpaK4QO7mEQ?e=16i0pr).  
+The tailored protocol specification for the power supplies can be found here [**DRS Communication Protocol**](https://cnpemcamp.sharepoint.com/:x:/s/ELP/EdITJFdE42hAgXubTjhZU3sBnd5BrOpUeI9EpaK4QO7mEQ?e=16i0pr).  
 
 Communication is established through RS-485, USB or Ethernet interfaces of the UDC (Universal Digital Controller) cards. For USB and Ethernet, there should be only used Application Layer of the BSMP protocol (defined as bsmp message), and for those cases the transport layer address bytes and checksum, shall be omitted.  
 
 In order to cover all DRS driven current power supplies whilst meeting models specificities, BSMP entities are standardized as follows:  
 
 1. **Common variables**: Variables used by all power supplies models, for example, general status and operating mode parameters. These variables occupy the first 25 BSMP variable Id's.  
-2. **Specific variables**: Each power supply model (chosen through the *PS Model* parameter) defines ID variables greater than 24 according to its application. Thus, when communicating with a power supply, its model should prior be known in order to correctly use the specifications of those BSMP variables. This includes measures of feedback and monitoring also interlocks records.    
+2. **Specific variables**: Each power supply model (chosen through the *PS Model* parameter) defines ID variables greater than 24 according to its application. Thus, when communicating with a power supply, its model should prior be known in order to correctly use the specifications of those BSMP variables. This includes measures of feedback and monitoring and also interlocks records.    
 
 
 Development packages are listed at [requirements-dev.txt](requirements_dev.txt) and runtime dependencies at [requirements.txt](requirements.txt).
@@ -51,6 +51,7 @@ Also should be the case that any of these applications may require Microsoft C++
 
 
 ## Dev Utility scripts
+Shell script for Linux clear cache  
 
 ```sh
 sh ./scripts/clean.sh
