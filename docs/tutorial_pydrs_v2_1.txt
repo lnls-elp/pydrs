@@ -7,7 +7,7 @@
     > numpy (para hradc_scope)
     > matplotlib (para hradc_scope)
     > siriuspy (para geracao de WfmRef do booster)
-    > ipython (interface interativa opcional para o python, pois oferece 
+    > ipython (interface interativa opcional para o python, pois oferece
     diversas facilidades, como auto-completar)
 
 - Conversor Ethernet/Serial @ 6 Mbps do grupo CON
@@ -18,30 +18,30 @@ do conversor Ethernet/Serial (https://www.perle.com/downloads/trueport.shtml)
 - UDC com firmware (branch master ou development):
     > Repositorio Git ARM: https://github.com/lnls-elp/ARM
     > Repositorio Git C28: https://github.com/lnls-elp/C28
-    
+
 *** Inicializacao ***
 
 - Abrir terminal de comando:
     > Windows: Menu Iniciar > Executar > Digitar 'cmd' ou 'powershell' > Ok
     > Linux: Ctrl + Alt + T
-    
-- Navegar ate a pasta onde se encontra o arquivo pydrs.py, utilizando o 
-comando 'cd' (change directory), que funciona tanto no Windows e Linux. Dica: 
+
+- Navegar ate a pasta onde se encontra o arquivo pydrs.py, utilizando o
+comando 'cd' (change directory), que funciona tanto no Windows e Linux. Dica:
 para retornar ao diretorio-pai, digite 'cd ..'. Segue abaixo um exemplo de
 navegacao por pastas para chegar na pasta lnls-elp/random/python:
 
         C:\Users\gabriel.brunheira>cd lnls-elp
 
         C:\Users\gabriel.brunheira\lnls-elp>cd random
-        
+
         C:\Users\gabriel.brunheira\lnls-elp\random>cd python
-        
+
         C:\Users\gabriel.brunheira\lnls-elp\random\python>dir
         O volume na unidade C e Sistema
         O Numero de Serie do Volume e 8C0F-10C8
-        
+
         Pasta de C:\Users\gabriel.brunheira\lnls-elp\random\python
-        
+
         20/06/2018  09:06    <DIR>          .
         20/06/2018  09:06    <DIR>          ..
         21/06/2018  16:33             1.406 hradc_scope.py
@@ -55,34 +55,34 @@ navegacao por pastas para chegar na pasta lnls-elp/random/python:
         21/06/2018  13:19    <DIR>          __pycache__
                     16 arquivo(s)        174.724 bytes
                     3 pasta(s)   184.823.885.824 bytes disponiveis
-        
+
         C:\Users\gabriel.brunheira\lnls-elp\random\python>
-    
+
 - Digitar comando python ou ipython para iniciar a execucao do python por linhas
 de comando
 
 *** Dentro do Python ***
 
 - Executar os seguintes comandos nesta sequência para importar modulo pydrs,
-criar objeto SerialDRS() que implementa a comunicacao, e conectar na porta 
-serial COM virtual configurada pelo Perle TruePort e conversor Ethernet/Serial. 
-Neste exemplo, e a porta COM42. Esta funcao deve retornar 'True'. Caso contrario, 
+criar objeto SerialDRS() que implementa a comunicacao, e conectar na porta
+serial COM virtual configurada pelo Perle TruePort e conversor Ethernet/Serial.
+Neste exemplo, e a porta COM42. Esta funcao deve retornar 'True'. Caso contrario,
 esta porta ja esta sendo usada, ou nao esta corretamente configurada.
 
     > import pydrs
     > drs = pydrs.SerialDRS()
-    > drs.Connect('COM42')
+    > drs.connect('COM42')
 
 - Configura endereco serial (no caso, 2).
 
-    > drs.SetSlaveAdd(2)
-    
+    > drs.set_slave_add(2)
+
 - Lê status da fonte. Este comando retorna um dicionario com algumas informacoes
 gerais, como modelo da fonte, malha de controle aberta/fechada, estado da fonte
 (desligada, interlock, SlowRef, etc), entre outros.
 
     > drs.read_ps_status()
-    
+
 - Lê variaveis da fonte. Escolha a funcao relativa ao modelo da fonte.
 
     > drs.read_vars_fac_acdc()
@@ -91,7 +91,7 @@ gerais, como modelo da fonte, malha de controle aberta/fechada, estado da fonte
     > drs.read_vars_fbp_dclink()
     > drs.read_vars_fbp_ufjf()
     > drs.read_vars_fac_dcdc_ema()
-    
+
 - Liga a fonte (ou o estagio da fonte relativo ao endereco serial configurado).
 Ela sempre e iniciada no modo 'SlowRef' (referência por set-points), conforme
 indicada na variavel 'state' lida com as funcoes anteriores.
@@ -99,77 +99,77 @@ indicada na variavel 'state' lida com as funcoes anteriores.
     > drs.turn_on()
 
 -  Desliga a fonte.
-    
+
     > drs.turn_off()
 
-- Abre a malha de controle. Referências passam a ser expressas em porcentagem do 
+- Abre a malha de controle. Referências passam a ser expressas em porcentagem do
 ciclo de trabalho aplicado aos PWM.
 
     > drs.open_loop()
 
-- Fecha a malha de controle. Referências passam a ser expressas em corrente na 
+- Fecha a malha de controle. Referências passam a ser expressas em corrente na
 carga, ou tensao (no caso dos estagios AC/DC).
 
     > drs.closed_loop()
-    
+
 - Reseta interlocks.
 
     > drs.reset_interlocks()
 
--  Define novo setpoint na fonte. Esta funcao e valida somente para os modos 
+-  Define novo setpoint na fonte. Esta funcao e valida somente para os modos
 'SlowRef' e 'SlowRefSync'.
 
     > drs.set_slowref(setpoint)
 
-- Define setpoints de cada uma das quatro fontes de um bastidor FBP. Esta funcao 
-e valida somente para as fontes que se encontram no modo 'SlowRef' e 
+- Define setpoints de cada uma das quatro fontes de um bastidor FBP. Esta funcao
+e valida somente para as fontes que se encontram no modo 'SlowRef' e
 'SlowRefSync'.
 
     > drs.set_slowref_fbp(setpoint1, setpoint2, setpoint3, setpoint4)
-    
-- Seleciona o modo de operacao. Essa funcao funciona apenas com a fonte ja 
-ligada. Segue abaixo exemplos de como passar para SlowRef (modo usado pela 
+
+- Seleciona o modo de operacao. Essa funcao funciona apenas com a fonte ja
+ligada. Segue abaixo exemplos de como passar para SlowRef (modo usado pela
 funcao drs.set_slowref) e RmpWfm (modo da rampa do booster)
 
     > drs.select_op_mode('SlowRef')
     > drs.select_op_mode('RmpWfm')
-    
-> Inicializa pontos da curva da rampa do booster na variavel 'ramp' e envia ao 
-DRS. O segundo comando so funciona quando a fonte nao esta no modo 'RmpWfm'. 
-Essa curva possui amplitude igual a 1. Utilizar a funcao scale_wfmref() descrita 
+
+> Inicializa pontos da curva da rampa do booster na variavel 'ramp' e envia ao
+DRS. O segundo comando so funciona quando a fonte nao esta no modo 'RmpWfm'.
+Essa curva possui amplitude igual a 1. Utilizar a funcao scale_wfmref() descrita
 a seguir para escalonar a curva.
 
     > ramp = drs.get_default_ramp_waveform()/1.05
     > drs.write_wfmref(ramp)
-    
+
 > Configura ganho e offset que o DRS aplica na rampa inicializada pelos comandos
 acima
 
-    > drs.scale_wfmref(gain,offset)    
-    
+    > drs.scale_wfmref(gain,offset)
+
 > Reseta curva
-    
+
     > drs.reset_wfmref()
-    
+
 > Desbloquear o UDC
-   
+
    > drs.unlock_udc(0xCAFE)
-   
-> Calcular e enviar coeficientes do PI do modulo especificado (de 0 a 3) com base 
-em parametros da carga e da fonte. Essa funcao so e executada com sucesso com a 
+
+> Calcular e enviar coeficientes do PI do modulo especificado (de 0 a 3) com base
+em parametros da carga e da fonte. Essa funcao so e executada com sucesso com a
 placa UDC desbloqueada.
 
     > drs.calc_pi(r_load, l_load, f_bw, v_dclink, 1, modulo)
-    
+
     r_load:   resistencia da carga [Ohm]
     l_load:   indutancia da carga [H]
     f_bw:     banda em malha fechada [Hz] - tomar cuidado para nao usar valores muito altos, pode instabilizar
     v_dclink: tensao de DC-Link [V]
     modulo:   indice do modulo utilizado, sendo 0 o mais a esquerda, e 3 o mais a direita
-  
-> Salvar coeficientes do PI do modulo especificado na memoria EEPROM. Essa funcao 
+
+> Salvar coeficientes do PI do modulo especificado na memoria EEPROM. Essa funcao
 so e executada com sucesso com a placa UDC desbloqueada
 
     > drs.save_dsp_coeffs_eeprom(3, modulo, 2)
-    
+
     modulo:   indice do modulo utilizado, sendo 0 o mais a esquerda, e 3 o mais a direita
