@@ -6,6 +6,7 @@
 *.so
 *.spec
 .Python
+.code-workspace
 .eggs/
 .installed.cfg
 .mypy_cache
