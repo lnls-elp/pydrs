@@ -7,12 +7,12 @@ import struct
 import time
 import typing
 
-"""""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+"""
 ======================================================================
                     Listas de Entidades BSMP
         A posição da entidade na lista corresponde ao seu ID BSMP
 ======================================================================
-""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+"""
 from .utils import get_logger
 
 # common_list
@@ -175,11 +175,11 @@ class SerialDRS(object):
             "\n pyDRS - compatible UDC firmware version: " + UDC_FIRMWARE_VERSION + "\n"
         )
 
-    """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+    """
     ======================================================================
                     Funções Internas da Classe
     ======================================================================
-    """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+    """
     # Converte float para hexadecimal
 
     def float_to_hex(self, value):
@@ -237,12 +237,12 @@ class SerialDRS(object):
     def is_open(self):
         return self.ser.isOpen()
 
-    """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+    """
     ======================================================================
                 Métodos de Chamada de Entidades Funções BSMP
             O retorno do método são os bytes de retorno da mensagem
     ======================================================================
-    """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+    """
 
     def turn_on(self):
         payload_size = self.size_to_hex(1)  # Payload: ID
@@ -1100,12 +1100,12 @@ class SerialDRS(object):
         print("Length of list: " + str(len(csv_list)) + "\n")
         return csv_list
 
-    """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+    """
     ======================================================================
                 Métodos de Leitura de Valores das Variáveis BSMP
     O retorno do método são os valores double/float da respectiva variavel
     ======================================================================
-    """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+    """
 
     def read_bsmp_variable(self, id_var, type_var, print_msg=0):
         self.read_var(self.index_to_hex(id_var))
@@ -1142,12 +1142,12 @@ class SerialDRS(object):
         reply_msg = self.read_ps_model()
         return list_ps_models[reply_msg[3]]
 
-    """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+    """
     ======================================================================
                 Métodos de Escrita de Valores das Variáveis BSMP
             O retorno do método são os bytes de retorno da mensagem
     ======================================================================
-    """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+    """
 
     def Write_sigGen_Freq(self, float_value):
         hex_float = self.float_to_hex(float_value)
@@ -1249,12 +1249,12 @@ class SerialDRS(object):
         self.ser.write(send_msg.encode("ISO-8859-1"))
         return self.ser.read(5)
 
-    """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+    """
     ======================================================================
                      Métodos de Escrita de Curvas BSMP
             O retorno do método são os bytes de retorno da mensagem
     ======================================================================
-    """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+    """
 
     def send_wfmref_curve(self, block_idx, data):
         block_hex = struct.pack(">H", block_idx).decode("ISO-8859-1")
@@ -1464,11 +1464,11 @@ class SerialDRS(object):
 
         return buf
 
-    """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+    """
     ======================================================================
                             Funções Serial
     ======================================================================
-    """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+    """
 
     def connect(self, port="COM2", baud=115200):
         if self.ser and self.ser.is_open:
@@ -1513,11 +1513,11 @@ class SerialDRS(object):
     def get_slave_add(self):
         return struct.unpack("B", self.slave_add.encode())[0]
 
-    """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """''
+    """
     ======================================================================
                       Funções auxiliares
     ======================================================================
-    """ """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" """""" ""
+    """
 
     def read_vars_common(self, print_all=False):
 

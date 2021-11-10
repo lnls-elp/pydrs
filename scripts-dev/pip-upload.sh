@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 set -eux
 
 . ./scripts-dev/clean.sh
