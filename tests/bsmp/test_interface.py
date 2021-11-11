@@ -1,40 +1,26 @@
-"""Test commands module."""
-
-# import struct
 from unittest import TestCase
-
-# from unittest.mock import Mock
-
-from pydrs.bsmp import SerialInterface, CommonPSBSMP, EntitiesPS
-from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP
+from serial.serialutil import SerialException
 
 
-class TestSerialCommandsx0(TestCase):
-    """Test BSMP consulting methods."""
+from pydrs.bsmp import SerialInterface
 
-    def setUp(self):
-        """Common setup for all tests."""
 
-        self._serial = SerialInterface(path="/serial", baudrate=9600)
-        self._entities = EntitiesPS()
+class TestSerialInterface(TestCase):
+    def test_serial_creation(self):
+        with self.assertRaises(SerialException):
+            SerialInterface(path="/serial", baudrate=9600, auto_connect=True)
 
-        self._pwrsupply = CommonPSBSMP(
-            iointerface=self._serial, entities=self._entities, slave_address=1
-        )
+        with self.assertRaises(TypeError):
+            SerialInterface()
 
-    def test_query_protocol_version(self):
-        """Test"""
+        with self.assertRaises(ValueError):
+            SerialInterface(path=None, baudrate=None)
 
-    def test_query_variable(self):
-        """Test"""
-        self._pwrsupply.pread_variable(var_id=ConstPSBSMP.V_PS_STATUS, timeout=500)
+    def test_serial_write(self):
+        raise NotImplementedError()
 
-    def test_query_parameter(self):
-        """Test"""
-        self._pwrsupply.parameter_read(var_id=ConstPSBSMP.P_PS_NAME, timeout=500)
+    def test_serial_read(self):
+        raise NotImplementedError()
 
-    def test_write_parameter(self):
-        """Test"""
-        self._pwrsupply.parameter_write(
-            var_id=ConstPSBSMP.P_PS_NAME, value="pv_test_name", timeout=500
-        )
+    def test_serial_request(self):
+        raise NotImplementedError()

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import pkg_resources
-
 from setuptools import find_packages, setup
 
 from src.pydrs import __author__, __version__
@@ -47,9 +46,13 @@ setup(
     name="pydrs",
     url="https://github.com/lnls-sirius/pydrs",
     version=__version__,
-    packages=find_packages(where="src", include=["pydrs*"]),
+    packages=find_packages(
+        where="src",
+        include=["pydrs*"],
+    ),
     package_dir={"": "src"},
     python_requires=">=3.6",
     scripts=["scripts/hradc_scope.py", "scripts/update_hradc.py"],
+    test_suite="tests",
     zip_safe=False,
 )

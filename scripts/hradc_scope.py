@@ -1,9 +1,10 @@
-import pydrs
-import matplotlib.pyplot as plt
-import matplotlib.animation as anim
-import numpy as np
 import time
 
+import matplotlib.animation as anim
+import matplotlib.pyplot as plt
+import numpy as np
+
+import pydrs
 
 # Inicializa conexoes
 com_port = input("\n Porta serial: ")

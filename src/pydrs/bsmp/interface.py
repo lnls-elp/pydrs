@@ -1,10 +1,10 @@
 # from time import time
 import typing
+
 import serial
 import serial.serialutil
-
-
 from siriuspy.bsmp.serial import IOInterface as _IOInterface
+from pydrs.bsmp.exceptions import create_value_error
 
 
 class TCPInterface(_IOInterface):
@@ -12,14 +12,40 @@ class TCPInterface(_IOInterface):
 
 
 class SerialInterface(_IOInterface):
-    def __init__(self, path: str, baudrate: int):
+    def __init__(
+        self,
+        path: str,
+        baudrate: int,
+        auto_connect: bool = True,
+        encoding: str = "utf-8",
+    ):
         super().__init__()
+
+        if not path or type(path) != str:
+            raise create_value_error(parameter="path", input=path)
+
+        if (not baudrate) or type(baudrate) != int or baudrate < 0:
+            raise create_value_error(parameter="baudrate", input=baudrate)
+
         self._port: str = path
         self._baudrate: int = baudrate
         self._serial: typing.Optional[serial.serialutil.SerialBase] = None
-        self._encoding: str = "utf-8"
+        self._encoding: str = encoding
 
+        if auto_connect:
+            self.open()
+
+    def __enter__(self):
         self.open()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        if self._serial and self._serial.is_open:
+            self._serial.close()
+
+    @property
+    def encoding(self) -> str:
+        return self._encoding
 
     def open(self) -> None:
         """Open the serial connection"""
@@ -47,7 +73,7 @@ class SerialInterface(_IOInterface):
         if not self._serial:
             raise Exception("Serial not defined")
 
-        self._serial.write(stream)
+        return self._serial.write(stream)
 
     def UART_request(
         self, stream: typing.List[str], timeout: float

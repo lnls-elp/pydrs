@@ -1,12 +1,10 @@
 import typing as _typing
 
-from siriuspy.bsmp import (
-    Curve as _C,
-    Entities as _E,
-    Function as _F,
-    Variable as _V,
-)
+from siriuspy.bsmp import Curve as _C
+from siriuspy.bsmp import Entities as _E
+from siriuspy.bsmp import Function as _F
 from siriuspy.bsmp import Types as _Types
+from siriuspy.bsmp import Variable as _V
 from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP as _c
 
 from .parameters import Parameters as _Parameters

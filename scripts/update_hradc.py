@@ -1,6 +1,7 @@
-import pydrs
-import time
 import struct
+import time
+
+import pydrs
 
 hradcVariant = ["HRADC-FBP", "HRADC-FAX-A", "HRADC-FAX-B", "HRADC-FAX-C", "HRADC-FAX-D"]
 

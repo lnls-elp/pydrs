@@ -1,6 +1,10 @@
+import typing
+
 """BSMP PS."""
 
-# from siriuspy.pwrsupply.bsmp.constants import ConstPSBSMP as _ConstPSBSMP
+
+def create_value_error(parameter: str, input: typing.Any):
+    raise ValueError(f"Invalid value for parameter '{parameter}', received '{input}'")
 
 
 class BasePSAckError(Exception):
@@ -36,14 +40,3 @@ class UDCLockedPSAckError(BasePSAckError):
 
 class PSInterlockPSAckError(BasePSAckError):
     """."""
-
-
-# def check_return_code(code: int):
-#    """Check return code and raise the corresponding exception"""
-#
-#   if code == _ConstPSBSMP.ACK_INVALID_CMD:
-#       raise InvalidCommandPSAckError()
-#   elif code == _ConstPSBSMP.ACK_DSP_BUSY:
-#       raise DSPBusyPSAckError()
-#   elif code == _ConstPSBSMP.ACK_RESOURCE_BUSY:
-#       raise ResourceBusyPSAckError()
