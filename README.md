@@ -8,15 +8,15 @@
 
 ## What is PyDRS?
 
-**PyDRS** is a Python package based on the Basic Small Messages Protocol [**BSMP**](https://github.com/lnls-sirius/libbsmp). It is used to communicate with and command Sirius Current Power Supplies and its peripherals of the Digital Regulation System (**DRS**).  
-The tailored protocol specification for the power supplies can be found here [**DRS Communication Protocol**](https://cnpemcamp.sharepoint.com/:x:/s/ELP/EdITJFdE42hAgXubTjhZU3sBnd5BrOpUeI9EpaK4QO7mEQ?e=16i0pr).  
+**PyDRS** is a Python package based on the Basic Small Messages Protocol [**BSMP**](https://github.com/lnls-sirius/libbsmp). It is used to communicate with and command Sirius Current Power Supplies and its peripherals of the Digital Regulation System (**DRS**).
+The tailored protocol specification for the power supplies can be found here [**DRS Communication Protocol**](https://cnpemcamp.sharepoint.com/:x:/s/ELP/EdITJFdE42hAgXubTjhZU3sBnd5BrOpUeI9EpaK4QO7mEQ?e=16i0pr).
 
-Communication is established through RS-485, USB or Ethernet interfaces of the UDC (Universal Digital Controller) cards. For USB and Ethernet, there should be only used Application Layer of the BSMP protocol (defined as bsmp message), and for those cases the transport layer address bytes and checksum, shall be omitted.  
+Communication is established through RS-485, USB or Ethernet interfaces of the UDC (Universal Digital Controller) cards. For USB and Ethernet, there should be only used Application Layer of the BSMP protocol (defined as bsmp message), and for those cases the transport layer address bytes and checksum, shall be omitted.
 
-In order to cover all DRS driven current power supplies whilst meeting models specificities, BSMP entities are standardized as follows:  
+In order to cover all DRS driven current power supplies whilst meeting models specificities, BSMP entities are standardized as follows:
 
-1. **Common variables**: Variables used by all power supplies models, for example, general status and operating mode parameters. These variables occupy the first 25 BSMP variable Id's.  
-2. **Specific variables**: Each power supply model (chosen through the *PS Model* parameter) defines ID variables greater than 24 according to its application. Thus, when communicating with a power supply, its model should prior be known in order to correctly use the specifications of those BSMP variables. This includes measures of feedback and monitoring and also interlocks records.    
+1. **Common variables**: Variables used by all power supplies models, for example, general status and operating mode parameters. These variables occupy the first 25 BSMP variable Id's.
+2. **Specific variables**: Each power supply model (chosen through the *PS Model* parameter) defines ID variables greater than 24 according to its application. Thus, when communicating with a power supply, its model should prior be known in order to correctly use the specifications of those BSMP variables. This includes measures of feedback and monitoring and also interlocks records.
 
 
 Development packages are listed at [requirements-dev.txt](requirements_dev.txt) and runtime dependencies at [requirements.txt](requirements.txt).
@@ -29,8 +29,8 @@ This protocol manipulates 4 simple things, which are called Entities:
 1. Variables
 2. Groups
 3. Curves
-4. Functions  
- 
+4. Functions
+
 **Variables** can be either writable or read-only and have a value of up to 128 bytes.
 
 A **Group** contains a bunch of Variables that can be read from or written to with only one command.
@@ -43,26 +43,26 @@ Finally, a **Function** is a very simple way to perform a Remote Procedure Call 
 ## Prerequisites
 
  * [python==3.6](https://www.python.org/downloads/release/python-3612/)  **at least**
-* pyserial==3.5  
-* numpy  
+* pyserial==3.5
+* numpy
 
 **Disclaimer:** Although pydrs is tested up to [**Python 3.10.0**](https://www.python.org/downloads/release/python-3100/) version you may check whether other apps you want to use with it may run Python 3.10 version.
-Also should be the case that any of these applications may require Microsoft C++ build tools  [**visualcppbuildtools**](https://visualstudio.microsoft.com/pt-br/visual-cpp-build-tools). 
+Also should be the case that any of these applications may require Microsoft C++ build tools  [**visualcppbuildtools**](https://visualstudio.microsoft.com/pt-br/visual-cpp-build-tools).
 
 
 ## Dev Utility scripts
-Linux shell script to clear cache  
+Linux shell script to clear cache
 
 ```sh
 sh ./scripts/clean.sh
 ```
 ## Installation Guide
 
-### **User level:**  
-User-level version must be installed from the [**PyPI**](https://pypi.org/project/pydrs/) repository, using the 'pip install pydrs' command, which will install PyDRS onto the current Python path version.  
-  
-### **Optional: - Conda**  
- 
+### **User level:**
+User-level version must be installed from the [**PyPI**](https://pypi.org/project/pydrs/) repository, using the 'pip install pydrs' command, which will install PyDRS onto the current Python path version.
+
+### **Optional: - Conda**
+
 Conda is an open source package management system and environment management system that runs on Windows, macOS and Linux.
 
 It can be used to create a specific environment where PyDRS module can be installed.
@@ -70,7 +70,7 @@ Use [**miniconda**](https://docs.conda.io/en/latest/miniconda.html#miniconda) fo
  [**anaconda**](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) for a full version for Conda.
 
 ```command
-conda create --name pydrs python=3.6 
+conda create --name pydrs python=3.6
 conda activate pydrs
 ```
 
@@ -78,18 +78,18 @@ conda activate pydrs
 pip install -U pydrs
 ```
 
-### **Developer level:**  
+### **Developer level:**
 
-For a developer level firstly clone the project repository from [**GitHub**](https://github.com/lnls-sirius/pydrs) to **your_local_folder** via git command: 
+For a developer level firstly clone the project repository from [**GitHub**](https://github.com/lnls-sirius/pydrs) to **your_local_folder** via git command:
 
 ```command
  git clone https://github.com/lnls-sirius/pydrs.git
-``` 
+```
 
 ![image](https://user-images.githubusercontent.com/19196344/139123128-3b70e4de-9bf3-4164-9e39-a3f8c2e64806.png)
 
 
-Proceed to the **pydrs** folder and then you can use pip command by **two means** at your **choice**:    
+Proceed to the **pydrs** folder and then you can use pip command by **two means** at your **choice**:
 
 ![image](https://user-images.githubusercontent.com/19196344/139126431-eae06bcd-81f9-4746-b8c5-2115f0637bab.png)
 
@@ -107,7 +107,7 @@ pip install .
 
 
 
-**2**. Copying the repository locally with the update feature. (Local changes will immediately take effect on pydrs current installation). 
+**2**. Copying the repository locally with the update feature. (Local changes will immediately take effect on pydrs current installation).
 
 The use of the '-e' flag in the local installation is recommended for situations where the code is under development and the changes are wanted to be used immediately. Installing it with the 'pip install -e.' command will link it to the repository folder, so package reinstallation won't be needed whenever a change in the active local repository occurs.
 
@@ -116,6 +116,16 @@ pip install -e .
 ```
 ![image](https://user-images.githubusercontent.com/19196344/139126876-150791c2-9a94-4e75-b91c-28ace5002699.png)
 
+### Tests
+
+```command
+pip install -r requirements.txt
+pip install -r requirements_dev.txt
+pip install -e . -v
+coverage run -m unittest discover
+coverage xml
+coverage report
+```
 
 
 ## Usage
