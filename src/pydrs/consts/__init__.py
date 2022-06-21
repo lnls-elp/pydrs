@@ -45,3 +45,6 @@ ListVar = [
     "wfmRef_PtrBufferK",
     "wfmRef_SyncMode",
 ]
+
+ETH_ANSWER_ERR = 22
+ETH_CMD_REQUEST = b"\x11"
